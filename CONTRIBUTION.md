@@ -15,7 +15,7 @@ Feel free to [file issues](https://github.com/forio/Quat.jl/issues) when you enc
 
 ## Submitting your contributions
 
-*By contributing code to Lumberjack, you are agreeing to release your work under the [MIT License](https://github.com/forio/Quat.jl/LICENSE.md).*
+*By contributing code to Quat.jl, you are agreeing to release your work under the [MIT License](https://github.com/forio/Quat.jl/LICENSE.md).*
 
 We love contributions in the form of pull requests! Assuming you've been working in a repo checked out as above, this should be easy to do. For a detailed walkthrough, check [here](https://help.github.com/articles/fork-a-repo), otherwise:
 
