@@ -35,8 +35,8 @@ function show(io::IO, q::Quaternion)
   print(io, q.s, pm(q.v1), "iq", pm(q.v2), "jq", pm(q.v3), "kq")
 end
 
-real(q::Quaternion) = q.s
-imag(q::Quaternion) = Quaternion( 0.0, q.v1, q.v2, q.v3 )
+real( q::Quaternion ) = q.s
+imag( q::Quaternion ) = [ q.v1, q.v2, q.v3 ]
 
 (/)(q::Quaternion, x::Real) = Quaternion( q.s/x, q.v1/x, q.v2/x, q.v3/x )
 
@@ -84,9 +84,6 @@ end
                                                q.s*w.v3 + q.v1*w.v2 - q.v2*w.v1 + q.v3*w.s,
                                                q.norm && w.norm)
 (/)(q::Quaternion, w::Quaternion) = q*inv(w)
-
-real( q::Quaternion ) = q.s
-imag( q::Quaternion ) = [ q.v1, q.v2, q.v3 ]
 
 function angleaxis( q::Quaternion )
   q = normalize(q)
