@@ -2,10 +2,13 @@ module Quat
   importall Base
   
   include("Quaternion.jl")
+  include("Octonion.jl")
   include("DualQuaternion.jl")
 
   export Quaternion
   export quat
+  export Octonion
+  export octo
   export DualQuaternion
   export dualquat
   export angleaxis
@@ -15,4 +18,6 @@ module Quat
   export normalize
   export normalizea
   export dconj
+  export quatrand
+  export octorand
 end

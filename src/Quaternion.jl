@@ -11,6 +11,7 @@ Quaternion( s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
 Quaternion( x::Real ) = Quaternion( x, zero(x), zero(x), zero(x), abs(x) == one(x) )
 Quaternion( z::Complex ) = Quaternion( z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re) )
 Quaternion( s::Real, a::Vector ) = Quaternion( s, a[1], a[2], a[3] )
+Quaternion( a::Vector ) = Quaternion( 0, a[1], a[2], a[3] )
 
 convert{T}(::Type{Quaternion{T}}, x::Real) =
   Quaternion(convert(T,x), convert(T,0), convert(T,0), convert(T,0))
@@ -32,16 +33,16 @@ quat( s, a ) = Quaternion( s, a )
 
 function show(io::IO, q::Quaternion)
   pm(x) = x < 0 ? " - $(-x)" : " + $x"
-  print(io, q.s, pm(q.v1), "iq", pm(q.v2), "jq", pm(q.v3), "kq")
+  print(io, q.s, pm(q.v1), "im", pm(q.v2), "jm", pm(q.v3), "km")
 end
 
 real( q::Quaternion ) = q.s
 imag( q::Quaternion ) = [ q.v1, q.v2, q.v3 ]
 
-(/)(q::Quaternion, x::Real) = Quaternion( q.s/x, q.v1/x, q.v2/x, q.v3/x )
+(/)( q::Quaternion, x::Real ) = Quaternion( q.s/x, q.v1/x, q.v2/x, q.v3/x )
 
 conj( q::Quaternion ) = Quaternion( q.s, -q.v1, -q.v2, -q.v3, q.norm )
-abs( q::Quaternion ) = sqrt(q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3)
+abs( q::Quaternion ) = sqrt( q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3 )
 abs2( q::Quaternion ) = q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3
 inv( q::Quaternion ) = q.norm ? conj(q) : conj(q)/abs2(q)
 
@@ -55,7 +56,7 @@ end
 
 function normalizea( q::Quaternion )
   if ( q.norm )
-    return ( q, 1.0 )
+    return ( q, one( q.s ) )
   end
   a = abs( q )
   q = q / a
@@ -64,7 +65,7 @@ end
 
 function normalizeq( q::Quaternion )
   a = abs( q )
-  if a > eps( typeof( a ) )
+  if a > 0
     q = q / a
     Quaternion( q.s, q.v1, q.v2, q.v3, true )
   else
@@ -72,24 +73,26 @@ function normalizeq( q::Quaternion )
   end
 end
 
-(-)(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, q.norm)
+(-)(q::Quaternion) = Quaternion( -q.s, -q.v1, -q.v2, -q.v3, q.norm )
 
-(+)(q::Quaternion, w::Quaternion) = Quaternion(q.s + w.s, q.v1 + w.v1,
-                                               q.v2 + w.v2, q.v3 + w.v3)
-(-)(q::Quaternion, w::Quaternion) = Quaternion(q.s - w.s, q.v1 - w.v1,
-                                               q.v2 - w.v2, q.v3 - w.v3)
-(*)(q::Quaternion, w::Quaternion) = Quaternion(q.s*w.s - q.v1*w.v1 - q.v2*w.v2 - q.v3*w.v3,
-                                               q.s*w.v1 + q.v1*w.s + q.v2*w.v3 - q.v3*w.v2,
-                                               q.s*w.v2 - q.v1*w.v3 + q.v2*w.s + q.v3*w.v1,
-                                               q.s*w.v3 + q.v1*w.v2 - q.v2*w.v1 + q.v3*w.s,
-                                               q.norm && w.norm)
-(/)(q::Quaternion, w::Quaternion) = q*inv(w)
+(+)(q::Quaternion, w::Quaternion) = Quaternion( q.s + w.s,
+                                                q.v1 + w.v1, q.v2 + w.v2, q.v3 + w.v3 )
+
+(-)(q::Quaternion, w::Quaternion) = Quaternion( q.s - w.s,
+                                                q.v1 - w.v1, q.v2 - w.v2, q.v3 - w.v3 )
+
+(*)(q::Quaternion, w::Quaternion) = Quaternion( q.s*w.s - q.v1*w.v1 - q.v2*w.v2 - q.v3*w.v3,
+                                                q.s*w.v1 + q.v1*w.s + q.v2*w.v3 - q.v3*w.v2,
+                                                q.s*w.v2 - q.v1*w.v3 + q.v2*w.s + q.v3*w.v1,
+                                                q.s*w.v3 + q.v1*w.v2 - q.v2*w.v1 + q.v3*w.s,
+                                                q.norm && w.norm )
+(/)( q::Quaternion, w::Quaternion ) = q * inv(w)
 
 function angleaxis( q::Quaternion )
   q = normalize(q)
   angle = atan2( abs( Quaternion( 0, q.v1, q.v2, q.v3 ) ), q.s )
   s = sin( angle )
-  axis = abs( s ) > eps( typeof( s ) ) ?
+  axis = abs( s ) > 0 ?
     [ q.v1, q.v2, q.v3 ] / s :
     [ 1.0, 0.0, 0.0 ]
   angle, axis
@@ -103,7 +106,7 @@ end
 function axis( q:: Quaternion )
   q = normalize(q)
   s = sin( angle( q ) )
-  abs( s ) > eps( typeof( s ) ) ?
+  abs( s ) > 0 ?
     [ q.v1, q.v2, q.v3 ] / s :
     [ 1.0, 0.0, 0.0 ]
 end
@@ -118,8 +121,8 @@ function exp( q::Quaternion )
   s = q.s
   se = exp( s )
   scale = se
-  th = abs( Quaternion( 0.0, q.v1, q.v2, q.v3 ) )
-  if th > eps( typeof( th ) )
+  th = abs( Quaternion( imag( q ) ) )
+  if th > 0
     scale *= sin( th ) / th
   end
   Quaternion( se * cos( th ), scale * q.v1, scale * q.v2, scale * q.v3, abs( s ) < eps( typeof( s ) ) )
@@ -128,9 +131,9 @@ end
 function log( q::Quaternion )
   q, a = normalizea( q )
   s = q.s
-  M = abs( Quaternion( 0.0, q.v1, q.v2, q.v3 ) )
+  M = abs( Quaternion( imag( q ) ) )
   th = atan2( M, s )
-  if M > eps( typeof( M ) )
+  if M > 0
     M = th / M
     return Quaternion( log( a ), q.v1 * M, q.v2 * M, q.v3 * M )
   else
@@ -191,3 +194,4 @@ function linpol( p::Quaternion, q::Quaternion, t::Real )
   
 end
 
+quatrand() = quat( rand(), rand(), rand(), rand() )

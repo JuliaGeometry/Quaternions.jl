@@ -19,6 +19,8 @@ DualQuaternion( d::Dual ) = DualQuaternion( d, zero(d), zero(d), zero(d), abs(d)
 
 DualQuaternion( q::Quaternion ) = DualQuaternion( q, zero(q), q.norm )
 
+DualQuaternion( a::Vector ) = DualQuaternion( zero(Quaternion{typeof(a[1])}), Quaternion( a ) )
+
 convert{T}(::Type{DualQuaternion{T}}, x::Real) =
     DualQuaternion( convert( Quaternion{T}, x ), convert(Quaternion{T},0) )
 
@@ -80,7 +82,7 @@ function normalize( dq::DualQuaternion )
     return dq
   end
   a = abs( dq )
-  if abs( a ) > eps( typeof( a.re ) )
+  if abs( a ) > 0
     qa = dq / a
     dualquat( qa.q0, qa,qe, true )
   else
@@ -93,7 +95,7 @@ function normalizea( dq::DualQuaternion )
     return ( dq, one( dual ) )
   end
   a = abs( dq )
-  if abs( a ) > eps( typeof( a.re ) )
+  if abs( a ) > 0
     qa = dq / a
     dualquat( qa.q0, qa.qe, true ), a
   else
@@ -116,7 +118,7 @@ function angleaxis( dq::DualQuaternion )
   q0s = dq.q0.s
   th0, s0 = angleaxis( dq.q0 )
   sq0 = quat( 0.0, s0 )
-  if abs( abs( q0s ) - one( q0s ) ) < eps( typeof( q0s ) )
+  if abs( abs( q0s ) - one( q0s ) ) == 0
     th = dual( th0, 0.5 * abs( quat( 0, t ) ) )
     th, dualquat( sq0 )
   else
