@@ -1,6 +1,9 @@
 # Quat.jl
 A Julia module with quaternion, octonions and dual-quaternion functionality
 
+[![Build Status](https://travis-ci.org/forio/Quat.jl.png?branch=master)](https://travis-ci.org/forio/Quat.jl)
+
+
 [Quaternions](http://en.wikipedia.org/wiki/Quaternion) are best known for their suitability
 as representations of 3D rotational orientation. They can also be viewed as an extension of complex numbers.
 
