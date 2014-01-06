@@ -90,7 +90,7 @@ end
 
 function angleaxis( q::Quaternion )
   q = normalize(q)
-  angle = atan2( abs( Quaternion( 0, q.v1, q.v2, q.v3 ) ), q.s )
+  angle = atan2( abs( Quaternion( imag( q ) ) ), q.s )
   s = sin( angle )
   axis = abs( s ) > 0 ?
     [ q.v1, q.v2, q.v3 ] / s :
@@ -100,7 +100,7 @@ end
 
 function angle( q::Quaternion )
   q = normalize(q)
-  atan2( abs( Quaternion( 0, q.v1, q.v2, q.v3 ) ), q.s )
+  atan2( abs( Quaternion( imag( q ) ) ), q.s )
 end
 
 function axis( q:: Quaternion )
@@ -113,7 +113,7 @@ end
 
 function argq( q::Quaternion )
   q = normalize( q )
-  q = Quaternion( 0.0, q.v1, q.v2, q.v3 )
+  q = Quaternion( imag( q ) )
   normalizeq( q )
 end
 
