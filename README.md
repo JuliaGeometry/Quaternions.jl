@@ -1,5 +1,5 @@
 # Quat.jl
-A Julia module with quaternion, octonions and dual-quaternion functionality
+A Julia module with quaternion, octonion and dual-quaternion functionality
 
 [![Build Status](https://travis-ci.org/forio/Quat.jl.png?branch=master)](https://travis-ci.org/forio/Quat.jl)
 
@@ -19,7 +19,7 @@ Implemented functions are:
     log  
     normalize  
     normalizea  (return normalized quaternion and absolute value as a pair)  
-    angleaxis  (taken as an orientation, return the angle and axis (3 vector) as a pair  
+    angleaxis  (taken as an orientation, return the angle and axis (3 vector) as a tuple)  
     angle  
     axis  
     exp  
@@ -28,24 +28,6 @@ Implemented functions are:
     cos  
     sqrt  
     linpol  (interpolate between 2 normalized quaternions)  
-
-[Octonions](http://en.wikipedia.org/wiki/Octonion) form the logical next step on the Complex-Quaternion path.
-They play a role, for instance, in the mathematical foundation of String theory.
-
-    +-*/^
-    real  
-    imag  (a vector)  
-    conj  
-    abs  
-    abs2  
-    exp  
-    log  
-    normalize  
-    normalizea  (return normalized quaternion and absolute value as a pair)  
-    exp  
-    log  
-    sqrt  
-
 
 [Dual quaternions](http://en.wikipedia.org/wiki/Dual_quaternion) are an extension, combining quaternions with 
 [dual numbers](https://github.com/scidom/DualNumbers.jl).
@@ -72,4 +54,19 @@ further implemented here:
     log  
     sqrt  
 
-    
+[Octonions](http://en.wikipedia.org/wiki/Octonion) form the logical next step on the Complex-Quaternion path.
+They play a role, for instance, in the mathematical foundation of String theory.
+
+    +-*/^
+    real  
+    imag  (a vector)  
+    conj  
+    abs  
+    abs2  
+    exp  
+    log  
+    normalize  
+    normalizea  (return normalized octonion and absolute value as a tuple)  
+    exp  
+    log  
+    sqrt  
