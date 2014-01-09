@@ -1,4 +1,4 @@
-module Quat
+module Quaternions
   importall Base
   
   include("Quaternion.jl")
