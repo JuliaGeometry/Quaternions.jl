@@ -84,7 +84,7 @@ function normalize( dq::DualQuaternion )
   a = abs( dq )
   if abs( a ) > 0
     qa = dq / a
-    dualquat( qa.q0, qa,qe, true )
+    dualquat( qa.q0, qa.qe, true )
   else
     dq
   end
@@ -166,3 +166,5 @@ function sqrt( dq::DualQuaternion )
   exp( 0.5 * log( dq ) )
 end
 
+dualquatrand() = dualquat( quatrand(), quatrand() )
+ndualquatrand() = normalize( dualquatrand() )

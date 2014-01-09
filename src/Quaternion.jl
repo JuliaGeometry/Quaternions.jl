@@ -194,4 +194,5 @@ function linpol( p::Quaternion, q::Quaternion, t::Real )
   
 end
 
-quatrand() = quat( rand(), rand(), rand(), rand() )
+quatrand() = quat( randn(), randn(), randn(), randn() )
+nquatrand() = normalize( quatrand() )

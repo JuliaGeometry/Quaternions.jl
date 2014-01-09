@@ -19,5 +19,8 @@ module Quaternions
   export normalizea
   export dconj
   export quatrand
+  export nquatrand
   export octorand
+  export dualquatrand
+  export ndualquatrand
 end

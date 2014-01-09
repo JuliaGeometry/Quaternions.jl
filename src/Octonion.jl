@@ -155,4 +155,4 @@ function sqrt( o::Octonion )
   exp( 0.5 * log( o ) )
 end
 
-octorand() = octo( rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand() )
+octorand() = octo( randn(), randn(), randn(), randn(), randn(), randn(), randn(), randn() )
