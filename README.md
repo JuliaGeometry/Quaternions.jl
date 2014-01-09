@@ -1,7 +1,7 @@
-# Quat.jl
+# Quaternions.jl
 A Julia module with quaternion, octonion and dual-quaternion functionality
 
-[![Build Status](https://travis-ci.org/forio/Quat.jl.png?branch=master)](https://travis-ci.org/forio/Quat.jl)
+[![Build Status](https://travis-ci.org/forio/Quaternions.jl.png?branch=master)](https://travis-ci.org/forio/Quaternions.jl)
 
 
 [Quaternions](http://en.wikipedia.org/wiki/Quaternion) are best known for their suitability
