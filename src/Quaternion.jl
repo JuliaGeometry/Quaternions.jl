@@ -46,6 +46,8 @@ abs( q::Quaternion ) = sqrt( q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3 )
 abs2( q::Quaternion ) = q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3
 inv( q::Quaternion ) = q.norm ? conj(q) : conj(q)/abs2(q)
 
+isfinite( q::Quaternion ) = q.norm ? true : (isfinite(q.s) && isfinite(q.v1) && isfinite(q.v2) && isfinite(q.v3))
+
 function normalize( q::Quaternion )
   if ( q.norm )
     return q
@@ -196,3 +198,48 @@ end
 
 quatrand() = quat( randn(), randn(), randn(), randn() )
 nquatrand() = normalize( quatrand() )
+
+## Rotations
+
+function qrotation{T<:Real}(axis::Vector{T}, theta)
+    if length(axis) != 3
+        error("Must be a 3-vector")
+    end
+    u = normalize(axis)
+    thetaT = convert(eltype(u), theta)
+    s = sin(thetaT/2)
+    Quaternion(cos(thetaT/2), s*u[1], s*u[2], s*u[3], true)
+end
+
+# Variant of the above where norm(rotvec) encodes theta
+function qrotation{T<:Real}(rotvec::Vector{T})
+    if length(rotvec) != 3
+        error("Must be a 3-vector")
+    end
+    theta = norm(rotvec)
+    if theta > 0
+        s = sin(theta/2)/theta  # divide by theta to make rotvec a unit vector
+        return Quaternion(cos(theta/2), s*rotvec[1], s*rotvec[2], s*rotvec[3], true)
+    end
+    Quaternion(one(T), zero(T), zero(T), zero(T), true)
+end
+
+
+rotationmatrix(q::Quaternion) = rotationmatrix_normalized(normalize(q))
+
+function rotationmatrix_normalized(q::Quaternion)
+    sx, sy, sz = 2q.s*q.v1, 2q.s*q.v2, 2q.s*q.v3
+    xx, xy, xz = 2q.v1^2, 2q.v1*q.v2, 2q.v1*q.v3
+    yy, yz, zz = 2q.v2^2, 2q.v2*q.v3, 2q.v3^2
+    [1-(yy+zz)     xy-sz     xz+sy;
+        xy+sz   1-(xx+zz)    yz-sx;
+        xz-sy      yz+sx  1-(xx+yy)]
+end
+
+function normalize{T}(v::Vector{T})
+    nv = norm(v)
+    if nv > 0
+        return v/nv
+    end
+    zeros(promote_type(T,typeof(nv)), length(v))
+end
