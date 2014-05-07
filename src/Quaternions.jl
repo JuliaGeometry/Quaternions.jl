@@ -23,4 +23,6 @@ module Quaternions
   export octorand
   export dualquatrand
   export ndualquatrand
+  export qrotation
+  export rotationmatrix
 end
