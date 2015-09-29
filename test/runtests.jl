@@ -28,3 +28,7 @@ a, b = qrotation([0,0,1], deg2rad(0)), qrotation([0,0,1], deg2rad(180))
 @test_approx_eq slerp(a,b,0.0) a
 @test_approx_eq slerp(a,b,1.0) b
 @test_approx_eq slerp(a,b,0.5) qrotation([0,0,1], deg2rad(90))
+
+@test_approx_eq angle(qrotation([1,0,0], 0)) 0
+@test_approx_eq angle(qrotation([0,1,0], pi/4)) pi/4
+@test_approx_eq angle(qrotation([0,0,1], pi/2)) pi/2
