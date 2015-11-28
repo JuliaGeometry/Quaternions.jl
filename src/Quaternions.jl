@@ -1,6 +1,6 @@
 module Quaternions
   importall Base
-  
+
   include("Quaternion.jl")
   include("Octonion.jl")
   include("DualQuaternion.jl")
@@ -25,4 +25,5 @@ module Quaternions
   export ndualquatrand
   export qrotation
   export rotationmatrix
+  export slerp
 end

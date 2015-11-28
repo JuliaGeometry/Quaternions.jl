@@ -23,3 +23,8 @@ Rz = [c -s 0; s c 0; 0 0 1]
 @test_approx_eq rotationmatrix(qx*qy*qz) Rx*Ry*Rz
 @test_approx_eq rotationmatrix(qy*qx*qz) Ry*Rx*Rz
 @test_approx_eq rotationmatrix(qz*qx*qy) Rz*Rx*Ry
+
+a, b = qrotation([0,0,1], deg2rad(0)), qrotation([0,0,1], deg2rad(180))
+@test_approx_eq slerp(a,b,0.0) a
+@test_approx_eq slerp(a,b,1.0) b
+@test_approx_eq slerp(a,b,0.5) qrotation([0,0,1], deg2rad(90))
