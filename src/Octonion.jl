@@ -91,8 +91,8 @@ end
                                             o.v6 - w.v6,
                                             o.v7 - w.v7 )
 macro ocmul( i, j )
-  si = symbol( "v$i" )
-  sj = symbol( "v$j" )
+  si = Symbol( "v$i" )
+  sj = Symbol( "v$j" )
   esc( :( o.$si * w.$sj - o.$sj * w.$si ) )
 end
 
