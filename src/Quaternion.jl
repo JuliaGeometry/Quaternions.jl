@@ -91,24 +91,13 @@ end
                                                q.norm && w.norm)
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
-function angleaxis(q::Quaternion)
-    q = normalize(q)
-    angle = atan2(abs(Quaternion(imag(q))), q.s)
-    s = sin(angle)
-    axis = abs(s) > 0 ?
-        [q.v1, q.v2, q.v3] / s :
-        [1.0, 0.0, 0.0]
-    angle, axis
-end
+angleaxis(q::Quaternion) = angle(q), axis(q)
 
-function angle(q::Quaternion)
-    q = normalize(q)
-    atan2(abs(Quaternion(imag(q))), q.s)
-end
+angle(q::Quaternion) = 2 * acos(real(normalize(q)))
 
 function axis(q::Quaternion)
     q = normalize(q)
-    s = sin(angle(q))
+    s = sin(angle(q) / 2)
         abs(s) > 0 ?
         [q.v1, q.v2, q.v3] / s :
         [1.0, 0.0, 0.0]
