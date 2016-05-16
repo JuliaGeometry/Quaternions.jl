@@ -1,6 +1,7 @@
 module Quaternions
   importall Base
-
+  using Compat
+  
   include("Quaternion.jl")
   include("Octonion.jl")
   include("DualQuaternion.jl")
