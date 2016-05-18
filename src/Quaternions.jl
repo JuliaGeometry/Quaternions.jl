@@ -1,7 +1,9 @@
+VERSION >= v"0.4.0-dev+6521" && __precompile__()
+
 module Quaternions
   importall Base
   using Compat
-  
+
   include("Quaternion.jl")
   include("Octonion.jl")
   include("DualQuaternion.jl")
