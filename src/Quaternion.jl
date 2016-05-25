@@ -93,7 +93,7 @@ end
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-angle(q::Quaternion) = 2 * acos(real(normalize(q)))
+angle(q::Quaternion) = 2*atan2(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
 
 function axis(q::Quaternion)
     q = normalize(q)
