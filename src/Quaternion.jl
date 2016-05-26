@@ -44,6 +44,7 @@ imag(q::Quaternion) = [q.v1, q.v2, q.v3]
 
 conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
 abs(q::Quaternion) = sqrt(q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3)
+abs_imag(q::Quaternion) = sqrt(q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3)
 abs2(q::Quaternion) = q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q)/abs2(q)
 
@@ -103,17 +104,13 @@ function axis(q::Quaternion)
         [1.0, 0.0, 0.0]
 end
 
-function argq(q::Quaternion)
-    q = normalize(q)
-    q = Quaternion(imag(q))
-    normalizeq(q)
-end
+argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 
 function exp(q::Quaternion)
     s = q.s
     se = exp(s)
     scale = se
-    th = abs(Quaternion(imag(q)))
+    th = abs_imag(q)
     if th > 0
         scale *= sin(th) / th
     end
@@ -123,7 +120,7 @@ end
 function log(q::Quaternion)
     q, a = normalizea(q)
     s = q.s
-    M = abs(Quaternion(imag(q)))
+    M = abs_imag(q)
     th = atan2(M, s)
     if M > 0
         M = th / M

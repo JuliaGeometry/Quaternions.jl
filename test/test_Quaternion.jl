@@ -1,23 +1,31 @@
 
 import Quaternions.argq
 
-for _ in 1:100
-    q,q1,q2,q3 = [quatrand() for _ in 1:4]
-    c, c1, c2 = [Complex(randn(2)...) for _ in 1:3]
+# creating random examples
+sample{T <: Integer}(QT::Type{Quaternion{T}}) = QT(rand(-100:100,4)..., false)
+sample{T <: AbstractFloat}(QT::Type{Quaternion{T}}) = QT(rand(Bool)? quatrand() : nquatrand())
+sample{T <: Integer}(CT::Type{Complex{T}}) = CT(rand(-100:100,2)...)
+sample{T <: AbstractFloat}(CT::Type{Complex{T}}) = CT(randn(2)...)
+sample(T, n) = T[sample(T) for _ in 1:n]
+
+# test algebraic properties of quaternions
+for _ in 1:10, T in (Float32, Float64, Int32, Int64)
+    q,q1,q2,q3 = sample(Quaternion{T}, 4)
 
     # skewfield
-    @test check_group(q1,q2,q3, +, zero(q), -)
-    @test check_group(q1,q2,q3, *, one(q), inv)
-    @test check_multiplicative(q1,q2,*,norm)
+    test_group(q1,q2,q3, +, zero(q), -)
+    test_group(q1,q2,q3, *, one(q), inv)
+    test_multiplicative(q1,q2,*,norm)
 
     # complex embedding
-    @test check_multiplicative(c1,c2,*, Quaternion)
-    @test check_multiplicative(c1,c2,+, Quaternion)
+    c1, c2 = sample(Complex{T}, 2)
+    test_multiplicative(c1,c2,*, Quaternion)
+    test_multiplicative(c1,c2,+, Quaternion)
+end
 
-    # specialfunctions
-    @test exp(log(q)) ≈ q
-    @test exp(zero(q)) ≈ one(q)
-
+for _ in 1:100 # specialfunctions
+    c = Complex(randn(2)...)
+    q,q2 = sample(Quaternion{Float64}, 4)
     unary_funs = [exp, log, sin, cos, sqrt, inv, conj, abs2, norm]
     # since every quaternion is conjugate to a complex number,
     # one can establish correctness as follows:
@@ -26,19 +34,25 @@ for _ in 1:100
         @test q2*fun(q)*inv(q2) ≈ fun(q2*q*inv(q2))
     end
 
-    # argq
+    @test exp(log(q)) ≈ q
+    @test exp(zero(q)) ≈ one(q)
+end
+
+for _ in 1:100 # argq
+    q,q2 = sample(Quaternion{Float64}, 2)
     @test q2*argq(q)*inv(q2) ≈ argq(q2*q*inv(q2))
     v = Quaternion(0, randn(3)...)
     @test argq(v)*norm(v) ≈ v
+end
 
-    # normalize
+for _ in 1:100 # normalize
+    q = quatrand()
     @test norm(normalize(q)) ≈ 1
     @test normalize(q).norm
     @test q ≈ norm(q) * normalize(q)
     qn = nquatrand()
     @test qn.norm
     @test normalize(qn) === qn
-
 end
 
 let # test rotations
@@ -93,11 +107,9 @@ let # test rotations
 end
 
 for _ in 1:100 # test slerp
-    # correctness can be proven if we show
-    # 1) slerp is correct for qa = 1.
-    # 2) slerp is conjugation invariant.
-    let # test slerp if q1 = 1
-        q1 = Quaternion(1.,0,0,0)
+    # test slerp if q1 = 1
+    let
+        q1 = Quaternion(1,0,0,0.)
         # there are numerical stability issues with slerp atm
         θ = clamp(rand() * 3.5, deg2rad(5e-1) ,π)
         ax = randn(3)
@@ -109,8 +121,8 @@ for _ in 1:100 # test slerp
         @test slerp(q1, q2, t) ≈ qrotation(ax, t*θ)
         @test norm(slerp(q1, q2, t)) ≈ 1
     end
-
-    let # test slerp invariant under conjugation action
+    # test slerp invariant under conjugation action
+    let
         q, q1, q2 = [qrotation(randn(3), rand() * π) for _ in 1:3]
         ⊗(s, t) = s*t*inv(s)
         t = rand()
