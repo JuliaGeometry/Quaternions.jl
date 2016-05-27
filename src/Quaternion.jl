@@ -159,24 +159,24 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
             sp = sin((1 - t)*o)/s
             sq = sin(t*o)/s
         else
-        sp = 1 - t
-        sq = t
-    end
-    Quaternion(sp*p.s  + sq*q.s,
-               sp*p.v1 + sq*q.v1,
-               sp*p.v2 + sq*q.v2,
-               sp*p.v3 + sq*q.v3, true)
+            sp = 1 - t
+            sq = t
+        end
+        Quaternion(sp*p.s  + sq*q.s,
+                   sp*p.v1 + sq*q.v1,
+                   sp*p.v2 + sq*q.v2,
+                   sp*p.v3 + sq*q.v3, true)
     else
-    s  =  p.v3
-    v1 = -p.v2
-    v2 =  p.v1
-    v3 = -p.s
-    sp = sin((0.5 - t)*pi)
-    sq = sin(t*pi)
-    Quaternion(s,
-               sp * p.v1 + sq * v1,
-               sp * p.v2 + sq * v2,
-               sp * p.v3 + sq * v3, true)
+        s  =  p.v3
+        v1 = -p.v2
+        v2 =  p.v1
+        v3 = -p.s
+        sp = sin((0.5 - t)*pi)
+        sq = sin(t*pi)
+        Quaternion(s,
+                   sp * p.v1 + sq * v1,
+                   sp * p.v2 + sq * v2,
+                   sp * p.v3 + sq * v3, true)
     end
 end
 

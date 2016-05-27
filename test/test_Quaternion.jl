@@ -23,38 +23,6 @@ for _ in 1:10, T in (Float32, Float64, Int32, Int64)
     test_multiplicative(c1,c2,+, Quaternion)
 end
 
-for _ in 1:100 # specialfunctions
-    c = Complex(randn(2)...)
-    q,q2 = sample(Quaternion{Float64}, 4)
-    unary_funs = [exp, log, sin, cos, sqrt, inv, conj, abs2, norm]
-    # since every quaternion is conjugate to a complex number,
-    # one can establish correctness as follows:
-    for fun in unary_funs
-        @test fun(Quaternion(c)) ≈ Quaternion(fun(c))
-        @test q2*fun(q)*inv(q2) ≈ fun(q2*q*inv(q2))
-    end
-
-    @test exp(log(q)) ≈ q
-    @test exp(zero(q)) ≈ one(q)
-end
-
-for _ in 1:100 # argq
-    q,q2 = sample(Quaternion{Float64}, 2)
-    @test q2*argq(q)*inv(q2) ≈ argq(q2*q*inv(q2))
-    v = Quaternion(0, randn(3)...)
-    @test argq(v)*norm(v) ≈ v
-end
-
-for _ in 1:100 # normalize
-    q = quatrand()
-    @test norm(normalize(q)) ≈ 1
-    @test normalize(q).norm
-    @test q ≈ norm(q) * normalize(q)
-    qn = nquatrand()
-    @test qn.norm
-    @test normalize(qn) === qn
-end
-
 let # test rotations
     qx = qrotation([1,0,0], pi/4)
     @test_approx_eq qx*qx qrotation([1,0,0], pi/2)
@@ -88,14 +56,7 @@ let # test rotations
     @test_approx_eq angle(qrotation([0,1,0], pi/4)) pi/4
     @test_approx_eq angle(qrotation([0,0,1], pi/2)) pi/2
 
-    # test qrotation and angleaxis inverse
-    for _ in 1:100
-        ax = randn(3); ax = ax/norm(ax)
-        Θ = π * rand()
-        q = qrotation(ax, Θ)
-        @test_approx_eq angle(q) Θ
-        @test_approx_eq axis(q) ax
-    end
+
 
     let # test numerical stability of angle
         ax = randn(3)
@@ -106,10 +67,51 @@ let # test rotations
     end
 end
 
-for _ in 1:100 # test slerp
-    # test slerp if q1 = 1
-    let
-        q1 = Quaternion(1,0,0,0.)
+for _ in 1:100
+    let # test specialfunctions
+        c = Complex(randn(2)...)
+        q,q2 = sample(Quaternion{Float64}, 4)
+        unary_funs = [exp, log, sin, cos, sqrt, inv, conj, abs2, norm]
+        # since every quaternion is conjugate to a complex number,
+        # one can establish correctness as follows:
+        for fun in unary_funs
+            @test fun(Quaternion(c)) ≈ Quaternion(fun(c))
+            @test q2*fun(q)*inv(q2) ≈ fun(q2*q*inv(q2))
+        end
+
+        @test exp(log(q)) ≈ q
+        @test exp(zero(q)) ≈ one(q)
+    end
+
+    let # test qrotation and angleaxis inverse
+        ax = randn(3); ax = ax/norm(ax)
+        Θ = π * rand()
+        q = qrotation(ax, Θ)
+        @test angle(q) ≈ Θ
+        @test axis(q) ≈ ax
+        @test angleaxis(q)[1] ≈ Θ
+        @test angleaxis(q)[2] ≈ ax
+    end
+
+    let # test argq
+        q,q2 = sample(Quaternion{Float64}, 2)
+        @test q2*argq(q)*inv(q2) ≈ argq(q2*q*inv(q2))
+        v = Quaternion(0, randn(3)...)
+        @test argq(v)*norm(v) ≈ v
+    end
+
+    let # test normalize
+        q = quatrand()
+        @test norm(normalize(q)) ≈ 1
+        @test normalize(q).norm
+        @test q ≈ norm(q) * normalize(q)
+        qn = nquatrand()
+        @test qn.norm
+        @test normalize(qn) === qn
+    end
+
+    let # test slerp and linpol if q1 = 1
+        q1 = quat(1,0,0,0.)
         # there are numerical stability issues with slerp atm
         θ = clamp(rand() * 3.5, deg2rad(5e-1) ,π)
         ax = randn(3)
@@ -120,12 +122,15 @@ for _ in 1:100 # test slerp
         @test slerp(q1, q2, 1.) ≈ q2
         @test slerp(q1, q2, t) ≈ qrotation(ax, t*θ)
         @test norm(slerp(q1, q2, t)) ≈ 1
+        @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5*θ)
+        @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5*θ)
+
     end
-    # test slerp invariant under conjugation action
-    let
-        q, q1, q2 = [qrotation(randn(3), rand() * π) for _ in 1:3]
+    let # test conjugation invariance
+        q, q1, q2 = sample(Quaternion{Float64}, 3)
         ⊗(s, t) = s*t*inv(s)
         t = rand()
         @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
+        @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
     end
 end
