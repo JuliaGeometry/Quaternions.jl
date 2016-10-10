@@ -44,6 +44,7 @@ imag(q::Quaternion) = [q.v1, q.v2, q.v3]
 
 conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
 abs(q::Quaternion) = sqrt(q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3)
+abs_imag(q::Quaternion) = sqrt(q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3)
 abs2(q::Quaternion) = q.s*q.s + q.v1*q.v1 + q.v2*q.v2 + q.v3*q.v3
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q)/abs2(q)
 
@@ -93,7 +94,7 @@ end
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-angle(q::Quaternion) = 2 * acos(real(normalize(q)))
+angle(q::Quaternion) = 2*atan2(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
 
 function axis(q::Quaternion)
     q = normalize(q)
@@ -103,17 +104,13 @@ function axis(q::Quaternion)
         [1.0, 0.0, 0.0]
 end
 
-function argq(q::Quaternion)
-    q = normalize(q)
-    q = Quaternion(imag(q))
-    normalizeq(q)
-end
+argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 
 function exp(q::Quaternion)
     s = q.s
     se = exp(s)
     scale = se
-    th = abs(Quaternion(imag(q)))
+    th = abs_imag(q)
     if th > 0
         scale *= sin(th) / th
     end
@@ -123,7 +120,7 @@ end
 function log(q::Quaternion)
     q, a = normalizea(q)
     s = q.s
-    M = abs(Quaternion(imag(q)))
+    M = abs_imag(q)
     th = atan2(M, s)
     if M > 0
         M = th / M
@@ -162,24 +159,24 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
             sp = sin((1 - t)*o)/s
             sq = sin(t*o)/s
         else
-        sp = 1 - t
-        sq = t
-    end
-    Quaternion(sp*p.s  + sq*q.s,
-               sp*p.v1 + sq*q.v1,
-               sp*p.v2 + sq*q.v2,
-               sp*p.v3 + sq*q.v3, true)
+            sp = 1 - t
+            sq = t
+        end
+        Quaternion(sp*p.s  + sq*q.s,
+                   sp*p.v1 + sq*q.v1,
+                   sp*p.v2 + sq*q.v2,
+                   sp*p.v3 + sq*q.v3, true)
     else
-    s  =  p.v3
-    v1 = -p.v2
-    v2 =  p.v1
-    v3 = -p.s
-    sp = sin((0.5 - t)*pi)
-    sq = sin(t*pi)
-    Quaternion(s,
-               sp * p.v1 + sq * v1,
-               sp * p.v2 + sq * v2,
-               sp * p.v3 + sq * v3, true)
+        s  =  p.v3
+        v1 = -p.v2
+        v2 =  p.v1
+        v3 = -p.s
+        sp = sin((0.5 - t)*pi)
+        sq = sin(t*pi)
+        Quaternion(s,
+                   sp * p.v1 + sq * v1,
+                   sp * p.v2 + sq * v2,
+                   sp * p.v3 + sq * v3, true)
     end
 end
 
