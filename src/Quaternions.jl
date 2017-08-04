@@ -2,7 +2,6 @@ __precompile__()
 
 module Quaternions
   importall Base
-  using Compat
 
   include("Quaternion.jl")
   include("Octonion.jl")

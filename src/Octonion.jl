@@ -93,8 +93,8 @@ end
 
 
 macro ocmul(i, j)
-  si = @compat Symbol("v$i")
-  sj = @compat Symbol("v$j")
+  si = Symbol("v$i")
+  sj = Symbol("v$j")
   esc(:(o.$si * w.$sj - o.$sj * w.$si))
 end
 
