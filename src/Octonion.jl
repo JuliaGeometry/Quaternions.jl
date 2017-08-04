@@ -23,7 +23,7 @@ convert(::Type{Octonion{T}}, x::Real) where {T} =
 convert(::Type{Octonion{T}}, z::Complex) where {T} =
   Octonion(convert(T, real(z)), convert(T, imag(z)), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
 convert(::Type{Octonion{T}}, q::Quaternion) where {T} =
-  Octonion(convert(T, real(z)), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
+  Octonion(convert(T, real(q)), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
 convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
   Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
