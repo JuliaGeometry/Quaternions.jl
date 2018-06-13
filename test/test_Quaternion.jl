@@ -108,6 +108,12 @@ for _ in 1:100
         @test normalize(qn) === qn
     end
 
+    let # test rotation <=> rotationmatrix
+        q1 = nquatrand()
+        q2 = qrotation(rotationmatrix(q1), q1)
+        @test q1 ≈ q2
+    end
+
     let # test slerp and linpol if q1 = 1
         q1 = quat(1, 0, 0, 0.)
         # there are numerical stability issues with slerp atm
