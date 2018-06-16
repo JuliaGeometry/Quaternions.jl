@@ -48,9 +48,10 @@ abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
-ispure(q::Quaternion) = iszero(real(q))
+ispure(q::Quaternion)::Bool = iszero(real(q))
 
-isfinite(q::Quaternion) = q.norm ? true : (isfinite(q.s) && isfinite(q.v1) && isfinite(q.v2) && isfinite(q.v3))
+isfinite(q::Quaternion)::Bool = q.norm || all(isfinite, q)
+
 
 function normalize(q::Quaternion)
     if (q.norm)
