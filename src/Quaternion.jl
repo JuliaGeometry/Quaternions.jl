@@ -54,7 +54,7 @@ isfinite(q::Quaternion)::Bool = q.norm || all(isfinite, q)
 
 
 function normalize(q::Quaternion)
-    if (q.norm)
+    if q.norm
         return q
     end
     q = q / abs(q)
@@ -62,7 +62,7 @@ function normalize(q::Quaternion)
 end
 
 function normalizea(q::Quaternion)
-    if (q.norm)
+    if q.norm
         return (q, one(q.s))
     end
     a = abs(q)
