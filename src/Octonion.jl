@@ -55,7 +55,7 @@ abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 
 inv(o::Octonion) = o.norm ? conj(o) : conj(o) / abs2(o)
 
 function normalize(o::Octonion)
-  if (o.norm)
+  if o.norm
     return o
   end
   o = o / abs(o)
@@ -63,7 +63,7 @@ function normalize(o::Octonion)
 end
 
 function normalizea(o::Octonion)
-  if (o.norm)
+  if o.norm
     return (o, one(o.s))
   end
   a = abs(o)

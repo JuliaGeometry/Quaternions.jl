@@ -75,7 +75,7 @@ dconj(dq::DualQuaternion) = DualQuaternion(dq.q0, -dq.qe, dq.norm)
 inv(dq::DualQuaternion) = dq.norm ? conj(dq) : conj(dq) / abs2(dq)
 
 function normalize(dq::DualQuaternion)
-  if (dq.norm)
+  if dq.norm
     return dq
   end
   a = abs(dq)
@@ -88,7 +88,7 @@ function normalize(dq::DualQuaternion)
 end
 
 function normalizea(dq::DualQuaternion)
-  if (dq.norm)
+  if dq.norm
     return (dq, one(dual))
   end
   a = abs(dq)
