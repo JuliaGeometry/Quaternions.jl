@@ -158,3 +158,4 @@ function sqrt(o::Octonion)
 end
 
 octorand() = octo(randn(), randn(), randn(), randn(), randn(), randn(), randn(), randn())
+rand(::Type{Octonion}) = octorand()

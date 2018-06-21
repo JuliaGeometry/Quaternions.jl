@@ -165,3 +165,5 @@ end
 
 dualquatrand() = dualquat(quatrand(), quatrand())
 ndualquatrand() = normalize(dualquatrand())
+
+rand(::Type{DualQuaternion}) = dualquatrand()
