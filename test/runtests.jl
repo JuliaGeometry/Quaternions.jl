@@ -1,4 +1,4 @@
-using Base.Test
+using Compat.Test
 using Quaternions
 
 test_associative(x, y, z, ⊗) = @test (x ⊗ y) ⊗ z ≈ x ⊗ (y ⊗ z)

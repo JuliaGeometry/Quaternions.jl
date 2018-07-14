@@ -6,6 +6,9 @@ struct Quaternion{T<:Real} <: Number
     norm::Bool
 end
 
+(::Type{Quaternion{T}})(x::Real) where {T} = Quaternion{T}(x, 0, 0, 0, false)
+(::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
+(::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
@@ -94,7 +97,7 @@ end
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-angle(q::Quaternion) = 2 * atan2(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
+angle(q::Quaternion) = 2 * atan(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
 
 function axis(q::Quaternion)
     q = normalize(q)
@@ -121,7 +124,7 @@ function log(q::Quaternion)
     q, a = normalizea(q)
     s = q.s
     M = abs_imag(q)
-    th = atan2(M, s)
+    th = atan(M, s)
     if M > 0
         M = th / M
         return Quaternion(log(a), q.v1 * M, q.v2 * M, q.v3 * M)
@@ -208,7 +211,7 @@ function qrotation(rotvec::Vector{T}) where {T <: Real}
     Quaternion(one(T), zero(T), zero(T), zero(T), true)
 end
 
-function qrotation{T<:Real}(dcm::Matrix{T})
+function qrotation(dcm::Matrix{T}) where {T<:Real}
     # See https://arxiv.org/pdf/math/0701759.pdf
     a2 = 1 + dcm[1,1] + dcm[2,2] + dcm[3,3]
     b2 = 1 + dcm[1,1] - dcm[2,2] - dcm[3,3]
@@ -230,7 +233,7 @@ function qrotation{T<:Real}(dcm::Matrix{T})
     end
 end
 
-function qrotation{T<:Real}(dcm::Matrix{T}, qa::Quaternion)
+function qrotation(dcm::Matrix{T}, qa::Quaternion) where {T<:Real}
     q = qrotation(dcm)
     abs(q-qa) < abs(q+qa) ? q : -q
 end

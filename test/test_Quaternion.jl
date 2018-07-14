@@ -1,5 +1,7 @@
 
-import Quaternions.argq
+using Quaternions: argq
+using Compat
+using Compat.LinearAlgebra
 
 # creating random examples
 sample(QT::Type{Quaternion{T}}) where {T <: Integer} = QT(rand(-100:100, 4)..., false)

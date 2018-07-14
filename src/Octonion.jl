@@ -135,7 +135,7 @@ function log(o::Octonion)
   o, a = normalizea(o)
   s = o.s
   M = abs(Octonion(imag(o)))
-  th = atan2(M, s)
+  th = atan(M, s)
   if M > 0
     M = th / M
     return Octonion(log(a),
