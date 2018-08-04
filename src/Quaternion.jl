@@ -23,7 +23,7 @@ convert(::Type{Quaternion{T}}, z::Complex) where {T} =
 convert(::Type{Quaternion{T}}, q::Quaternion{T}) where {T <: Real} = q
 convert(::Type{Quaternion{T}}, q::Quaternion) where {T} =
     Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), q.norm)
-convert(::Type{Quaternion{T}}, x::Bool) where {T} = x ? one(Quaternion{T} : zero(Quaternion{T})
+convert(::Type{Quaternion{T}}, x::Bool) where {T} = x ? one(Quaternion{T}) : zero(Quaternion{T})
 
 promote_rule(::Type{Quaternion{T}}, ::Type{T}) where {T <: Real} = Quaternion{T}
 promote_rule(::Type{Quaternion}, ::Type{T}) where {T <: Real} = Quaternion
