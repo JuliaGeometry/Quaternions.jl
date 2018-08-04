@@ -46,8 +46,8 @@ imag(q::Quaternion) = [q.v1, q.v2, q.v3]
 
 zero(::Type{Quaternion{T}}) where {T} = Quaternion(zero(T), zero(T), zero(T), zero(T))
 one(::Type{Quaternion{T}}) where {T} = Quaternion(one(T), zero(T), zero(T), zero(T))
-iszero(q::Quaternion{T}) where {T} = q === zero(Quaternion{T])
-isone(q::Quaternion{T}) where {T} = q === one(Quaternion{T])
+iszero(q::Quaternion{T}) where {T} = q === zero(Quaternion{T})
+isone(q::Quaternion{T}) where {T} = q === one(Quaternion{T})
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 
