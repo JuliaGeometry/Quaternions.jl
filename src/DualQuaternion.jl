@@ -34,7 +34,7 @@ convert(::Type{DualQuaternion{T}}, q::DualQuaternion{T}) where {T <: Real} = q
 
 convert(::Type{DualQuaternion{T}}, dq::DualQuaternion) where {T} =
     DualQuaternion(convert(Quaternion{T}, dq.q0), convert(Quaternion{T}, dq.qe), dq.norm)
-convert(::Type{DualQuaternion{T}}, b::Bool) = x ? one(DualQuaternion{T}) : zero(DualQuaternion{T})
+convert(::Type{DualQuaternion{T}}, b::Bool) where {T} = b ? one(DualQuaternion{T}) : zero(DualQuaternion{T})
 
 promote_rule(::Type{DualQuaternion{T}}, ::Type{T}) where {T <: Real} = DualQuaternion{T}
 promote_rule(::Type{DualQuaternion}, ::Type{T}) where {T <: Real} = DualQuaternion
