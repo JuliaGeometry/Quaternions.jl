@@ -4,6 +4,7 @@ module Quaternions
 
   using Compat
 
+  import Base: zero, one, iszero, isone
   import Base: +, -, *, /, ^
   import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
   import Base: convert, promote_rule
