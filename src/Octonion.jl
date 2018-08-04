@@ -27,6 +27,7 @@ convert(::Type{Octonion{T}}, q::Quaternion) where {T} =
 convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
   Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
+convert(::Type{Octonion{T}}, x::Bool) where {T} = x ? one(Octonion{T}) : zero(Octonion{T})
 
 promote_rule(::Type{Octonion{T}}, ::Type{T}) where {T <: Real} = Octonion{T}
 promote_rule(::Type{Octonion}, ::Type{T}) where {T <: Real} = Octonion
@@ -44,8 +45,14 @@ function show(io::IO, o::Octonion)
   print(io, o.s, pm(o.v1), "im", pm(o.v2), "jm", pm(o.v3), "km", pm(o.v4), "ilm", pm(o.v5), "jlm", pm(o.v6), "klm", pm(o.v7), "lm")
 end
 
+real(::Type{Octonion{T}}) where {T} = T
 real(o::Octonion) = o.s
 imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
+
+zero(::Type{Octonion{T}}) where {T} = Octonion(zero(T), zero(T), zero(T), zero(T), zero(T), zero(T), zero(T), zero(T))
+one(::Type{Octonion{T}}) where {T} = Octonion(one(T), zero(T), zero(T), zero(T), zero(T), zero(T), zero(T), zero(T))
+iszero(o::Octonion{T}) where {T} = o === zero(Octonion{T})
+isone(o::Octonion{T}) where {T} = o === one(Octonion{T})
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
 
