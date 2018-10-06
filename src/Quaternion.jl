@@ -135,13 +135,42 @@ end
 
 function sin(q::Quaternion)
     L = argq(q)
-    return (exp(L * q) - exp(-L * q)) / (2 * L)
+    # (exp(L * q) - exp(-L * q)) / 2L
+    exppos = exp(L * q)
+    expneg = inv(exppos)
+    return (exppos - expneg) / (2*L)
 end
 
 function cos(q::Quaternion)
     L = argq(q)
-    return (exp(L * q) + exp(-L * q)) / 2
+    # (exp(L * q) + exp(-L * q)) / 2
+    exppos = exp(L * q)
+    expneg = inv(exppos)
+    return (exppos + expneg) / 2
 end
+
+function tan(q::Quaternion)
+    L = argq(q)
+    # (exp(L * q) - exp(-L * q)) / ((exp(L * q) + exp(-L * q)) * L)
+    exppos = exp(L * q)
+    expneg = inv(exppos)
+    s = (exppos - expneg) / L
+    c = (exppos + expneg)
+    return s / c
+end
+
+function cot(q::Quaternion)
+    L = argq(q)
+    # ((exp(L * q) + exp(-L * q)) * L) / (exp(L * q) - exp(-L * q))
+    exppos = exp(L * q)
+    expneg = inv(exppos)
+    s = (exppos - expneg) / L
+    c = (exppos + expneg)
+    return c / s
+end
+
+
+
 
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
