@@ -5,7 +5,8 @@ module Quaternions
   using Compat
 
   import Base: +, -, *, /, ^
-  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
+  import Base: abs, abs2, angle, conj, inv, isfinite, real, sqrt
+  import Base: cos, cot, csc, exp, log, sec, sin, tan
   import Base: convert, promote_rule
   import Compat.LinearAlgebra: norm, normalize
 
