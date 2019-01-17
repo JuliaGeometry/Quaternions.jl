@@ -27,6 +27,7 @@ convert(::Type{Octonion{T}}, q::Quaternion) where {T} =
 convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
   Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
+float(o::Octonion{T}) where T = Octonion(float(o.s), float(o.v1), float(o.v2), float(o.v3), float(o.v4), float(o.v5), float(o.v6), float(o.v7), o.norm)
 
 promote_rule(::Type{Octonion{T}}, ::Type{T}) where {T <: Real} = Octonion{T}
 promote_rule(::Type{Octonion}, ::Type{T}) where {T <: Real} = Octonion
