@@ -2,12 +2,10 @@ __precompile__()
 
 module Quaternions
 
-  using Compat
-
   import Base: +, -, *, /, ^
   import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
-  import Base: convert, promote_rule
-  import Compat.LinearAlgebra: norm, normalize
+  import Base: convert, promote_rule, float
+  import LinearAlgebra: norm, normalize
 
   include("Quaternion.jl")
   include("Octonion.jl")
