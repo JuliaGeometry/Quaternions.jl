@@ -51,6 +51,7 @@ imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
 
 conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, o.norm)
 abs(o::Octonion) = sqrt(o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
+float(q::Octonion{T}) where T = convert(Octonion{float(T)}, q)
 abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7
 inv(o::Octonion) = o.norm ? conj(o) : conj(o) / abs2(o)
 
