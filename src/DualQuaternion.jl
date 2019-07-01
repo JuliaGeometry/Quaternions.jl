@@ -71,6 +71,7 @@ abs2(dq::DualQuaternion) = dq.norm ? dual(one(dq.q0.s)) :
                 dq.q0.v3 * dq.qe.v3))
 
 abs(dq::DualQuaternion) = dq.norm ? dual(one(dq.q0.s)) : sqrt(abs2(dq))
+float(dq::DualQuaternion{T}) where T = convert(DualQuaternion{float(T)}, dq)
 
 conj(dq::DualQuaternion) = DualQuaternion(conj(dq.q0), conj(dq.qe), dq.norm)
 dconj(dq::DualQuaternion) = DualQuaternion(dq.q0, -dq.qe, dq.norm)
