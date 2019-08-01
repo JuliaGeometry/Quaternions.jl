@@ -70,3 +70,28 @@ They play a role, for instance, in the mathematical foundation of String theory.
     exp  
     log  
     sqrt  
+    
+    
+    
+## Usage
+
+### Multiplication
+
+
+(0 + 0**i** + 0**j** + **k**)(0 + 0**i** + **j** + 0**k**) = (0 - **i** + 0**j** + 0**k**)
+
+
+```julia
+
+julia> using Quaternions
+
+julia> q = quat(0.0, 0.0, 0.0, 1.0)
+Quaternion{Float64}(0.0, 0.0, 0.0, 1.0, false)
+
+julia> r = quat(0, 0, 1, 0)
+Quaternion{Int64}(0, 0, 1, 0, false)
+
+julia> q*r
+Quaternion{Float64}(0.0, -1.0, 0.0, 0.0, false)
+
+```
