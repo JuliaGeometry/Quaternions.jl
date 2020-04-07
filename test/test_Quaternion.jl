@@ -57,6 +57,14 @@ let # test rotations
     @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
     @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
 
+    # Regression test for
+    # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
+    struct MyReal <: Real
+      val::Real
+    end
+    Base.:(/)(a::MyReal, b::Real) = a.val / b
+    @test qrotation([1, 0, 0], MyReal(1.5)) != "this used to throw an error"
+
     let # test numerical stability of angle
         ax = randn(3)
         for θ in [1e-9, π - 1e-9]
