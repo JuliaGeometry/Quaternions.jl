@@ -194,9 +194,8 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
         error("Must be a 3-vector")
     end
     u = normalize(axis)
-    thetaT = convert(eltype(u), theta)
-    s = sin(thetaT / 2)
-    Quaternion(cos(thetaT / 2), s * u[1], s * u[2], s * u[3], true)
+    s = sin(theta / 2)
+    Quaternion(cos(theta / 2), s * u[1], s * u[2], s * u[3], true)
 end
 
 # Variant of the above where norm(rotvec) encodes theta
