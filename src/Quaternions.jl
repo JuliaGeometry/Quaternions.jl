@@ -3,7 +3,7 @@ __precompile__()
 module Quaternions
 
   import Base: +, -, *, /, ^
-  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
+  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, imag, sin, sqrt
   import Base: convert, promote_rule, float
   import LinearAlgebra: norm, normalize
 
