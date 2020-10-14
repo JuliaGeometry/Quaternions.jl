@@ -187,6 +187,20 @@ end
 quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
 nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
+function rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
+    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+end
+
+function randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
+    Quaternion{T}(
+        randn(rng, T) / 2,
+        randn(rng, T) / 2,
+        randn(rng, T) / 2,
+        randn(rng, T) / 2,
+        false,
+    )
+end
+
 ## Rotations
 
 function qrotation(axis::Vector{T}, theta) where {T <: Real}
