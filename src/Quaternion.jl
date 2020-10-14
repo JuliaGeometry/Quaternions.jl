@@ -184,8 +184,8 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
     end
 end
 
-quatrand()  = quat(randn(), randn(), randn(), randn())
-nquatrand() = normalize(quatrand())
+quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
+nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
 ## Rotations
 
