@@ -159,3 +159,5 @@ function sqrt(o::Octonion)
 end
 
 octorand() = octo(randn(), randn(), randn(), randn(), randn(), randn(), randn(), randn())
+rand(r::AbstractRNG, ::SamplerType{Octonion{T}}) where {T<:Real} =
+	    octo(rand(r, T), rand(r, T),rand(r,T),rand(r,T),rand(r, T), rand(r, T),rand(r,T),rand(r,T))

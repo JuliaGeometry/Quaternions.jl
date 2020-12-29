@@ -6,6 +6,7 @@ module Quaternions
   import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
   import Base: convert, promote_rule, float
   import LinearAlgebra: norm, normalize
+  import Random: rand, SamplerType, AbstractRNG
 
   include("Quaternion.jl")
   include("Octonion.jl")
@@ -24,6 +25,7 @@ module Quaternions
   export normalize
   export normalizea
   export dconj
+  export rand
   export quatrand
   export nquatrand
   export octorand
