@@ -304,7 +304,7 @@ function _complex_representation(A::Matrix{Quaternion{T}}) where {T}
 	return [a+im*b c+im*d;-c+im*d a-im*b]
 end
 
-function _quaternion_representation(A::Matrix{Complex})
+function _quaternion_representation(A::Matrix{Complex{T}}) where {T}
 	n = round(Int, size(A, 1)/2)
     a = real(A[1:n, 1:n])
     b = imag(A[1:n, 1:n])
@@ -314,4 +314,4 @@ function _quaternion_representation(A::Matrix{Complex})
 end
 
 # A quick way of doing the quaternionic matrix exponential
-exp(A::Matrix{Quaternion}) = _quaternion_representation(exp(_complex_representation(A)))
+exp(A::Matrix{Quaternion{T}}) where {T} = _quaternion_representation(exp(_complex_representation(A)))
