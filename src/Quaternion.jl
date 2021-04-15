@@ -294,7 +294,7 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
     )
 end
 
-function _complex_representation(A::Matrix{Quaternion})
+function _complex_representation(A::Matrix{Quaternion{T}}) where {T}
 	# convert a quatenion matrix to corresponding complex matrix
 	a = map(t->t.s, A)
     b = map(t->t.v1, A)
