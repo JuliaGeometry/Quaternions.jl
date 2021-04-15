@@ -293,3 +293,25 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
         qa.v3 * ratio_a + qm.v3 * ratio_b,
     )
 end
+
+function _complex_representation(A::Matrix{Quaternion})
+	# convert a quatenion matrix to corresponding complex matrix
+	a = map(t->t.s, A)
+    b = map(t->t.v1, A)
+    c = map(t->t.v2, A)
+    d = map(t->t.v3, A)
+    
+	return [a+im*b c+im*d;-c+im*d a-im*b]
+end
+
+function _quaternion_representation(A::Matrix{Complex})
+	n = round(Int, size(A, 1)/2)
+    a = real(A[1:n, 1:n])
+    b = imag(A[1:n, 1:n])
+    c = real(A[1:n, n+1:2n])
+    d = imag(A[1:n, n+1:2n])
+    return [Quaternion(a[i,j], b[i,j], c[i,j], d[i,j]) for i in 1:n, j in 1:n]
+end
+
+# A quick way of doing the quaternionic matrix exponential
+exp(A::Matrix{Quaternion}) = _quaternion_representation(exp(_complex_representation(A)))
