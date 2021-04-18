@@ -310,7 +310,7 @@ function _quaternion_representation(A::Matrix{Complex{T}}) where {T}
     X = @view A[1:n, 1:n]
     Y = @view A[1:n, n+1:2n]
 
-	return [Quaternion(X[i,j].re, X[i,j].im, Y[i,j].re, Y[i,j].im) for i in 1:n, j in 1:n]
+    return [Quaternion(X[i,j].re, X[i,j].im, Y[i,j].re, Y[i,j].im) for i in 1:n, j in 1:n]
 end
 
 # A quick way of doing the quaternionic matrix exponential
