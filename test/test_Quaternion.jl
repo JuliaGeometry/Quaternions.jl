@@ -140,11 +140,11 @@ for _ in 1:100
     end
     let # test matrix exponential
         z = zeros(Quaternion{Float64}, 3, 3)
-		id = Matrix{Quaternion{Float64}}(I, 3, 3)
+        id = Matrix{Quaternion{Float64}}(I, 3, 3)
         d = [Quaternion(randn(4)...) for i in 1:3]
-		expd = exp.(d)
-		D = exp(Array(Diagonal(d)))
-		@test exp(z) ≈ id
-		@text D ≈ Array(Diagonal(expd))
+        expd = exp.(d)
+        D = exp(Array(Diagonal(d)))
+        @test exp(z) ≈ id
+        @test D ≈ Array(Diagonal(expd))
     end
 end
