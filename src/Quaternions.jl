@@ -32,5 +32,4 @@ module Quaternions
   export qrotation
   export rotationmatrix
   export slerp
-  export exp
 end
