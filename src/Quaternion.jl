@@ -13,8 +13,8 @@ Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
 Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
-Quaternion(s::Real, a::Vector) = Quaternion(s, a[1], a[2], a[3])
-Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
+Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
+Quaternion(a::AbstractVector) = Quaternion(0, a[1], a[2], a[3])
 
 convert(::Type{Quaternion{T}}, x::Real) where {T} =
     Quaternion(convert(T, x), convert(T, 0), convert(T, 0), convert(T, 0))
@@ -189,7 +189,7 @@ nquatrand() = normalize(quatrand())
 
 ## Rotations
 
-function qrotation(axis::Vector{T}, theta) where {T <: Real}
+function qrotation(axis::AbstractVector{T}, theta) where {T <: Real}
     if length(axis) != 3
         error("Must be a 3-vector")
     end
@@ -200,7 +200,7 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
 end
 
 # Variant of the above where norm(rotvec) encodes theta
-function qrotation(rotvec::Vector{T}) where {T <: Real}
+function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
     if length(rotvec) != 3
         error("Must be a 3-vector")
     end
@@ -212,7 +212,7 @@ function qrotation(rotvec::Vector{T}) where {T <: Real}
     Quaternion(one(T), zero(T), zero(T), zero(T), true)
 end
 
-function qrotation(dcm::Matrix{T}) where {T<:Real}
+function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
     # See https://arxiv.org/pdf/math/0701759.pdf
     a2 = 1 + dcm[1,1] + dcm[2,2] + dcm[3,3]
     b2 = 1 + dcm[1,1] - dcm[2,2] - dcm[3,3]
@@ -234,7 +234,7 @@ function qrotation(dcm::Matrix{T}) where {T<:Real}
     end
 end
 
-function qrotation(dcm::Matrix{T}, qa::Quaternion) where {T<:Real}
+function qrotation(dcm::AbstractMatrix{T}, qa::Quaternion) where {T<:Real}
     q = qrotation(dcm)
     abs(q-qa) < abs(q+qa) ? q : -q
 end
@@ -250,7 +250,7 @@ function rotationmatrix_normalized(q::Quaternion)
         xz - sy      yz + sx  1 - (xx + yy)]
 end
 
-function normalize(v::Vector{T}) where {T}
+function normalize(v::AbstractVector{T}) where {T}
     nv = norm(v)
     if nv > 0
         return v / nv
