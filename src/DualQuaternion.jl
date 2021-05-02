@@ -169,3 +169,6 @@ end
 
 dualquatrand() = dualquat(quatrand(), quatrand())
 ndualquatrand() = normalize(dualquatrand())
+
+rand(r::AbstractRNG, ::SamplerType{DualQuaternion{T}}) where {T<:Real} =
+	    dualquat(quat(rand(r, T), rand(r, T),rand(r,T),rand(r,T)),quat(rand(r, T), rand(r, T),rand(r,T),rand(r,T)))

@@ -187,6 +187,8 @@ end
 quatrand()  = quat(randn(), randn(), randn(), randn())
 nquatrand() = normalize(quatrand())
 
+rand(r::AbstractRNG, ::SamplerType{Quaternion{T}}) where {T<:Real} = quat(rand(r, T), rand(r, T),rand(r,T),rand(r,T))
+
 ## Rotations
 
 function qrotation(axis::Vector{T}, theta) where {T <: Real}
