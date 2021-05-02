@@ -70,11 +70,13 @@ for _ in 1:100
     let # test specialfunctions
         c = Complex(randn(2)...)
         q, q2 = sample(Quaternion{Float64}, 4)
-        unary_funs = [exp, log, sin, cos, sqrt, inv, conj, abs2, norm]
+        unary_funs = [identity, exp, log, sin, cos, sqrt, inv, conj, abs2, norm]
         # since every quaternion is conjugate to a complex number,
         # one can establish correctness as follows:
         for fun in unary_funs
             @test fun(Quaternion(c)) ≈ Quaternion(fun(c))
+            @test c * q ≈ Quaternion(c) * q
+            @test q2 * c ≈ q2 * Quaternion(c)
             @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
         end
 
