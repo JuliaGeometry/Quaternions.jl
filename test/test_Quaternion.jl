@@ -1,6 +1,7 @@
 
 using Quaternions: argq
 using LinearAlgebra
+using Random
 
 # creating random examples
 sample(QT::Type{Quaternion{T}}) where {T <: Integer} = QT(rand(-100:100, 4)..., false)
@@ -137,5 +138,62 @@ for _ in 1:100
         t = rand()
         @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
         @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
+    end
+end
+
+@testset "random quaternions" begin
+    @testset "quatrand" begin
+        rng = Random.MersenneTwister(42)
+        q1 = quatrand(rng)
+        @test q1 isa Quaternion
+        @test !q1.norm
+
+        q2 = quatrand()
+        @test q2 isa Quaternion
+        @test !q2.norm
+    end
+
+    @testset "nquatrand" begin
+        rng = Random.MersenneTwister(42)
+        q1 = nquatrand(rng)
+        @test q1 isa Quaternion
+        @test q1.norm
+
+        q2 = nquatrand()
+        @test q2 isa Quaternion
+        @test q2.norm
+    end
+
+    @testset "rand" begin
+        rng = Random.MersenneTwister(42)
+        q1 = rand(rng, Quaternion{Float64})
+        @test q1 isa Quaternion{Float64}
+        @test !q1.norm
+
+        q2 = rand(rng, Quaternion{Float32})
+        @test q2 isa Quaternion{Float32}
+        @test !q2.norm
+
+        qs = rand(rng, Quaternion{Float64}, 1000)
+        @test eltype(qs) === Quaternion{Float64}
+        @test length(qs) == 1000
+        minval, maxval = extrema(vcat(real(qs), Quaternions.imag.(qs)...))
+        @test minval > 0
+        @test maxval < 1
+    end
+
+    @testset "rand" begin
+        rng = Random.MersenneTwister(42)
+        q1 = randn(rng, Quaternion{Float64})
+        @test q1 isa Quaternion{Float64}
+        @test !q1.norm
+
+        q2 = randn(rng, Quaternion{Float32})
+        @test q2 isa Quaternion{Float32}
+        @test !q2.norm
+
+        qs = rand(rng, Quaternion{Float64}, 1000)
+        @test eltype(qs) === Quaternion{Float64}
+        @test length(qs) == 1000
     end
 end
