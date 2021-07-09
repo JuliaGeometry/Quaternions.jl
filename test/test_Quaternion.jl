@@ -2,6 +2,12 @@
 using Quaternions: argq
 using LinearAlgebra
 
+let # test accessors
+    c = rand(4)
+    @test c[1] == real(quat(c...))
+    @test c[2:4] == imag(quat(c...))
+end
+
 # creating random examples
 sample(QT::Type{Quaternion{T}}) where {T <: Integer} = QT(rand(-100:100, 4)..., false)
 sample(QT::Type{Quaternion{T}}) where {T <: AbstractFloat} = QT(rand(Bool) ? quatrand() : nquatrand())
