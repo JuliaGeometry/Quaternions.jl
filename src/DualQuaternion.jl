@@ -46,10 +46,7 @@ dualquat(d1, d2, d3, d4, n=false) = DualQuaternion(d1, d2, d3, d4, n)
 dualquat(x) = DualQuaternion(x)
 
 function show(io::IO, dq::DualQuaternion)
-  show(io, dq.q0)
-  print(io, " + ( ")
-  show(io, dq.qe)
-  print(io, " )du")
+  show(io, "$(dq.q0) + $(dq.qe)du")
 end
 
 Q0(dq::DualQuaternion) = dq.q0
@@ -79,7 +76,7 @@ dconj(dq::DualQuaternion) = DualQuaternion(dq.q0, -dq.qe, dq.norm)
 inv(dq::DualQuaternion) = dq.norm ? conj(dq) : conj(dq) / abs2(dq)
 
 function normalize(dq::DualQuaternion)
-  if (dq.norm)
+  if dq.norm
     return dq
   end
   a = abs(dq)
@@ -92,7 +89,7 @@ function normalize(dq::DualQuaternion)
 end
 
 function normalizea(dq::DualQuaternion)
-  if (dq.norm)
+  if dq.norm
     return (dq, one(dual))
   end
   a = abs(dq)
@@ -169,3 +166,5 @@ end
 
 dualquatrand() = dualquat(quatrand(), quatrand())
 ndualquatrand() = normalize(dualquatrand())
+
+rand(::Type{DualQuaternion}) = dualquatrand()

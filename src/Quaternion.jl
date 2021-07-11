@@ -52,10 +52,14 @@ abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
-isfinite(q::Quaternion) = q.norm ? true : (isfinite(q.s) && isfinite(q.v1) && isfinite(q.v2) && isfinite(q.v3))
+pure(q::Quaternion) = Quaternion(0, q.v1, q.v2, q.v3)
+ispure(q::Quaternion)::Bool = iszero(real(q))
+
+isfinite(q::Quaternion)::Bool = q.norm || all(isfinite, q)
+
 
 function normalize(q::Quaternion)
-    if (q.norm)
+    if q.norm
         return q
     end
     q = q / abs(q)
@@ -63,7 +67,7 @@ function normalize(q::Quaternion)
 end
 
 function normalizea(q::Quaternion)
-    if (q.norm)
+    if q.norm
         return (q, one(q.s))
     end
     a = abs(q)
@@ -186,6 +190,8 @@ end
 
 quatrand()  = quat(randn(), randn(), randn(), randn())
 nquatrand() = normalize(quatrand())
+
+rand(::Type{Quaternion}) = quatrand()
 
 ## Rotations
 
