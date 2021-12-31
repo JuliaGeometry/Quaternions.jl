@@ -94,7 +94,7 @@ end
                                                q.norm && w.norm)
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
-(==)(q::Quaternion, w::Quaternion) = (q.s == w.s && q.v1 == w.v1 && q.v2 == w.v2 && q.v3 == w.v3) # ignore .norm field
+(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
