@@ -16,8 +16,8 @@ Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) =
 Quaternion(s::Real, a::Vector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
 
-convert(::Type{Quaternion{T}}, x::Real) where {T} = Quaternion(convert(T,x))
-convert(::Type{Quaternion{T}}, z::Complex) where {T} = Quaternion(convert(Complex{T},z))
+convert(::Type{Quaternion{T}}, x::Real) where {T} = Quaternion(convert(T, x))
+convert(::Type{Quaternion{T}}, z::Complex) where {T} = Quaternion(convert(Complex{T}, z))
 convert(::Type{Quaternion{T}}, q::Quaternion{T}) where {T <: Real} = q
 convert(::Type{Quaternion{T}}, q::Quaternion) where {T} =
     Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), q.norm)
@@ -94,7 +94,7 @@ end
                                                q.norm && w.norm)
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
-(==)(q::Quaternion{T}, w::Quaternion{T}) where T = (q.s == w.s && q.v1 == w.v1 && q.v2 == w.v2 && q.v3 == w.v3) # ignore .norm field
+(==)(q::Quaternion, w::Quaternion) = (q.s == w.s && q.v1 == w.v1 && q.v2 == w.v2 && q.v3 == w.v3) # ignore .norm field
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
