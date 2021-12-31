@@ -21,14 +21,11 @@ DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
 
 DualQuaternion(a::Vector) = DualQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
 
-convert(::Type{DualQuaternion{T}}, x::Real) where {T} =
-    DualQuaternion(convert(Quaternion{T}, x), convert(Quaternion{T}, 0))
+convert(::Type{DualQuaternion{T}}, x::Real) where {T} = DualQuaternion(convert(T, x))
 
-convert(::Type{DualQuaternion{T}}, d::Dual) where {T} =
-    DualQuaternion(convert(Dual{T}, d), convert(Dual{T}, 0), convert(Dual{T}, 0), convert(Dual{T}, 0))
+convert(::Type{DualQuaternion{T}}, d::Dual) where {T} = DualQuaternion(convert(Dual{T}, d))
 
-convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} =
-    DualQuaternion(convert(Quaternion{T}, q), convert(Quaternion{T}, 0), q.norm)
+convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} = DualQuaternion(convert(Quaternion{T}, q))
 
 convert(::Type{DualQuaternion{T}}, q::DualQuaternion{T}) where {T <: Real} = q
 
@@ -112,6 +109,7 @@ end
                                                               dq.q0 * dw.qe + dq.qe * dw.q0,
                                                               dq.norm && dw.norm)
 (/)(dq::DualQuaternion, dw::DualQuaternion) = dq * inv(dw)
+(==)(q::DualQuaternion, w::DualQuaternion) = (q.q0 == w.q0) & (q.qe == w.qe) # ignore .norm field
 
 function angleaxis(dq::DualQuaternion)
   tq = dq.qe * conj(dq.q0)
