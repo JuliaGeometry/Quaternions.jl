@@ -159,3 +159,22 @@ function sqrt(o::Octonion)
 end
 
 octorand() = octo(randn(), randn(), randn(), randn(), randn(), randn(), randn(), randn())
+
+function rand(rng::AbstractRNG, ::Random.SamplerType{Octonion{T}}) where {T<:Real}
+  Octonion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T),
+              rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+end
+
+function randn(rng::AbstractRNG, ::Type{Octonion{T}}) where {T<:AbstractFloat}
+  Octonion{T}(
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      randn(rng, T) * INV_SQRT_EIGHT,
+      false,
+  )
+end
