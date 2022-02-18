@@ -164,36 +164,59 @@ end
         @test q2.norm
     end
 
-    @testset "rand" begin
+    @testset "rand($H)" for H in (Quaternion, DualQuaternion, Octonion)
         rng = Random.MersenneTwister(42)
-        q1 = rand(rng, Quaternion{Float64})
-        @test q1 isa Quaternion{Float64}
+        q1 = rand(rng, H{Float64})
+        @test q1 isa H{Float64}
         @test !q1.norm
 
-        q2 = rand(rng, Quaternion{Float32})
-        @test q2 isa Quaternion{Float32}
+        q2 = rand(rng, H{Float32})
+        @test q2 isa H{Float32}
         @test !q2.norm
 
-        qs = rand(rng, Quaternion{Float64}, 1000)
-        @test eltype(qs) === Quaternion{Float64}
+        qs = rand(rng, H{Float64}, 1000)
+        @test eltype(qs) === H{Float64}
         @test length(qs) == 1000
-        minval, maxval = extrema(vcat(real(qs), Quaternions.imag.(qs)...))
-        @test minval > 0
-        @test maxval < 1
+        xs = map(qs) do q
+            if q isa DualQuaternion
+                return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
+            else
+                return [real(q); Quaternions.imag(q)]
+            end
+        end
+        xs_mean = sum(xs) / length(xs)
+        xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
+        @test all(isapprox.(xs_mean, 0.5; atol=0.1))
+        @test all(isapprox.(xs_var, 1/12; atol=0.01))
     end
 
-    @testset "rand" begin
+    @testset "randn($H)" for H in (Quaternion, Octonion)
         rng = Random.MersenneTwister(42)
-        q1 = randn(rng, Quaternion{Float64})
-        @test q1 isa Quaternion{Float64}
+        q1 = randn(rng, H{Float64})
+        @test q1 isa H{Float64}
         @test !q1.norm
 
-        q2 = randn(rng, Quaternion{Float32})
-        @test q2 isa Quaternion{Float32}
+        q2 = randn(rng, H{Float32})
+        @test q2 isa H{Float32}
         @test !q2.norm
 
-        qs = rand(rng, Quaternion{Float64}, 1000)
-        @test eltype(qs) === Quaternion{Float64}
-        @test length(qs) == 1000
+        qs = randn(rng, H{Float64}, 10000)
+        @test eltype(qs) === H{Float64}
+        @test length(qs) == 10000
+        xs = map(qs) do q
+            if q isa DualQuaternion
+                return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
+            else
+                return [real(q); Quaternions.imag(q)]
+            end
+        end
+        xs_mean = sum(xs) / length(xs)
+        xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
+        @test all(isapprox.(xs_mean, 0; atol=0.1))
+        if H === Quaternion
+            @test all(isapprox.(xs_var, 1/4; atol=0.1))
+        else
+            @test all(isapprox.(xs_var, 1/8; atol=0.1))
+        end
     end
 end
