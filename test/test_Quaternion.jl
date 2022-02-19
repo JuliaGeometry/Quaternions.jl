@@ -67,6 +67,15 @@ let # test rotations
     end
 end
 
+@testset "conversions" begin
+    z = rand(ComplexF64)
+    q = convert(Quaternion{Float64}, z)
+    @test q.s == real(z)
+    @test q.v1 == imag(z)
+    @test q.v2 == 0
+    @test q.v3 == 0
+end
+
 for _ in 1:100
     let # test specialfunctions
         c = Complex(randn(2)...)

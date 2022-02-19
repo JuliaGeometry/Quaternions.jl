@@ -19,7 +19,7 @@ Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
 convert(::Type{Quaternion{T}}, x::Real) where {T} =
     Quaternion(convert(T, x), convert(T, 0), convert(T, 0), convert(T, 0))
 convert(::Type{Quaternion{T}}, z::Complex) where {T} =
-    Quaternion(convert(T, real(z)), convert(T, imag(z)), convert(T, 0), convert(T, 0))
+    Quaternion(convert(T, real(z)), convert(T, Base.imag(z)), convert(T, 0), convert(T, 0))
 convert(::Type{Quaternion{T}}, q::Quaternion{T}) where {T <: Real} = q
 convert(::Type{Quaternion{T}}, q::Quaternion) where {T} =
     Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), q.norm)
