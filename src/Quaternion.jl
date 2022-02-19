@@ -176,7 +176,8 @@ function log(q::Quaternion)
     end
 end
 
-(^)(q::Quaternion, p::Real) = extend_analytic(Base.Fix2(^, p), q)
+(^)(q::Quaternion{T}, p::T) where {T<:Real} = extend_analytic(Base.Fix2(^, p), q)
+(^)(q::Quaternion{T}, p::S) where {T<:Real,S<:Real} = extend_analytic(Base.Fix2(^, p), q)
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
 function linpol(p::Quaternion, q::Quaternion, t::Real)

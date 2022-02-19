@@ -128,6 +128,10 @@ end
     @testset for (f, finv) in [(asin, acsc), (acos, asec), (atan, acot), (asinh, acsch), (acosh, asech), (atanh, acoth)]
         @test f(q) ≈ finv(inv(q))
     end
+    @test q^1.3 ≈ exp(1.3 * log(q))
+    @test q^7.8 ≈ exp(7.8 * log(q))
+    @test q^1.3f0 ≈ exp(1.3f0 * log(q))
+    @test q^7.8f0 ≈ exp(7.8f0 * log(q))
 end
 
 for _ in 1:100
