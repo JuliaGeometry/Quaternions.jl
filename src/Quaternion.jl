@@ -209,11 +209,12 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     end
     normaxis = norm(axis)
     if iszero(normaxis)
-        error("must provide nonzero rotation axis")
+        normaxis = one(normaxis)
+        theta = zero(theta)
     end
     s,c = sincos(theta / 2)
-    scaleby = s / normaxis # normaxis not zero by earlier check
-    Quaternion(c * one(scaleby), scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
+    scaleby = s / normaxis
+    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
 end
 
 # Variant of the above where norm(rotvec) encodes theta
@@ -224,7 +225,7 @@ function qrotation(rotvec::Vector{T}) where {T <: Real}
     theta = norm(rotvec)
     s,c = sincos(theta / 2)
     scaleby = s / (iszero(theta) ? one(theta) : theta)
-    return Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3], true)
+    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3], true)
 end
 
 function qrotation(dcm::Matrix{T}) where {T<:Real}
