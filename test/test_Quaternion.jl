@@ -119,7 +119,7 @@ end
     @test exp10(log10(q)) ≈ q
     @test expm1(log1p(q)) ≈ q
     @test all(sincos(q) .≈ (sin(q), cos(q)))
-    @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
+    VERSION ≥ v"1.6" && @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
     @test tan(q) ≈ cos(q) \ sin(q) ≈ sin(q) / cos(q)
     @test tanh(q) ≈ cosh(q) \ sinh(q) ≈ sinh(q) / cosh(q)
     @testset for (f, finv) in [(sin, csc), (cos, sec), (tan, cot), (sinh, csch), (cosh, sech), (tanh, coth)]

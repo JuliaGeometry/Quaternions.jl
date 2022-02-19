@@ -139,7 +139,7 @@ for f in (
     @eval Base.$f(q::Quaternion) = extend_analytic($f, q)
 end
 
-for f in (:sincos, :sincospi)
+for f in (@static(VERSION ≥ v"1.6" ? (:sincos, :sincospi) : (:sincos,)))
     @eval begin
         function Base.$f(q::Quaternion)
             a = abs_imag(q)
