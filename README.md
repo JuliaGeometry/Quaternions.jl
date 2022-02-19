@@ -28,6 +28,8 @@ Implemented functions are:
     cos
     sqrt
     linpol  (interpolate between 2 normalized quaternions)
+    rand
+    randn
 
 [Dual quaternions](http://en.wikipedia.org/wiki/Dual_quaternion) are an extension, combining quaternions with
 [dual numbers](https://github.com/scidom/DualNumbers.jl).
@@ -53,6 +55,7 @@ further implemented here:
     exp
     log
     sqrt
+    rand
 
 [Octonions](http://en.wikipedia.org/wiki/Octonion) form the logical next step on the Complex-Quaternion path.
 They play a role, for instance, in the mathematical foundation of String theory.
@@ -70,3 +73,5 @@ They play a role, for instance, in the mathematical foundation of String theory.
     exp
     log
     sqrt
+    rand
+    randn

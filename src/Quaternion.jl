@@ -184,8 +184,22 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
     end
 end
 
-quatrand()  = quat(randn(), randn(), randn(), randn())
-nquatrand() = normalize(quatrand())
+quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
+nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
+
+function rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
+    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+end
+
+function randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
+    Quaternion{T}(
+        randn(rng, T) * 1//2,
+        randn(rng, T) * 1//2,
+        randn(rng, T) * 1//2,
+        randn(rng, T) * 1//2,
+        false,
+    )
+end
 
 ## Rotations
 
@@ -197,7 +211,7 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     if iszero(normaxis)
         error("must provide nonzero rotation axis")
     end
-    s,c = sincos(oftype(normaxis, theta / 2))
+    s,c = sincos(theta / 2)
     scaleby = s / normaxis # normaxis not zero by earlier check
     Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
 end
