@@ -134,6 +134,11 @@ end
     @test q^7.8f0 ≈ exp(7.8f0 * log(q))
 end
 
+let
+    # https://github.com/JuliaGeometry/Quaternions.jl/issues/39
+    @test exp(Quaternion(1,1,1,1)) ≈ exp(Quaternion(1.0,1.0,1.0,1.0))
+end
+
 for _ in 1:100
     let # test qrotation and angleaxis inverse
         ax = randn(3); ax = ax / norm(ax)
