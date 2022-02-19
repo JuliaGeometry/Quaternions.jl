@@ -133,6 +133,7 @@ _isexpfun(::Any) = false
 for f in (
     :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
     :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
+    :csc, :sec, :cot, :acsc, :asec, :acot, :csch, :sech, :coth, :acsch, :asech, :acoth,
     :sinpi, :cospi,
 )
     @eval Base.$f(q::Quaternion) = extend_analytic($f, q)
