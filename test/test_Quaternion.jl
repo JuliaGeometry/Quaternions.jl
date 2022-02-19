@@ -76,22 +76,61 @@ end
     @test q.v3 == 0
 end
 
-for _ in 1:100
-    let # test specialfunctions
-        c = Complex(randn(2)...)
-        q, q2 = sample(Quaternion{Float64}, 4)
-        unary_funs = [exp, log, sin, cos, sqrt, inv, conj, abs2, norm]
-        # since every quaternion is conjugate to a complex number,
-        # one can establish correctness as follows:
-        for fun in unary_funs
-            @test fun(Quaternion(c)) ≈ Quaternion(fun(c))
+@testset "non-analytic functions" begin
+    q, q2 = randn(Quaternion{Float64}, 2)
+    unary_funs = [conj, abs, abs2, norm, sign]
+    # since every quaternion is conjugate to a complex number,
+    # one can establish correctness as follows:
+    @testset for fun in unary_funs
+        for i in 1:100
+            c = randn(ComplexF64)
+            @test fun(Quaternion(c)) ≈ fun(c)
             @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
         end
+    end
+end
 
-        @test exp(log(q)) ≈ q
-        @test exp(zero(q)) ≈ one(q)
+@testset "complex analytic functions" begin
+    # all complex analytic functions can be extended to the quaternions
+    q, q2 = randn(Quaternion{Float64}, 2)
+    unary_funs = [
+        sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p,
+        sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh,
+        csc, sec, cot, acsc, asec, acot, csch, sech, coth, acsch, asech, acoth,
+        sinpi, cospi,
+    ]
+    # since every quaternion is conjugate to a complex number,
+    # one can establish correctness as follows:
+    @testset for fun in unary_funs
+        for i in 1:100
+            c = randn(ComplexF64)
+            @test fun(Quaternion(c)) ≈ fun(c)
+            @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
+        end
     end
 
+    q = randn(Quaternion{Float64})
+    @test inv(q) * q ≈ q * inv(q) ≈ one(q)
+    @test sqrt(q) * sqrt(q) ≈ q
+    @test exp(log(q)) ≈ q
+    @test exp(zero(q)) ≈ one(q)
+    @test log(one(q)) ≈ zero(q)
+    @test exp2(log2(q)) ≈ q
+    @test exp10(log10(q)) ≈ q
+    @test expm1(log1p(q)) ≈ q
+    @test all(sincos(q) .≈ (sin(q), cos(q)))
+    @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
+    @test tan(q) ≈ cos(q) \ sin(q) ≈ sin(q) / cos(q)
+    @test tanh(q) ≈ cosh(q) \ sinh(q) ≈ sinh(q) / cosh(q)
+    @testset for (f, finv) in [(sin, csc), (cos, sec), (tan, cot), (sinh, csch), (cosh, sech), (tanh, coth)]
+        @test f(q) ≈ inv(finv(q))
+    end
+    @testset for (f, finv) in [(asin, acsc), (acos, asec), (atan, acot), (asinh, acsch), (acosh, asech), (atanh, acoth)]
+        @test f(q) ≈ finv(inv(q))
+    end
+end
+
+for _ in 1:100
     let # test qrotation and angleaxis inverse
         ax = randn(3); ax = ax / norm(ax)
         Θ = π * rand()
