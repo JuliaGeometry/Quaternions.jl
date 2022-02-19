@@ -213,7 +213,7 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     end
     s,c = sincos(theta / 2)
     scaleby = s / normaxis # normaxis not zero by earlier check
-    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
+    Quaternion(c * one(scaleby), scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
 end
 
 # Variant of the above where norm(rotvec) encodes theta
