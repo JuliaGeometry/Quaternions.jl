@@ -63,7 +63,8 @@ let # test rotations
       val::Real
     end
     Base.:(/)(a::MyReal, b::Real) = a.val / b
-    @test qrotation([1, 0, 0], MyReal(1.5)) != "this used to throw an error"
+    # this used to throw an error
+    qrotation([1, 0, 0], MyReal(1.5))
 
     let # test numerical stability of angle
         ax = randn(3)
