@@ -110,6 +110,54 @@ end
 
 argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 
+# extend complex analytic function f to the quaternion q
+# adapted from Theorem 5 of doi.org/10.1017/S0305004100055638
+function extend_analytic(f, q::Quaternion)
+    a = abs_imag(q)
+    z = complex(q.s, a)
+    w = f(z)
+    wr, wi = reim(w)
+    scale = wi / a
+    if a > 0
+        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3)
+    else  # quaternion may be real or complex
+        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale))
+    end
+end
+
+for f in (
+    :exp2, :exp10, :expm1, :log2, :log10, :log1p,
+    :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
+    :sinpi, :cospi,
+)
+    @eval Base.$f(q::Quaternion) = extend_analytic($f, q)
+end
+
+for f in (:sincos, :sincospi)
+    @eval begin
+        function Base.$f(q::Quaternion)
+            a = abs_imag(q)
+            z = complex(q.s, a)
+            s, c = $f(z)
+            sr, si = reim(s)
+            cr, ci = reim(c)
+            sscale = si / a
+            cscale = ci / a
+            if a > 0
+                return (
+                    Quaternion(sr, sscale * q.v1, sscale * q.v2, sscale * q.v3),
+                    Quaternion(cr, cscale * q.v1, cscale * q.v2, cscale * q.v3),
+                )
+            else
+                return (
+                    Quaternion(sr, oftype(sscale, si), zero(scale), zero(scale)),
+                    Quaternion(cr, oftype(cscale, ci), zero(scale), zero(scale)),
+                )
+            end
+        end
+    end
+end
+
 function exp(q::Quaternion)
     s = q.s
     se = exp(s)
