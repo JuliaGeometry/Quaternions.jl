@@ -114,20 +114,25 @@ argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 # adapted from Theorem 5 of doi.org/10.1017/S0305004100055638
 function extend_analytic(f, q::Quaternion)
     a = abs_imag(q)
-    z = complex(q.s, a)
+    s = q.s
+    z = complex(s, a)
     w = f(z)
     wr, wi = reim(w)
     scale = wi / a
+    norm = _isexpfun(f) && abs(s) < eps(float(typeof(s)))
     if a > 0
-        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3)
+        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3, norm)
     else  # quaternion may be real or complex
-        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale))
+        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale), norm)
     end
 end
 
+_isexpfun(::Union{typeof(exp),typeof(exp2),typeof(exp10)}) = true
+_isexpfun(::Any) = false
+
 for f in (
-    :exp2, :exp10, :expm1, :log2, :log10, :log1p,
-    :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
+    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
+    :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
     :sinpi, :cospi,
 )
     @eval Base.$f(q::Quaternion) = extend_analytic($f, q)
@@ -158,17 +163,6 @@ for f in (:sincos, :sincospi)
     end
 end
 
-function exp(q::Quaternion)
-    s = q.s
-    se = exp(s)
-    scale = se
-    th = abs_imag(q)
-    if th > 0
-        scale *= sin(th) / th
-    end
-    Quaternion(se * cos(th), scale * q.v1, scale * q.v2, scale * q.v3, abs(s) < eps(typeof(s)))
-end
-
 function log(q::Quaternion)
     q, a = normalizea(q)
     s = q.s
@@ -182,19 +176,8 @@ function log(q::Quaternion)
     end
 end
 
-function sin(q::Quaternion)
-    L = argq(q)
-    return (exp(L * q) - exp(-L * q)) / (2 * L)
-end
-
-function cos(q::Quaternion)
-    L = argq(q)
-    return (exp(L * q) + exp(-L * q)) / 2
-end
-
+(^)(q::Quaternion, p::Real) = extend_analytic(Base.Fix2(^, p), q)
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
-
-sqrt(q::Quaternion) = exp(0.5 * log(q))
 
 function linpol(p::Quaternion, q::Quaternion, t::Real)
     p = normalize(p)
