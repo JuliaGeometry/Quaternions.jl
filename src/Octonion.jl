@@ -18,6 +18,10 @@ Octonion(q::Quaternion) = Octonion(q.s, q.v1, q.v2, q.v3, zero(q.s), zero(q.s), 
 Octonion(s::Real, a::Vector) = Octonion(s, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 Octonion(a::Vector) = Octonion(0, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 
+const OctonionF16 = Octonion{Float16}
+const OctonionF32 = Octonion{Float32}
+const OctonionF64 = Octonion{Float64}
+
 convert(::Type{Octonion{T}}, x::Real) where {T} =
   Octonion(convert(T, x), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
 convert(::Type{Octonion{T}}, z::Complex) where {T} =
