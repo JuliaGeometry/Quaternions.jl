@@ -6,7 +6,7 @@ struct Quaternion{T<:Real} <: Number
     norm::Bool
 end
 
-(::Type{Quaternion{T}})(x::Real) where {T} = Quaternion{T}(x, 0, 0, 0, false)
+(::Type{Quaternion{T}})(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 (::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
 (::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
