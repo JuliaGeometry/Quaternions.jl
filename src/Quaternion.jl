@@ -185,8 +185,22 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
     end
 end
 
-quatrand()  = quat(randn(), randn(), randn(), randn())
-nquatrand() = normalize(quatrand())
+quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
+nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
+
+function rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
+    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+end
+
+function randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
+    Quaternion{T}(
+        randn(rng, T) * 1//2,
+        randn(rng, T) * 1//2,
+        randn(rng, T) * 1//2,
+        randn(rng, T) * 1//2,
+        false,
+    )
+end
 
 ## Rotations
 
@@ -194,10 +208,14 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     if length(axis) != 3
         error("Must be a 3-vector")
     end
-    u = normalize(axis)
-    thetaT = convert(eltype(u), theta)
-    s = sin(thetaT / 2)
-    Quaternion(cos(thetaT / 2), s * u[1], s * u[2], s * u[3], true)
+    normaxis = norm(axis)
+    if iszero(normaxis)
+        normaxis = oneunit(normaxis)
+        theta = zero(theta)
+    end
+    s,c = sincos(theta / 2)
+    scaleby = s / normaxis
+    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
 end
 
 # Variant of the above where norm(rotvec) encodes theta
@@ -206,11 +224,9 @@ function qrotation(rotvec::Vector{T}) where {T <: Real}
         error("Must be a 3-vector")
     end
     theta = norm(rotvec)
-    if theta > 0
-        s = sin(theta / 2) / theta  # divide by theta to make rotvec a unit vector
-        return Quaternion(cos(theta / 2), s * rotvec[1], s * rotvec[2], s * rotvec[3], true)
-    end
-    Quaternion(one(T), zero(T), zero(T), zero(T), true)
+    s,c = sincos(theta / 2)
+    scaleby = s / (iszero(theta) ? one(theta) : theta)
+    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3], true)
 end
 
 function qrotation(dcm::Matrix{T}) where {T<:Real}
@@ -249,14 +265,6 @@ function rotationmatrix_normalized(q::Quaternion)
     [1 - (yy + zz)     xy - sz     xz + sy;
         xy + sz   1 - (xx + zz)    yz - sx;
         xz - sy      yz + sx  1 - (xx + yy)]
-end
-
-function normalize(v::Vector{T}) where {T}
-    nv = norm(v)
-    if nv > 0
-        return v / nv
-    end
-    zeros(promote_type(T, typeof(nv)), length(v))
 end
 
 
