@@ -118,7 +118,7 @@ function exp(q::Quaternion)
     if th > 0
         scale *= sin(th) / th
     end
-    Quaternion(se * cos(th), scale * q.v1, scale * q.v2, scale * q.v3, abs(s) < eps(typeof(se)))
+    Quaternion(se * cos(th), scale * q.v1, scale * q.v2, scale * q.v3, iszero(abs(s)))
 end
 
 function log(q::Quaternion)
