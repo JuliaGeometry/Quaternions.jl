@@ -24,7 +24,7 @@ for _ in 1:10, T in (Float32, Float64, Int32, Int64)
     test_multiplicative(c1, c2, +, Quaternion)
 end
 
-let # test promotions and equalities
+@testset "promotions and equalities" begin
     @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
     @test Quaternion(1) == 1.0 # test promotion
     @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
