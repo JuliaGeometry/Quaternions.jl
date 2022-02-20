@@ -26,6 +26,9 @@ for _ in 1:10, T in (Float32, Float64, Int32, Int64)
 end
 
 let # test rotations
+    @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
+    @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
+    @test qrotation([0, 0, 0]) == Quaternion(1.0)
     qx = qrotation([1, 0, 0], pi / 4)
     @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
     @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)

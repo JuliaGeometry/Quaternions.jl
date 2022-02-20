@@ -207,9 +207,14 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     if length(axis) != 3
         error("Must be a 3-vector")
     end
-    u = normalize(axis)
-    s = sin(theta / 2)
-    Quaternion(cos(theta / 2), s * u[1], s * u[2], s * u[3], true)
+    normaxis = norm(axis)
+    if iszero(normaxis)
+        normaxis = oneunit(normaxis)
+        theta = zero(theta)
+    end
+    s,c = sincos(theta / 2)
+    scaleby = s / normaxis
+    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
 end
 
 # Variant of the above where norm(rotvec) encodes theta
@@ -218,11 +223,9 @@ function qrotation(rotvec::Vector{T}) where {T <: Real}
         error("Must be a 3-vector")
     end
     theta = norm(rotvec)
-    if theta > 0
-        s = sin(theta / 2) / theta  # divide by theta to make rotvec a unit vector
-        return Quaternion(cos(theta / 2), s * rotvec[1], s * rotvec[2], s * rotvec[3], true)
-    end
-    Quaternion(one(T), zero(T), zero(T), zero(T), true)
+    s,c = sincos(theta / 2)
+    scaleby = s / (iszero(theta) ? one(theta) : theta)
+    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3], true)
 end
 
 function qrotation(dcm::Matrix{T}) where {T<:Real}
@@ -261,14 +264,6 @@ function rotationmatrix_normalized(q::Quaternion)
     [1 - (yy + zz)     xy - sz     xz + sy;
         xy + sz   1 - (xx + zz)    yz - sx;
         xz - sy      yz + sx  1 - (xx + yy)]
-end
-
-function normalize(v::Vector{T}) where {T}
-    nv = norm(v)
-    if nv > 0
-        return v / nv
-    end
-    zeros(promote_type(T, typeof(nv)), length(v))
 end
 
 
