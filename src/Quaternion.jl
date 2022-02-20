@@ -130,8 +130,35 @@ end
 _isexpfun(::Union{typeof(exp),typeof(exp2),typeof(exp10)}) = true
 _isexpfun(::Any) = false
 
+"""
+    cis(q::Quaternion)
+
+Return ``\\exp(u * q)``, where ``u`` is the normalized imaginary part of `q`.
+
+Let ``q = s + a u``, where ``s`` is the real part, ``u`` is a pure unit quaternion,
+and ``a \\ge 0`` is the magnitude of the imaginary part of ``q``.
+
+!!! Note
+    This is the extension of `cis(z)` for complex `z` to the quaternions and is not
+    equivalent to `exp(im * q)`. As a result, `cis(Quaternion(z)) ≠ cis(z)` when
+    `imag(z) < 0`.
+"""
+cis(q::Quaternion)
+
+if VERSION ≥ v"1.6"
+    """
+        cispi(q::Quaternion)
+
+    Compute `cis(π * q)` more accurately.
+
+    !!! Note
+        This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
+    """
+    cispi(q::Quaternion) = extend_analytic(cispi, q)
+end
+
 for f in (
-    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
+    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p, :cis,
     :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
     :csc, :sec, :cot, :acsc, :asec, :acot, :csch, :sech, :coth, :acsch, :asech, :acoth,
     :sinpi, :cospi,
