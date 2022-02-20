@@ -2,7 +2,7 @@
 A Julia module with quaternion, octonion and dual-quaternion functionality
 
 [![Build Status](https://github.com/JuliaGeometry/Quaternions.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeometry/Quaternions.jl/actions?query=workflow%3ACI+branch%3Amaster)
-[![Coverage Status](https://coveralls.io/repos/JuliaGeometry/Quaternions.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaGeometry/Quaternions.jl?branch=master)
+[![codecov](https://codecov.io/gh/JuliaGeometry/Quaternions.jl/branch/master/graph/badge.svg?token=dJBiR91dCD)](https://codecov.io/gh/JuliaGeometry/Quaternions.jl)
 
 [Quaternions](http://en.wikipedia.org/wiki/Quaternion) are best known for their suitability
 as representations of 3D rotational orientation. They can also be viewed as an extension of complex numbers.
