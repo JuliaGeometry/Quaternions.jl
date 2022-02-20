@@ -30,12 +30,29 @@ end
     @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
     @test Quaternion(1) == 1 # test promotion
     @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
+    @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
+    @test quat(1,0,0,0) === Quaternion(1,0,0,0) # checking the .norm field in particular
+    @test quat(1,2,3,4) === Quaternion(1,2,3,4)
+    @test quat(Quaternion(1,0,0,0)) === Quaternion(1,0,0,0) # checking the .norm field in particular
+    @test quat(Quaternion(1,2,3,4)) === Quaternion(1,2,3,4)
+    @test quat(1,0,0,0,false).norm == false # respect the .norm input (even if wrong)
+    @test quat(1,2,3,4,true).norm == true # respect the .norm input (even if wrong)
 
     @test Quaternion(1,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
     @test Quaternion(1,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
     @test DualQuaternion(1) == 1
     @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
     @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
+    @test dualquat(Quaternion(1,0,0,0)) == Quaternion(1,0,0,0)
+    @test dualquat(Quaternion(1,2,3,4)) == Quaternion(1,2,3,4)
+    @test dualquat(Quaternion(1,0,0,0)) === DualQuaternion(Quaternion(1,0,0,0)) # checking the .norm field in particular
+    @test dualquat(Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1,2,3,4))
+    @test dualquat(Dual(1,2)) === DualQuaternion(Dual(1,2))
+    @test dualquat(Dual(1,2),Dual(0),Dual(0),Dual(0)) === DualQuaternion(Dual(1,2),Dual(0),Dual(0),Dual(0))
+    @test dualquat(Quaternion(1,0,0,0),Quaternion(0),false).norm == false # respect the .norm input (even if wrong)
+    @test dualquat(Quaternion(1,2,3,4),Quaternion(0),true).norm == true # respect the .norm input (even if wrong)
+    @test dualquat(Dual(2,0),Dual(0),Dual(0),Dual(0),true).norm == true # respect the .norm input (even if wrong)
+    @test dualquat(Dual(1,0),Dual(0),Dual(0),Dual(0),false).norm == false # respect the .norm input (even if wrong)
 
     @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
     @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
@@ -44,6 +61,12 @@ end
     @test Octonion(Complex(1,2)) == Complex(1,2)
     @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
     @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
+    @test octo(1,0,0,0,0,0,0,0) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
+    @test octo(1,2,3,4,5,6,7,8) === Octonion(1,2,3,4,5,6,7,8)
+    @test octo(Octonion(1,0,0,0,0,0,0,0)) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
+    @test octo(Octonion(1,2,3,4,5,6,7,8)) === Octonion(1,2,3,4,5,6,7,8)
+    @test octo(1,0,0,0,0,0,0,0,false).norm == false # respect the .norm input (even if wrong)
+    @test octo(1,2,3,4,5,6,7,8,true).norm == true # respect the .norm input (even if wrong)
 end
 
 @testset "conversions" begin
