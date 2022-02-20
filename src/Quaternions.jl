@@ -2,7 +2,7 @@ __precompile__()
 
 module Quaternions
 
-  import Base: +, -, *, /, ^
+  import Base: +, -, *, /, ^, ==
   import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
   import Base: convert, promote_rule, float
   import Base: rand, randn
@@ -15,11 +15,20 @@ module Quaternions
   include("Octonion.jl")
   include("DualQuaternion.jl")
 
-  export Quaternion
+  export Quaternion,
+    QuaternionF16,
+    QuaternionF32,
+    QuaternionF64,
+    Octonion,
+    OctonionF16,
+    OctonionF32,
+    OctonionF64,
+    DualQuaternion,
+    DualQuaternionF16,
+    DualQuaternionF32,
+    DualQuaternionF64
   export quat
-  export Octonion
   export octo
-  export DualQuaternion
   export dualquat
   export angleaxis
   export angle

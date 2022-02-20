@@ -9,26 +9,30 @@ end
 DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = false) =
   DualQuaternion(promote(q0, qe)..., n)
 
-DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool = false) =
-  DualQuaternion(Quaternion(d1.re, d2.re, d3.re, d4.re, n),
-                  Quaternion(d1.du, d2.du, d3.du, d4.du), n)
+DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual) =
+  DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4)),
+                  Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)))
+DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool) =
+  DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
+                  Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)), n)
 
 DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), abs(x) == one(x))
 
-DualQuaternion(d::Dual) = DualQuaternion(d, zero(d), zero(d), zero(d), abs(d) == one(d.re))
+DualQuaternion(d::Dual) = DualQuaternion(Quaternion(DualNumbers.value(d)), Quaternion(DualNumbers.epsilon(d)), (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
 
 DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
 
 DualQuaternion(a::Vector) = DualQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
 
-convert(::Type{DualQuaternion{T}}, x::Real) where {T} =
-    DualQuaternion(convert(Quaternion{T}, x), convert(Quaternion{T}, 0))
+const DualQuaternionF16 = DualQuaternion{Float16}
+const DualQuaternionF32 = DualQuaternion{Float32}
+const DualQuaternionF64 = DualQuaternion{Float64}
 
-convert(::Type{DualQuaternion{T}}, d::Dual) where {T} =
-    DualQuaternion(convert(Dual{T}, d), convert(Dual{T}, 0), convert(Dual{T}, 0), convert(Dual{T}, 0))
+convert(::Type{DualQuaternion{T}}, x::Real) where {T} = DualQuaternion(convert(T, x))
 
-convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} =
-    DualQuaternion(convert(Quaternion{T}, q), convert(Quaternion{T}, 0), q.norm)
+convert(::Type{DualQuaternion{T}}, d::Dual) where {T} = DualQuaternion(convert(Dual{T}, d))
+
+convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} = DualQuaternion(convert(Quaternion{T}, q))
 
 convert(::Type{DualQuaternion{T}}, q::DualQuaternion{T}) where {T <: Real} = q
 
@@ -41,8 +45,10 @@ promote_rule(::Type{DualQuaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} 
 promote_rule(::Type{Quaternion{T}}, ::Type{DualQuaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
 promote_rule(::Type{DualQuaternion{T}}, ::Type{DualQuaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
 
-dualquat(q1, q2, n=false) = DualQuaternion(q1, q2, n)
-dualquat(d1, d2, d3, d4, n=false) = DualQuaternion(d1, d2, d3, d4, n)
+dualquat(q1, q2) = DualQuaternion(q1, q2)
+dualquat(q1, q2, n) = DualQuaternion(q1, q2, n)
+dualquat(d1, d2, d3, d4) = DualQuaternion(d1, d2, d3, d4)
+dualquat(d1, d2, d3, d4, n) = DualQuaternion(d1, d2, d3, d4, n)
 dualquat(x) = DualQuaternion(x)
 
 function show(io::IO, dq::DualQuaternion)
@@ -112,6 +118,7 @@ end
                                                               dq.q0 * dw.qe + dq.qe * dw.q0,
                                                               dq.norm && dw.norm)
 (/)(dq::DualQuaternion, dw::DualQuaternion) = dq * inv(dw)
+(==)(q::DualQuaternion, w::DualQuaternion) = (q.q0 == w.q0) & (q.qe == w.qe) # ignore .norm field
 
 function angleaxis(dq::DualQuaternion)
   tq = dq.qe * conj(dq.q0)
