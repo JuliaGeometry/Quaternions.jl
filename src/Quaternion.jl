@@ -166,15 +166,10 @@ end
 
 function log(q::Quaternion)
     q, a = normalizea(q)
-    s = q.s
     M = abs_imag(q)
-    th = atan(M, s)
-    if M > 0
-        M = th / M
-        return Quaternion(log(a), q.v1 * M, q.v2 * M, q.v3 * M)
-    else
-        return Quaternion(log(a), th, 0.0, 0.0)
-    end
+    theta = atan(M, q.s)
+    scale = theta / ifelse(iszero(M), oneunit(M), M)
+    return Quaternion(log(a), q.v1 * scale, q.v2 * scale, q.v3 * scale)
 end
 
 (^)(q::Quaternion{T}, p::T) where {T<:Real} = extend_analytic(Base.Fix2(^, p), q)
