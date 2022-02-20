@@ -110,8 +110,27 @@ end
 
 argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 
-# extend complex analytic function f to the quaternion q
-# adapted from Theorem 5 of doi.org/10.1017/S0305004100055638
+"""
+    extend_analytic(f, q::Quaternion)
+
+Evaluate the extension of the complex analytic function `f` to the quaternions at `q`.
+
+Given ``q = s + a u``, where ``s`` is the real part, ``u`` is a pure unit quaternion,
+and ``a \\ge 0`` is the magnitude of the imaginary part of ``q``,
+
+```math
+f(q) = \\Re(f(z)) + \\Im(f(z)) u,
+```
+is the extension of `f` to the quaternions, where ``z = a + s i`` is a complex analog to
+``q``.
+
+See Theorem 5 of [^Sudbery1970] for details.
+
+[^Sudbery1970]
+    Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge 
+    Philosophical Society,85, pp 199­225
+    doi:[10.1017/S030500410005563](https://doi.org/10.1017/S0305004100055638)
+"""
 function extend_analytic(f, q::Quaternion)
     a = abs_imag(q)
     s = q.s
