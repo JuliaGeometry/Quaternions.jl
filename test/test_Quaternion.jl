@@ -1,5 +1,6 @@
 
 using Quaternions: argq
+using DualNumbers
 using LinearAlgebra
 using Random
 
@@ -37,7 +38,71 @@ for _ in 1:10, T in (Float32, Float64, Int32, Int64)
     test_multiplicative(c1, c2, +, Quaternion)
 end
 
-let # test rotations
+@testset "promotions and equalities" begin
+    @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
+    @test Quaternion(1) == 1.0 # test promotion
+    @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
+    @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
+    @test quat(1) === Quaternion(1) # checking the .norm field in particular
+    @test quat(1,0,0,0) === Quaternion(1,0,0,0) # checking the .norm field in particular
+    @test quat(1,2,3,4) === Quaternion(1,2,3,4)
+    @test quat(Quaternion(1,0,0,0)) === Quaternion(1,0,0,0) # checking the .norm field in particular
+    @test quat(Quaternion(1,2,3,4)) === Quaternion(1,2,3,4)
+    @test quat(1,0,0,0,false).norm == false # respect the .norm input (even if wrong)
+    @test quat(1,2,3,4,true).norm == true # respect the .norm input (even if wrong)
+
+    @test Quaternion(1,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
+    @test Quaternion(1,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+    @test DualQuaternion(1) == 1.0 # test promotion
+    @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
+    @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
+    @test dualquat(Quaternion(1,0,0,0)) == Quaternion(1,0,0,0)
+    @test dualquat(Quaternion(1,2,3,4)) == Quaternion(1,2,3,4)
+    @test dualquat(Quaternion(1,0,0,0)) === DualQuaternion(Quaternion(1,0,0,0)) # checking the .norm field in particular
+    @test dualquat(Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1,2,3,4))
+    @test dualquat(1) === DualQuaternion(1)
+    @test dualquat(Dual(1,2)) === DualQuaternion(Dual(1,2))
+    @test dualquat(Dual(1,2),Dual(0),Dual(0),Dual(0)) === DualQuaternion(Dual(1,2),Dual(0),Dual(0),Dual(0))
+    @test dualquat(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+    @test dualquat(Quaternion(1,0,0,0),Quaternion(0)).norm == false
+    @test dualquat(Quaternion(1,0,0,0),Quaternion(0),false).norm == false # respect the .norm input (even if wrong)
+    @test dualquat(Quaternion(1,2,3,4),Quaternion(0),true).norm == true # respect the .norm input (even if wrong)
+    @test dualquat(Dual(2,0),Dual(0),Dual(0),Dual(0),true).norm == true # respect the .norm input (even if wrong)
+    @test dualquat(Dual(1,0),Dual(0),Dual(0),Dual(0),false).norm == false # respect the .norm input (even if wrong)
+
+    @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
+    @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
+    @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
+    @test Octonion(1) == 1.0 # test promotion
+    @test Octonion(Complex(1,2)) == Complex(1,2)
+    @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
+    @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
+    @test octo(1) === Octonion(1) # checking the .norm field in particular
+    @test octo(1,0,0,0,0,0,0,0) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
+    @test octo(1,2,3,4,5,6,7,8) === Octonion(1,2,3,4,5,6,7,8)
+    @test octo(Octonion(1,0,0,0,0,0,0,0)) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
+    @test octo(Octonion(1,2,3,4,5,6,7,8)) === Octonion(1,2,3,4,5,6,7,8)
+    @test octo(1,0,0,0,0,0,0,0,false).norm == false # respect the .norm input (even if wrong)
+    @test octo(1,2,3,4,5,6,7,8,true).norm == true # respect the .norm input (even if wrong)
+end
+
+@testset "conversions" begin
+    @test convert(Quaternion{Float64},1) === Quaternion(1.0)
+    @test convert(Quaternion{Float64},Complex(1,2)) === Quaternion(1.0,2.0,0.0,0.0)
+    @test convert(Quaternion{Float64},Quaternion(1,2,3,4)) === Quaternion(1.0,2.0,3.0,4.0)
+
+    @test convert(DualQuaternion{Float64},1) === DualQuaternion(1.0)
+    @test convert(DualQuaternion{Float64},DualNumbers.Dual(1,2)) === DualQuaternion(Quaternion(1.0),Quaternion(2.0))
+    @test convert(DualQuaternion{Float64},Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0))
+    @test convert(DualQuaternion{Float64},DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0),Quaternion(5.0,6.0,7.0,8.0))
+
+    @test convert(Octonion{Float64},1) === Octonion(1.0)
+    @test convert(Octonion{Float64},Complex(1,2)) === Octonion(1.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0)
+    @test convert(Octonion{Float64},Quaternion(1,2,3,4)) === Octonion(1.0,2.0,3.0,4.0,0.0,0.0,0.0,0.0)
+    @test convert(Octonion{Float64},Octonion(1,2,3,4,5,6,7,8)) === Octonion(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0)
+end
+
+@testset "rotations" begin # test rotations
     @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
     @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
     @test qrotation([0, 0, 0]) == Quaternion(1.0)
@@ -73,15 +138,6 @@ let # test rotations
     @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
     @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
 
-    # Regression test for
-    # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
-    struct MyReal <: Real
-      val::Real
-    end
-    Base.:(/)(a::MyReal, b::Real) = a.val / b
-    # this used to throw an error
-    qrotation([1, 0, 0], MyReal(1.5))
-
     let # test numerical stability of angle
         ax = randn(3)
         for θ in [1e-9, π - 1e-9]
@@ -90,6 +146,15 @@ let # test rotations
         end
     end
 end
+
+# Regression test for
+# https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
+struct MyReal <: Real
+    val::Real
+end
+Base.:(/)(a::MyReal, b::Real) = a.val / b
+# this used to throw an error
+@test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
 
 for _ in 1:100
     let # test specialfunctions

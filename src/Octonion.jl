@@ -22,12 +22,9 @@ const OctonionF16 = Octonion{Float16}
 const OctonionF32 = Octonion{Float32}
 const OctonionF64 = Octonion{Float64}
 
-convert(::Type{Octonion{T}}, x::Real) where {T} =
-  Octonion(convert(T, x), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
-convert(::Type{Octonion{T}}, z::Complex) where {T} =
-  Octonion(convert(T, real(z)), convert(T, imag(z)), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
-convert(::Type{Octonion{T}}, q::Quaternion) where {T} =
-  Octonion(convert(T, real(q)), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), convert(T, 0), convert(T, 0), convert(T, 0), convert(T, 0))
+convert(::Type{Octonion{T}}, x::Real) where {T} = Octonion(convert(T, x))
+convert(::Type{Octonion{T}}, z::Complex) where {T} = Octonion(convert(Complex{T}, z))
+convert(::Type{Octonion{T}}, q::Quaternion) where {T} = Octonion(convert(Quaternion{T}, q))
 convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
   Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
@@ -39,7 +36,8 @@ promote_rule(::Type{Complex{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Rea
 promote_rule(::Type{Quaternion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 promote_rule(::Type{Octonion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 
-octo(p, v1, v2, v3, v4, v5, v6, v7, n = false) = Octonion(p, v1, v2, v3, v4, v5, v6, v7, n)
+octo(p, v1, v2, v3, v4, v5, v6, v7) = Octonion(p, v1, v2, v3, v4, v5, v6, v7)
+octo(p, v1, v2, v3, v4, v5, v6, v7, n) = Octonion(p, v1, v2, v3, v4, v5, v6, v7, n)
 octo(x) = Octonion(x)
 octo(s, a) = Octonion(s, a)
 
@@ -116,6 +114,9 @@ end
           )
 
 (/)(o::Octonion, w::Octonion) = o * inv(w)
+
+(==)(q::Octonion, w::Octonion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) &
+                                 (q.v4 == w.v4) & (q.v5 == w.v5) & (q.v6 == w.v6) & (q.v7 == w.v7) # ignore .norm field
 
 function exp(o::Octonion)
   s = o.s
