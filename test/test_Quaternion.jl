@@ -130,6 +130,8 @@ end
     @test exp2(log2(q)) ≈ q
     @test exp10(log10(q)) ≈ q
     @test expm1(log1p(q)) ≈ q
+    @test sinpi(q) ≈ sin(π * q)
+    @test cospi(q) ≈ cos(π * q)
     @test all(sincos(q) .≈ (sin(q), cos(q)))
     VERSION ≥ v"1.6" && @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
     @test tan(q) ≈ cos(q) \ sin(q) ≈ sin(q) / cos(q)
