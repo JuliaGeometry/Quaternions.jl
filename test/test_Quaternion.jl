@@ -1,6 +1,6 @@
 
 using Quaternions: argq
-import DualNumbers
+using DualNumbers
 using LinearAlgebra
 using Random
 
