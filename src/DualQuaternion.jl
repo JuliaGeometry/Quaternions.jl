@@ -38,9 +38,7 @@ promote_rule(::Type{DualQuaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} 
 promote_rule(::Type{Quaternion{T}}, ::Type{DualQuaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
 promote_rule(::Type{DualQuaternion{T}}, ::Type{DualQuaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
 
-dualquat(q1, q2, n=false) = DualQuaternion(q1, q2, n)
-dualquat(d1, d2, d3, d4, n=false) = DualQuaternion(d1, d2, d3, d4, n)
-dualquat(x) = DualQuaternion(x)
+const dualquat = DualQuaternion
 
 function show(io::IO, dq::DualQuaternion)
   show(io, dq.q0)
