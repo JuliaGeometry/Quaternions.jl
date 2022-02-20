@@ -169,3 +169,7 @@ end
 
 dualquatrand() = dualquat(quatrand(), quatrand())
 ndualquatrand() = normalize(dualquatrand())
+
+function rand(rng::AbstractRNG, ::Random.SamplerType{DualQuaternion{T}}) where {T<:Real}
+    return DualQuaternion{T}(rand(rng, Quaternion{T}), rand(rng, Quaternion{T}), false)
+end
