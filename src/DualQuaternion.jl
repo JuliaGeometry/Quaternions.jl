@@ -6,7 +6,7 @@ struct DualQuaternion{T<:Real} <: Number
   norm::Bool
 end
 
-DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = q0.norm) =
+DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = false) =
   DualQuaternion(promote(q0, qe)..., n)
 
 DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual) =
