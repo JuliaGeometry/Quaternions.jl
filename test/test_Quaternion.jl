@@ -28,6 +28,19 @@ let # test promotions and equalities
     @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
     @test Quaternion(1) == 1.0 # test promotion
     @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
+
+    @test Quaternion(1.0,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
+    @test Quaternion(1.0,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+    @test DualQuaternion(1) == 1.0
+    @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
+    @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
+
+    @test Quaternion(1.0,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
+    @test Quaternion(1.0,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
+    @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
+    @test Octonion(1) == 1.0
+    @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
+    @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
 end
 
 let # test rotations
