@@ -32,7 +32,9 @@ promote_rule(::Type{Complex{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Rea
 promote_rule(::Type{Quaternion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 promote_rule(::Type{Octonion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 
-const octo = Octonion
+octo(p, v1, v2, v3, v4, v5, v6, v7, n = false) = Octonion(p, v1, v2, v3, v4, v5, v6, v7, n)
+octo(x) = Octonion(x)
+octo(s, a) = Octonion(s, a)
 
 function show(io::IO, o::Octonion)
   pm(x) = x < 0 ? " - $(-x)" : " + $x"

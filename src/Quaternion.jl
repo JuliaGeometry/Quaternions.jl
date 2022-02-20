@@ -28,7 +28,9 @@ promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Qu
 promote_rule(::Type{Complex{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
-const quat = Quaternion
+quat(p, v1, v2, v3, n = false) = Quaternion(p, v1, v2, v3, n)
+quat(x) = Quaternion(x)
+quat(s, a) = Quaternion(s, a)
 
 function show(io::IO, q::Quaternion)
     pm(x) = x < 0 ? " - $(-x)" : " + $x"
