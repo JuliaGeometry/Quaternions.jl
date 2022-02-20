@@ -6,16 +6,19 @@ struct DualQuaternion{T<:Real} <: Number
   norm::Bool
 end
 
-DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = false) =
+DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = q0.norm) =
   DualQuaternion(promote(q0, qe)..., n)
 
-DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool = false) =
-  DualQuaternion(Quaternion(d1.re, d2.re, d3.re, d4.re, n),
-                  Quaternion(d1.du, d2.du, d3.du, d4.du), n)
+DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual) =
+  DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4)),
+                  Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)))
+DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool) =
+  DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
+                  Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)), n)
 
 DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), abs(x) == one(x))
 
-DualQuaternion(d::Dual) = DualQuaternion(d, zero(d), zero(d), zero(d), abs(d) == one(d.re))
+DualQuaternion(d::Dual) = DualQuaternion(d, zero(d), zero(d), zero(d), abs(d) == one(d))
 
 DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
 
