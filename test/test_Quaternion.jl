@@ -63,6 +63,8 @@ end
     @test dualquat(1) === DualQuaternion(1)
     @test dualquat(Dual(1,2)) === DualQuaternion(Dual(1,2))
     @test dualquat(Dual(1,2),Dual(0),Dual(0),Dual(0)) === DualQuaternion(Dual(1,2),Dual(0),Dual(0),Dual(0))
+    @test dualquat(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+    @test dualquat(Quaternion(1,0,0,0),Quaternion(0)).norm == false
     @test dualquat(Quaternion(1,0,0,0),Quaternion(0),false).norm == false # respect the .norm input (even if wrong)
     @test dualquat(Quaternion(1,2,3,4),Quaternion(0),true).norm == true # respect the .norm input (even if wrong)
     @test dualquat(Dual(2,0),Dual(0),Dual(0),Dual(0),true).norm == true # respect the .norm input (even if wrong)
