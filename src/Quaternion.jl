@@ -154,7 +154,7 @@ if VERSION ≥ v"1.6"
     !!! Note
         This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
     """
-    cispi(q::Quaternion) = extend_analytic(cispi, q)
+    Base.cispi(q::Quaternion) = extend_analytic(cispi, q)
 end
 
 for f in (
