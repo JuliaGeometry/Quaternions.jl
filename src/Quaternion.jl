@@ -199,8 +199,6 @@ function log(q::Quaternion)
     return Quaternion(log(a), q.v1 * scale, q.v2 * scale, q.v3 * scale)
 end
 
-(^)(q::Quaternion{T}, p::T) where {T<:Real} = extend_analytic(Base.Fix2(^, p), q)
-(^)(q::Quaternion{T}, p::AbstractFloat) where {T<:Real} = extend_analytic(Base.Fix2(^, p), q)
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
 function linpol(p::Quaternion, q::Quaternion, t::Real)
