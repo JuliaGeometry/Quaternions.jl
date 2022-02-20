@@ -150,8 +150,8 @@ end
     VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
 end
 
-let
-    # https://github.com/JuliaGeometry/Quaternions.jl/issues/39
+# https://github.com/JuliaGeometry/Quaternions.jl/issues/39
+@testset "exp(::Quaternion{Int})" begin
     @test exp(Quaternion(1,1,1,1)) ≈ exp(Quaternion(1.0,1.0,1.0,1.0))
 end
 
