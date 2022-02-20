@@ -106,7 +106,7 @@ end
     # all complex analytic functions can be extended to the quaternions
     q, q2 = randn(Quaternion{Float64}, 2)
     unary_funs = [
-        sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p,
+        sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p, cis,
         sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh,
         csc, sec, cot, acsc, asec, acot, csch, sech, coth, acsch, asech, acoth,
         sinpi, cospi,
@@ -116,7 +116,7 @@ end
     @testset for fun in unary_funs
         for i in 1:100
             c = randn(ComplexF64)
-            @test fun(Quaternion(c)) ≈ fun(c)
+            fun !== cis && @test fun(Quaternion(c)) ≈ fun(c)
             @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
         end
     end
@@ -144,6 +144,8 @@ end
     @test q^7.8 ≈ exp(7.8 * log(q))
     @test q^1.3f0 ≈ exp(1.3f0 * log(q))
     @test q^7.8f0 ≈ exp(7.8f0 * log(q))
+    @test cis(q) ≈ exp(normalize(q - real(q)) * q)
+    VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
 end
 
 let
