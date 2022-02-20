@@ -6,6 +6,10 @@ struct Quaternion{T<:Real} <: Number
     norm::Bool
 end
 
+const QuaternionF16 = Quaternion{Float16}
+const QuaternionF32 = Quaternion{Float32}
+const QuaternionF64 = Quaternion{Float64}
+
 (::Type{Quaternion{T}})(x::Real) where {T} = Quaternion{T}(x, 0, 0, 0, false)
 (::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
 (::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)

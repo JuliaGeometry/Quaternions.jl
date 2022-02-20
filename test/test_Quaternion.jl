@@ -3,6 +3,18 @@ using Quaternions: argq
 using LinearAlgebra
 using Random
 
+@testset "type aliases" begin
+    @test QuaternionF16 === Quaternion{Float16}
+    @test QuaternionF32 === Quaternion{Float32}
+    @test QuaternionF64 === Quaternion{Float64}
+    @test OctonionF16 === Octonion{Float16}
+    @test OctonionF32 === Octonion{Float32}
+    @test OctonionF64 === Octonion{Float64}
+    @test DualQuaternionF16 === DualQuaternion{Float16}
+    @test DualQuaternionF32 === DualQuaternion{Float32}
+    @test DualQuaternionF64 === DualQuaternion{Float64}
+end
+
 # creating random examples
 sample(QT::Type{Quaternion{T}}) where {T <: Integer} = QT(rand(-100:100, 4)..., false)
 sample(QT::Type{Quaternion{T}}) where {T <: AbstractFloat} = QT(rand(Bool) ? quatrand() : nquatrand())
