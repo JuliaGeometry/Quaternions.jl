@@ -1,5 +1,6 @@
 
 using Quaternions: argq
+import DualNumbers
 using LinearAlgebra
 
 # creating random examples
@@ -26,24 +27,41 @@ end
 
 @testset "promotions and equalities" begin
     @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
-    @test Quaternion(1) == 1.0 # test promotion
+    @test Quaternion(1) == 1 # test promotion
     @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
 
-    @test Quaternion(1.0,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
-    @test Quaternion(1.0,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
-    @test DualQuaternion(1) == 1.0
+    @test Quaternion(1,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
+    @test Quaternion(1,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+    @test DualQuaternion(1) == 1
     @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
     @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
 
-    @test Quaternion(1.0,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
-    @test Quaternion(1.0,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
+    @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
+    @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
     @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
     @test Octonion(1) == 1.0
+    @test Octonion(Complex(1,2)) == Complex(1,2)
     @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
     @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
 end
 
-let # test rotations
+@testset "conversions" begin
+    @test convert(Quaternion{Float64},1) === Quaternion(1.0)
+    @test convert(Quaternion{Float64},Complex(1,2)) === Quaternion(1.0,2.0,0.0,0.0)
+    @test convert(Quaternion{Float64},Quaternion(1,2,3,4)) === Quaternion(1.0,2.0,3.0,4.0)
+
+    @test convert(DualQuaternion{Float64},1) === DualQuaternion(1.0)
+    @test convert(DualQuaternion{Float64},DualNumbers.Dual(1,2)) === DualQuaternion(Quaternion(1.0),Quaternion(2.0))
+    @test convert(DualQuaternion{Float64},Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0))
+    @test convert(DualQuaternion{Float64},DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0),Quaternion(5.0,6.0,7.0,8.0))
+
+    @test convert(Octonion{Float64},1) === Octonion(1.0)
+    @test convert(Octonion{Float64},Complex(1,2)) === Octonion(1.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0)
+    @test convert(Octonion{Float64},Quaternion(1,2,3,4)) === Octonion(1.0,2.0,3.0,4.0,0.0,0.0,0.0,0.0)
+    @test convert(Octonion{Float64},Octonion(1,2,3,4,5,6,7,8)) === Octonion(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0)
+end
+
+@testset "rotations" begin # test rotations
     qx = qrotation([1, 0, 0], pi / 4)
     @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
     @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
