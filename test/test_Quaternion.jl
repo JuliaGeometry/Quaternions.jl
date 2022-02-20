@@ -4,6 +4,18 @@ using DualNumbers
 using LinearAlgebra
 using Random
 
+@testset "type aliases" begin
+    @test QuaternionF16 === Quaternion{Float16}
+    @test QuaternionF32 === Quaternion{Float32}
+    @test QuaternionF64 === Quaternion{Float64}
+    @test OctonionF16 === Octonion{Float16}
+    @test OctonionF32 === Octonion{Float32}
+    @test OctonionF64 === Octonion{Float64}
+    @test DualQuaternionF16 === DualQuaternion{Float16}
+    @test DualQuaternionF32 === DualQuaternion{Float32}
+    @test DualQuaternionF64 === DualQuaternion{Float64}
+end
+
 # creating random examples
 sample(QT::Type{Quaternion{T}}) where {T <: Integer} = QT(rand(-100:100, 4)..., false)
 sample(QT::Type{Quaternion{T}}) where {T <: AbstractFloat} = QT(rand(Bool) ? quatrand() : nquatrand())
@@ -214,6 +226,37 @@ for _ in 1:100
         @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
         @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
     end
+end
+
+@testset "exp" begin
+    @test exp(Quaternion(0, 0, 0, 0)) == Quaternion(1, 0, 0, 0, true)
+    @test exp(Quaternion(2, 0, 0, 0)) == Quaternion(exp(2), 0, 0, 0, false)
+    @test exp(Quaternion(0, 2, 0, 0)) == Quaternion(cos(2), sin(2), 0, 0, true)
+    @test exp(Quaternion(0, 0, 2, 0)) == Quaternion(cos(2), 0, sin(2), 0, true)
+    @test exp(Quaternion(0, 0, 0, 2)) == Quaternion(cos(2), 0, 0, sin(2), true)
+
+    @test norm(exp(Quaternion(0, 0, 0, 0))) ≈ 1
+    @test norm(exp(Quaternion(2, 0, 0, 0))) ≠ 1
+    @test norm(exp(Quaternion(0, 2, 0, 0))) ≈ 1
+    @test norm(exp(Quaternion(0, 0, 2, 0))) ≈ 1
+    @test norm(exp(Quaternion(0, 0, 0, 2))) ≈ 1
+
+    @test exp(Quaternion(0., 0., 0., 0.)) == Quaternion(1, 0, 0, 0, true)
+    @test exp(Quaternion(2., 0., 0., 0.)) == Quaternion(exp(2), 0, 0, 0, false)
+    @test exp(Quaternion(0., 2., 0., 0.)) == Quaternion(cos(2), sin(2), 0, 0, true)
+    @test exp(Quaternion(0., 0., 2., 0.)) == Quaternion(cos(2), 0, sin(2), 0, true)
+    @test exp(Quaternion(0., 0., 0., 2.)) == Quaternion(cos(2), 0, 0, sin(2), true)
+
+    @test norm(exp(Quaternion(0., 0., 0., 0.))) ≈ 1
+    @test norm(exp(Quaternion(2., 0., 0., 0.))) ≠ 1
+    @test norm(exp(Quaternion(0., 2., 0., 0.))) ≈ 1
+    @test norm(exp(Quaternion(0., 0., 2., 0.))) ≈ 1
+    @test norm(exp(Quaternion(0., 0., 0., 2.))) ≈ 1
+
+    @test exp(Quaternion(0,0,0,0)) isa Quaternion{Float64}
+    @test exp(Quaternion(0.,0,0,0)) isa Quaternion{Float64}
+    @test exp(Quaternion(0//1,0,0,0)) isa Quaternion{Float64}
+    @test exp(Quaternion(BigFloat(0),0,0,0)) isa Quaternion{BigFloat}
 end
 
 @testset "random quaternions" begin

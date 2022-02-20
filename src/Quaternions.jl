@@ -15,11 +15,20 @@ module Quaternions
   include("Octonion.jl")
   include("DualQuaternion.jl")
 
-  export Quaternion
+  export Quaternion,
+    QuaternionF16,
+    QuaternionF32,
+    QuaternionF64,
+    Octonion,
+    OctonionF16,
+    OctonionF32,
+    OctonionF64,
+    DualQuaternion,
+    DualQuaternionF16,
+    DualQuaternionF32,
+    DualQuaternionF64
   export quat
-  export Octonion
   export octo
-  export DualQuaternion
   export dualquat
   export angleaxis
   export angle

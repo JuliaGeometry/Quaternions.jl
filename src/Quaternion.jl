@@ -6,6 +6,10 @@ struct Quaternion{T<:Real} <: Number
     norm::Bool
 end
 
+const QuaternionF16 = Quaternion{Float16}
+const QuaternionF32 = Quaternion{Float32}
+const QuaternionF64 = Quaternion{Float64}
+
 (::Type{Quaternion{T}})(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 (::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
 (::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
@@ -119,7 +123,7 @@ function exp(q::Quaternion)
     if th > 0
         scale *= sin(th) / th
     end
-    Quaternion(se * cos(th), scale * q.v1, scale * q.v2, scale * q.v3, abs(s) < eps(typeof(s)))
+    Quaternion(se * cos(th), scale * q.v1, scale * q.v2, scale * q.v3, iszero(s))
 end
 
 function log(q::Quaternion)

@@ -24,6 +24,10 @@ DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
 
 DualQuaternion(a::Vector) = DualQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
 
+const DualQuaternionF16 = DualQuaternion{Float16}
+const DualQuaternionF32 = DualQuaternion{Float32}
+const DualQuaternionF64 = DualQuaternion{Float64}
+
 convert(::Type{DualQuaternion{T}}, x::Real) where {T} = DualQuaternion(convert(T, x))
 
 convert(::Type{DualQuaternion{T}}, d::Dual) where {T} = DualQuaternion(convert(Dual{T}, d))
