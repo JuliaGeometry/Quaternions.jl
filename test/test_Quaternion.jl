@@ -218,6 +218,37 @@ for _ in 1:100
     end
 end
 
+@testset "exp" begin
+    @test exp(Quaternion(0, 0, 0, 0)) == Quaternion(1, 0, 0, 0, true)
+    @test exp(Quaternion(2, 0, 0, 0)) == Quaternion(exp(2), 0, 0, 0, false)
+    @test exp(Quaternion(0, 2, 0, 0)) == Quaternion(cos(2), sin(2), 0, 0, true)
+    @test exp(Quaternion(0, 0, 2, 0)) == Quaternion(cos(2), 0, sin(2), 0, true)
+    @test exp(Quaternion(0, 0, 0, 2)) == Quaternion(cos(2), 0, 0, sin(2), true)
+
+    @test norm(exp(Quaternion(0, 0, 0, 0))) ≈ 1
+    @test norm(exp(Quaternion(2, 0, 0, 0))) ≠ 1
+    @test norm(exp(Quaternion(0, 2, 0, 0))) ≈ 1
+    @test norm(exp(Quaternion(0, 0, 2, 0))) ≈ 1
+    @test norm(exp(Quaternion(0, 0, 0, 2))) ≈ 1
+
+    @test exp(Quaternion(0., 0., 0., 0.)) == Quaternion(1, 0, 0, 0, true)
+    @test exp(Quaternion(2., 0., 0., 0.)) == Quaternion(exp(2), 0, 0, 0, false)
+    @test exp(Quaternion(0., 2., 0., 0.)) == Quaternion(cos(2), sin(2), 0, 0, true)
+    @test exp(Quaternion(0., 0., 2., 0.)) == Quaternion(cos(2), 0, sin(2), 0, true)
+    @test exp(Quaternion(0., 0., 0., 2.)) == Quaternion(cos(2), 0, 0, sin(2), true)
+
+    @test norm(exp(Quaternion(0., 0., 0., 0.))) ≈ 1
+    @test norm(exp(Quaternion(2., 0., 0., 0.))) ≠ 1
+    @test norm(exp(Quaternion(0., 2., 0., 0.))) ≈ 1
+    @test norm(exp(Quaternion(0., 0., 2., 0.))) ≈ 1
+    @test norm(exp(Quaternion(0., 0., 0., 2.))) ≈ 1
+
+    @test exp(Quaternion(0,0,0,0)) isa Quaternion{Float64}
+    @test exp(Quaternion(0.,0,0,0)) isa Quaternion{Float64}
+    @test exp(Quaternion(0//1,0,0,0)) isa Quaternion{Float64}
+    @test exp(Quaternion(BigFloat(0),0,0,0)) isa Quaternion{BigFloat}
+end
+
 @testset "random quaternions" begin
     @testset "quatrand" begin
         rng = Random.MersenneTwister(42)

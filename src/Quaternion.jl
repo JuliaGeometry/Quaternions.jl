@@ -119,7 +119,7 @@ function extend_analytic(f, q::Quaternion)
     w = f(z)
     wr, wi = reim(w)
     scale = wi / a
-    norm = _isexpfun(f) && abs(s) < eps(float(typeof(s)))
+    norm = _isexpfun(f) && iszero(s)
     if a > 0
         return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3, norm)
     else  # quaternion may be real or complex
