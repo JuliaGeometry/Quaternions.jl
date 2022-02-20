@@ -110,7 +110,7 @@ end
 
 (/)(o::Octonion, w::Octonion) = o * inv(w)
 
-(==)(q::Octonion, w::Octonion) = (q.s == w.s)   & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) &
+(==)(q::Octonion, w::Octonion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) &
                                  (q.v4 == w.v4) & (q.v5 == w.v5) & (q.v6 == w.v6) & (q.v7 == w.v7) # ignore .norm field
 
 function exp(o::Octonion)
