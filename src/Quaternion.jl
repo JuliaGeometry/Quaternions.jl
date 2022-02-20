@@ -209,7 +209,7 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     end
     normaxis = norm(axis)
     if iszero(normaxis)
-        normaxis = one(normaxis)
+        normaxis = oneunit(normaxis)
         theta = zero(theta)
     end
     s,c = sincos(theta / 2)
