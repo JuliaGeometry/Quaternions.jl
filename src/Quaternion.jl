@@ -183,8 +183,8 @@ for f in (@static(VERSION ≥ v"1.6" ? (:sincos, :sincospi) : (:sincos,)))
                 )
             else
                 return (
-                    Quaternion(sr, oftype(sscale, si), zero(scale), zero(scale)),
-                    Quaternion(cr, oftype(cscale, ci), zero(scale), zero(scale)),
+                    Quaternion(sr, oftype(sscale, si), zero(sscale), zero(sscale)),
+                    Quaternion(cr, oftype(cscale, ci), zero(cscale), zero(cscale)),
                 )
             end
         end

@@ -133,7 +133,11 @@ end
     @test sinpi(q) ≈ sin(π * q)
     @test cospi(q) ≈ cos(π * q)
     @test all(sincos(q) .≈ (sin(q), cos(q)))
-    VERSION ≥ v"1.6" && @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
+    @test all(sincos(zero(q)) .≈ (sin(zero(q)), cos(zero(q))))
+    if VERSION ≥ v"1.6"
+        @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
+        @test all(sincospi(zero(q)) .≈ (sinpi(zero(q)), cospi(zero(q))))
+    end
     @test tan(q) ≈ cos(q) \ sin(q) ≈ sin(q) / cos(q)
     @test tanh(q) ≈ cosh(q) \ sinh(q) ≈ sinh(q) / cosh(q)
     @testset for (f, finv) in [(sin, csc), (cos, sec), (tan, cot), (sinh, csch), (cosh, sech), (tanh, coth)]
