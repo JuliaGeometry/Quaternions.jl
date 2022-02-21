@@ -354,6 +354,8 @@ end
     a, b, c = randn(QuaternionF64, 3)
     x = sylvester(a, b, c)
     @test a * x + x * b ≈ -c
+    x = sylvester(b, a, c)
+    @test b * x + x * a ≈ -c
     @test iszero(sylvester(a, b, zero(c)))
     @test sylvester(a, zero(b), c) ≈ a \ -c
     @test sylvester(zero(a), b, c) ≈ -c / b
