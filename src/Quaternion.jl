@@ -307,3 +307,23 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
         qa.v3 * ratio_a + qm.v3 * ratio_b,
     )
 end
+
+function sylvester(a::Quaternion, b::Quaternion, c::Quaternion)
+    abs2a = abs2(a)
+    abs2b = abs2(b)
+    if abs2a > abs2b
+        d1 = -(2real(b) + a + conj(a) * (abs2b / abs2a))
+        x = d1 \ (c + (conj(a) * c * conj(b)) / abs2a)
+    else
+        d2 = -(2real(a) + b + conj(b) * (abs2a / abs2b))
+        x = (c + (conj(a) * c * conj(b)) / abs2b) / d2
+    end
+    iszero(abs2a) && iszero(abs2b) && iszero(c) && return zero(x)
+    return x
+end
+
+function lyap(a::Quaternion, c::Quaternion)
+    x = (c + a \ c * a) / -4real(a)
+    iszero(a) && iszero(c) && return zero(x)
+    return x
+end

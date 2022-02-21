@@ -6,7 +6,7 @@ module Quaternions
   import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, iszero, log, real, sin, sqrt
   import Base: convert, promote_rule, float
   import Base: rand, randn
-  import LinearAlgebra: norm, normalize
+  import LinearAlgebra: lyap, norm, normalize, sylvester
   using Random
 
   Base.@irrational INV_SQRT_EIGHT 0.3535533905932737622004 sqrt(big(0.125))
