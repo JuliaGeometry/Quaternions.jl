@@ -189,38 +189,40 @@ end
         end
     end
 
-    @testset "identities for analytic functions"
-        q = randn(QuaternionF64)
-        @test inv(q) * q ≈ q * inv(q) ≈ one(q)
-        @test sqrt(q) * sqrt(q) ≈ q
-        @test exp(log(q)) ≈ q
-        @test exp(zero(q)) ≈ one(q)
-        @test log(one(q)) ≈ zero(q)
-        @test exp2(log2(q)) ≈ q
-        @test exp10(log10(q)) ≈ q
-        @test expm1(log1p(q)) ≈ q
-        @test sinpi(q) ≈ sin(π * q)
-        @test cospi(q) ≈ cos(π * q)
-        @test all(sincos(q) .≈ (sin(q), cos(q)))
-        @test all(sincos(zero(q)) .≈ (sin(zero(q)), cos(zero(q))))
-        if VERSION ≥ v"1.6"
-            @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
-            @test all(sincospi(zero(q)) .≈ (sinpi(zero(q)), cospi(zero(q))))
+    @testset "identities for analytic functions" begin
+        for _ in 1:100
+            q = randn(QuaternionF64)
+            @test inv(q) * q ≈ q * inv(q) ≈ one(q)
+            @test sqrt(q) * sqrt(q) ≈ q
+            @test exp(log(q)) ≈ q
+            @test exp(zero(q)) ≈ one(q)
+            @test log(one(q)) ≈ zero(q)
+            @test exp2(log2(q)) ≈ q
+            @test exp10(log10(q)) ≈ q
+            @test expm1(log1p(q)) ≈ q
+            @test sinpi(q) ≈ sin(π * q)
+            @test cospi(q) ≈ cos(π * q)
+            @test all(sincos(q) .≈ (sin(q), cos(q)))
+            @test all(sincos(zero(q)) .≈ (sin(zero(q)), cos(zero(q))))
+            if VERSION ≥ v"1.6"
+                @test all(sincospi(q) .≈ (sinpi(q), cospi(q)))
+                @test all(sincospi(zero(q)) .≈ (sinpi(zero(q)), cospi(zero(q))))
+            end
+            @test tan(q) ≈ cos(q) \ sin(q) ≈ sin(q) / cos(q)
+            @test tanh(q) ≈ cosh(q) \ sinh(q) ≈ sinh(q) / cosh(q)
+            @testset for (f, finv) in [(sin, csc), (cos, sec), (tan, cot), (sinh, csch), (cosh, sech), (tanh, coth)]
+                @test f(q) ≈ inv(finv(q))
+            end
+            @testset for (f, finv) in [(asin, acsc), (acos, asec), (atan, acot), (asinh, acsch), (acosh, asech), (atanh, acoth)]
+                @test f(q) ≈ finv(inv(q))
+            end
+            @test q^1.3 ≈ exp(1.3 * log(q))
+            @test q^7.8 ≈ exp(7.8 * log(q))
+            @test q^1.3f0 ≈ exp(1.3f0 * log(q))
+            @test q^7.8f0 ≈ exp(7.8f0 * log(q))
+            @test cis(q) ≈ exp(normalize(q - real(q)) * q)
+            VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
         end
-        @test tan(q) ≈ cos(q) \ sin(q) ≈ sin(q) / cos(q)
-        @test tanh(q) ≈ cosh(q) \ sinh(q) ≈ sinh(q) / cosh(q)
-        @testset for (f, finv) in [(sin, csc), (cos, sec), (tan, cot), (sinh, csch), (cosh, sech), (tanh, coth)]
-            @test f(q) ≈ inv(finv(q))
-        end
-        @testset for (f, finv) in [(asin, acsc), (acos, asec), (atan, acot), (asinh, acsch), (acosh, asech), (atanh, acoth)]
-            @test f(q) ≈ finv(inv(q))
-        end
-        @test q^1.3 ≈ exp(1.3 * log(q))
-        @test q^7.8 ≈ exp(7.8 * log(q))
-        @test q^1.3f0 ≈ exp(1.3f0 * log(q))
-        @test q^7.8f0 ≈ exp(7.8f0 * log(q))
-        @test cis(q) ≈ exp(normalize(q - real(q)) * q)
-        VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
     end
 end
 
