@@ -146,7 +146,10 @@ function extend_analytic(f, q::Quaternion)
     norm = _isexpfun(f) && iszero(s)
     if a > 0
         return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3, norm)
-    else  # quaternion may be real or complex
+    else
+        # q == real(q), so f(real(q)) may be real or complex, i.e. wi may be nonzero.
+        # we choose to embed complex numbers in the quaternions by identifying the first
+        # imaginary quaternion basis with the complex imaginary basis.
         return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale), norm)
     end
 end
