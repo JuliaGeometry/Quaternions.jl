@@ -216,10 +216,6 @@ end
             @testset for (f, finv) in [(asin, acsc), (acos, asec), (atan, acot), (asinh, acsch), (acosh, asech), (atanh, acoth)]
                 @test f(q) ≈ finv(inv(q))
             end
-            @test q^1.3 ≈ exp(1.3 * log(q))
-            @test q^7.8 ≈ exp(7.8 * log(q))
-            @test q^1.3f0 ≈ exp(1.3f0 * log(q))
-            @test q^7.8f0 ≈ exp(7.8f0 * log(q))
             @test cis(q) ≈ exp(normalize(q - real(q)) * q)
             VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
         end
@@ -259,6 +255,30 @@ end
     # https://github.com/JuliaGeometry/Quaternions.jl/issues/39
     @testset "exp(::Quaternion{Int})" begin
         @test exp(Quaternion(1,1,1,1)) ≈ exp(Quaternion(1.0,1.0,1.0,1.0))
+    end
+end
+
+@testset "^" begin
+    @testset "^(::Quaternion, ::Real)" begin
+        for _ in 1:100
+            q = randn(QuaternionF64)
+            @test q^2.0 ≈ q * q
+            @test q^1.0 ≈ q
+            @test q^-1.0 ≈ inv(q)
+            @test q^1.3 ≈ exp(1.3 * log(q))
+            @test q^7.8 ≈ exp(7.8 * log(q))
+            @test q^1.3f0 ≈ exp(1.3f0 * log(q))
+            @test q^7.8f0 ≈ exp(7.8f0 * log(q))
+        end
+    end
+    @testset "^(::Quaternion, ::Quaternion)" begin
+        @test Quaternion(ℯ,0,0,0)^Quaternion(0,0,π/2,0) ≈ Quaternion(0,0,1,0)
+        @test Quaternion(3.5,0,0,2.3)^Quaternion(0.2,0,0,1.7) ≈
+            Quaternion(real((3.5+2.3im)^(0.2+1.7im)),0,0,imag((3.5+2.3im)^(0.2+1.7im)))
+        for _ in 1:100
+            q, p = randn(QuaternionF64, 2)
+            @test q^p ≈ exp(p * log(q))
+        end
     end
 end
 
