@@ -226,11 +226,6 @@ end
     end
 end
 
-# https://github.com/JuliaGeometry/Quaternions.jl/issues/39
-@testset "exp(::Quaternion{Int})" begin
-    @test exp(Quaternion(1,1,1,1)) ≈ exp(Quaternion(1.0,1.0,1.0,1.0))
-end
-
 for _ in 1:100
     let # test qrotation and angleaxis inverse
         ax = randn(3); ax = ax / norm(ax)
@@ -319,6 +314,11 @@ end
     @test exp(Quaternion(0.,0,0,0)) isa Quaternion{Float64}
     @test exp(Quaternion(0//1,0,0,0)) isa Quaternion{Float64}
     @test exp(Quaternion(BigFloat(0),0,0,0)) isa Quaternion{BigFloat}
+
+    # https://github.com/JuliaGeometry/Quaternions.jl/issues/39
+    @testset "exp(::Quaternion{Int})" begin
+        @test exp(Quaternion(1,1,1,1)) ≈ exp(Quaternion(1.0,1.0,1.0,1.0))
+    end
 end
 
 @testset "random quaternions" begin
