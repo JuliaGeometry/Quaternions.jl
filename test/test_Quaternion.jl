@@ -172,7 +172,6 @@ end
 
 @testset "complex analytic functions" begin
     # all complex analytic functions can be extended to the quaternions
-    q, q2 = randn(Quaternion{Float64}, 2)
     unary_funs = [
         sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p, cis,
         sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh,
@@ -182,6 +181,7 @@ end
     # since every quaternion is conjugate to a complex number,
     # one can establish correctness as follows:
     @testset for fun in unary_funs
+        q, q2 = randn(QuaternionF64, 2)
         for i in 1:100
             c = randn(ComplexF64)
             fun !== cis && @test fun(Quaternion(c)) ≈ fun(c)
