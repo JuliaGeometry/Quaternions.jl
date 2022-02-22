@@ -219,7 +219,7 @@ for f in (@static(VERSION ≥ v"1.6" ? (:sincos, :sincospi) : (:sincos,)))
 end
 
 function log(q::Quaternion)
-    q, a = normalizea(q)
+    a = abs(q)
     M = abs_imag(q)
     theta = atan(M, q.s)
     scale = theta / ifelse(iszero(M), oneunit(M), M)

@@ -170,7 +170,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 end
 
-@testset "complex analytic functions" begin
+@testset "extended complex analytic functions" begin
     # all complex analytic functions can be extended to the quaternions
     unary_funs = [
         sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p, cis,
@@ -189,7 +189,7 @@ end
         end
     end
 
-    @testset "identities for analytic functions" begin
+    @testset "identities" begin
         for _ in 1:100
             q = randn(QuaternionF64)
             @test inv(q) * q ≈ q * inv(q) ≈ one(q)
@@ -218,6 +218,12 @@ end
             end
             @test cis(q) ≈ exp(normalize(q - real(q)) * q)
             VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
+        end
+    end
+
+    @testset "additional properties" begin
+        @testset "log" begin
+            @test log(zero(QuaternionF64)) === Quaternion(-Inf, 0, 0, 0)
         end
     end
 end
