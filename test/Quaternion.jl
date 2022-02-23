@@ -1,6 +1,5 @@
 
 using Quaternions
-using DualNumbers
 using LinearAlgebra
 using Random
 using Test
@@ -22,36 +21,12 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test Quaternion(1) == 1.0 # test promotion
         @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
         @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
-
-        @test Quaternion(1,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
-        @test Quaternion(1,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
-        @test DualQuaternion(1) == 1.0 # test promotion
-        @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
-        @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
-    
-        @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
-        @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
-        @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
-        @test Octonion(1) == 1.0 # test promotion
-        @test Octonion(Complex(1,2)) == Complex(1,2)
-        @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
-        @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
     end
 
     @testset "convert" begin
         @test convert(Quaternion{Float64},1) === Quaternion(1.0)
         @test convert(Quaternion{Float64},Complex(1,2)) === Quaternion(1.0,2.0,0.0,0.0)
         @test convert(Quaternion{Float64},Quaternion(1,2,3,4)) === Quaternion(1.0,2.0,3.0,4.0)
-
-        @test convert(DualQuaternion{Float64},1) === DualQuaternion(1.0)
-        @test convert(DualQuaternion{Float64},DualNumbers.Dual(1,2)) === DualQuaternion(Quaternion(1.0),Quaternion(2.0))
-        @test convert(DualQuaternion{Float64},Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0))
-        @test convert(DualQuaternion{Float64},DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0),Quaternion(5.0,6.0,7.0,8.0))
-
-        @test convert(Octonion{Float64},1) === Octonion(1.0)
-        @test convert(Octonion{Float64},Complex(1,2)) === Octonion(1.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0)
-        @test convert(Octonion{Float64},Quaternion(1,2,3,4)) === Octonion(1.0,2.0,3.0,4.0,0.0,0.0,0.0,0.0)
-        @test convert(Octonion{Float64},Octonion(1,2,3,4,5,6,7,8)) === Octonion(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0)
     end
 
     @testset "promote" begin
@@ -65,28 +40,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test quat(Quaternion(1,2,3,4)) === Quaternion(1,2,3,4)
         @test quat(1,0,0,0,false).norm == false # respect the .norm input (even if wrong)
         @test quat(1,2,3,4,true).norm == true # respect the .norm input (even if wrong)
-    
-        @test dualquat(Quaternion(1,0,0,0)) == Quaternion(1,0,0,0)
-        @test dualquat(Quaternion(1,2,3,4)) == Quaternion(1,2,3,4)
-        @test dualquat(Quaternion(1,0,0,0)) === DualQuaternion(Quaternion(1,0,0,0)) # checking the .norm field in particular
-        @test dualquat(Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1,2,3,4))
-        @test dualquat(1) === DualQuaternion(1)
-        @test dualquat(Dual(1,2)) === DualQuaternion(Dual(1,2))
-        @test dualquat(Dual(1,2),Dual(0),Dual(0),Dual(0)) === DualQuaternion(Dual(1,2),Dual(0),Dual(0),Dual(0))
-        @test dualquat(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
-        @test dualquat(Quaternion(1,0,0,0),Quaternion(0)).norm == false
-        @test dualquat(Quaternion(1,0,0,0),Quaternion(0),false).norm == false # respect the .norm input (even if wrong)
-        @test dualquat(Quaternion(1,2,3,4),Quaternion(0),true).norm == true # respect the .norm input (even if wrong)
-        @test dualquat(Dual(2,0),Dual(0),Dual(0),Dual(0),true).norm == true # respect the .norm input (even if wrong)
-        @test dualquat(Dual(1,0),Dual(0),Dual(0),Dual(0),false).norm == false # respect the .norm input (even if wrong)
-    
-        @test octo(1) === Octonion(1) # checking the .norm field in particular
-        @test octo(1,0,0,0,0,0,0,0) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
-        @test octo(1,2,3,4,5,6,7,8) === Octonion(1,2,3,4,5,6,7,8)
-        @test octo(Octonion(1,0,0,0,0,0,0,0)) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
-        @test octo(Octonion(1,2,3,4,5,6,7,8)) === Octonion(1,2,3,4,5,6,7,8)
-        @test octo(1,0,0,0,0,0,0,0,false).norm == false # respect the .norm input (even if wrong)
-        @test octo(1,2,3,4,5,6,7,8,true).norm == true # respect the .norm input (even if wrong)
     end
     
     @testset "random generation" begin
@@ -112,25 +65,17 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test q2.norm
         end
 
-        @testset "rand($H)" for H in (Quaternion, DualQuaternion, Octonion)
+        @testset "rand($H)" for H in (QuaternionF32, QuaternionF64)
             rng = Random.MersenneTwister(42)
-            q1 = rand(rng, H{Float64})
-            @test q1 isa H{Float64}
-            @test !q1.norm
+            q = rand(rng, H)
+            @test q isa H
+            @test !q.norm
 
-            q2 = rand(rng, H{Float32})
-            @test q2 isa H{Float32}
-            @test !q2.norm
-
-            qs = rand(rng, H{Float64}, 1000)
-            @test eltype(qs) === H{Float64}
+            qs = rand(rng, H, 1000)
+            @test eltype(qs) === H
             @test length(qs) == 1000
             xs = map(qs) do q
-                if q isa DualQuaternion
-                    return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
-                else
-                    return [real(q); Quaternions.imag(q)]
-                end
+                return [real(q); Quaternions.imag(q)]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
@@ -138,34 +83,22 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test all(isapprox.(xs_var, 1/12; atol=0.01))
         end
 
-        @testset "randn($H)" for H in (Quaternion, Octonion)
+        @testset "randn($H)" for H in (QuaternionF32, QuaternionF64)
             rng = Random.MersenneTwister(42)
-            q1 = randn(rng, H{Float64})
-            @test q1 isa H{Float64}
-            @test !q1.norm
+            q = randn(rng, H)
+            @test q isa H
+            @test !q.norm
 
-            q2 = randn(rng, H{Float32})
-            @test q2 isa H{Float32}
-            @test !q2.norm
-
-            qs = randn(rng, H{Float64}, 10000)
-            @test eltype(qs) === H{Float64}
+            qs = randn(rng, H, 10000)
+            @test eltype(qs) === H
             @test length(qs) == 10000
             xs = map(qs) do q
-                if q isa DualQuaternion
-                    return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
-                else
-                    return [real(q); Quaternions.imag(q)]
-                end
+                return [real(q); Quaternions.imag(q)]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
             @test all(isapprox.(xs_mean, 0; atol=0.1))
-            if H === Quaternion
-                @test all(isapprox.(xs_var, 1/4; atol=0.1))
-            else
-                @test all(isapprox.(xs_var, 1/8; atol=0.1))
-            end
+            @test all(isapprox.(xs_var, 1/4; atol=0.1))
         end
     end
 
