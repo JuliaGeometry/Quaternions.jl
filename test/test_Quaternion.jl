@@ -162,7 +162,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     # since every quaternion is conjugate to a complex number,
     # one can establish correctness as follows:
     @testset for fun in unary_funs
-        for i in 1:100
+        for _ in 1:100
             c = randn(ComplexF64)
             @test fun(Quaternion(c)) ≈ fun(c)
             @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
@@ -182,7 +182,7 @@ end
     # one can establish correctness as follows:
     @testset for fun in unary_funs
         q, q2 = randn(QuaternionF64, 2)
-        for i in 1:100
+        for _ in 1:100
             c = randn(ComplexF64)
             fun !== cis && @test fun(Quaternion(c)) ≈ fun(c)
             @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
