@@ -196,45 +196,14 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "extended complex analytic functions" begin
         # all complex analytic functions can be extended to the quaternions
+        #! format: off
         unary_funs = [
-            sqrt,
-            inv,
-            exp,
-            exp2,
-            exp10,
-            expm1,
-            log,
-            log2,
-            log10,
-            log1p,
-            cis,
-            sin,
-            cos,
-            tan,
-            asin,
-            acos,
-            atan,
-            sinh,
-            cosh,
-            tanh,
-            asinh,
-            acosh,
-            atanh,
-            csc,
-            sec,
-            cot,
-            acsc,
-            asec,
-            acot,
-            csch,
-            sech,
-            coth,
-            acsch,
-            asech,
-            acoth,
-            sinpi,
-            cospi,
+            sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p, cis,
+            sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh,
+            csc, sec, cot, acsc, asec, acot, csch, sech, coth, acsch, asech, acoth,
+            sinpi, cospi,
         ]
+        #! format: on
         # since every quaternion is conjugate to a complex number,
         # one can establish correctness as follows:
         @testset for fun in unary_funs
