@@ -1,3 +1,5 @@
+using Test
+
 test_associative(x, y, z, ⊗) = @test (x ⊗ y) ⊗ z ≈ x ⊗ (y ⊗ z)
 test_commutative(x, y, ⊗) = @test x ⊗ y ≈ y ⊗ x
 test_inverse(x, eins, ⊗, inv) = (@test x ⊗ inv(x) ≈ eins; @test inv(x) ⊗ x ≈ eins)
