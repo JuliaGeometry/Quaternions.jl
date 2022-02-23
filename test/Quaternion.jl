@@ -18,23 +18,25 @@ using Test
 end
 
 # test algebraic properties of quaternions
-for _ in 1:10, T in (Float32, Float64, Int32, Int64)
-    if T <: Integer
-        q, q1, q2, q3 = [Quaternion(rand(-T(100):T(100), 4)...) for _ in 1:4]
-        c1, c2 = [complex(rand(-T(100):T(100), 2)...) for _ in 1:2]
-    else
-        q, q1, q2, q3 = randn(Quaternion{T}, 4)
-        c1, c2 = randn(Complex{T}, 2)
+@testset "algebraic properties" begin
+    for _ in 1:10, T in (Float32, Float64, Int32, Int64)
+        if T <: Integer
+            q, q1, q2, q3 = [Quaternion(rand(-T(100):T(100), 4)...) for _ in 1:4]
+            c1, c2 = [complex(rand(-T(100):T(100), 2)...) for _ in 1:2]
+        else
+            q, q1, q2, q3 = randn(Quaternion{T}, 4)
+            c1, c2 = randn(Complex{T}, 2)
+        end
+
+        # skewfield
+        test_group(q1, q2, q3, +, zero(q), -)
+        test_group(q1, q2, q3, *, one(q), inv)
+        test_multiplicative(q1, q2, *, norm)
+
+        # complex embedding
+        test_multiplicative(c1, c2, *, Quaternion)
+        test_multiplicative(c1, c2, +, Quaternion)
     end
-
-    # skewfield
-    test_group(q1, q2, q3, +, zero(q), -)
-    test_group(q1, q2, q3, *, one(q), inv)
-    test_multiplicative(q1, q2, *, norm)
-
-    # complex embedding
-    test_multiplicative(c1, c2, *, Quaternion)
-    test_multiplicative(c1, c2, +, Quaternion)
 end
 
 @testset "promotions and equalities" begin
@@ -137,7 +139,7 @@ end
     @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
     @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
 
-    let # test numerical stability of angle
+    @testset "numerical stability of angle" begin
         ax = randn(3)
         for θ in [1e-9, π - 1e-9]
             q = qrotation(ax, θ)
@@ -287,9 +289,10 @@ end
     end
 end
 
-for _ in 1:100
-    let # test qrotation and angleaxis inverse
-        ax = randn(3); ax = ax / norm(ax)
+@testset "qrotation and angleaxis inverse" begin
+    for _ in 1:100
+        ax = randn(3)
+        ax = ax / norm(ax)
         Θ = π * rand()
         q = qrotation(ax, Θ)
         @test angle(q) ≈ Θ
@@ -297,15 +300,19 @@ for _ in 1:100
         @test angleaxis(q)[1] ≈ Θ
         @test angleaxis(q)[2] ≈ ax
     end
+end
 
-    let # test argq
+@testset "Quaternions.argq" begin
+    for _ in 1:100
         q, q2 = randn(QuaternionF64, 2)
         @test q2 * Quaternions.argq(q) * inv(q2) ≈ Quaternions.argq(q2 * q * inv(q2))
         v = Quaternion(0, randn(3)...)
         @test Quaternions.argq(v) * norm(v) ≈ v
     end
+end
 
-    let # test normalize
+@testset "normalize" begin
+    for _ in 1:100
         q = quatrand()
         @test norm(normalize(q)) ≈ 1
         @test normalize(q).norm
@@ -314,35 +321,42 @@ for _ in 1:100
         @test qn.norm
         @test normalize(qn) === qn
     end
+end
 
-    let # test rotation <=> rotationmatrix
+@testset "rotation <=> rotationmatrix" begin
+    for _ in 1:100
         q1 = nquatrand()
         q2 = qrotation(rotationmatrix(q1), q1)
         @test q1 ≈ q2
     end
+end
 
-    let # test slerp and linpol if q1 = 1
-        q1 = quat(1, 0, 0, 0.)
-        # there are numerical stability issues with slerp atm
-        θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
-        ax = randn(3)
-        q2 = qrotation(ax, θ)
-        t = rand()
-        slerp(q1, q2, 0.) ≈ q1
-        @test slerp(q1, q2, 0.) ≈ q1
-        @test slerp(q1, q2, 1.) ≈ q2
-        @test slerp(q1, q2, t) ≈ qrotation(ax, t * θ)
-        @test norm(slerp(q1, q2, t)) ≈ 1
-        @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
-        @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
-
+@testset "slerp/linpol" begin
+    @testset "q1=1" begin
+        for _ in 1:100
+            q1 = quat(1, 0, 0, 0.)
+            # there are numerical stability issues with slerp atm
+            θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
+            ax = randn(3)
+            q2 = qrotation(ax, θ)
+            t = rand()
+            slerp(q1, q2, 0.) ≈ q1
+            @test slerp(q1, q2, 0.) ≈ q1
+            @test slerp(q1, q2, 1.) ≈ q2
+            @test slerp(q1, q2, t) ≈ qrotation(ax, t * θ)
+            @test norm(slerp(q1, q2, t)) ≈ 1
+            @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+            @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+        end
     end
-    let # test conjugation invariance
-        q, q1, q2 = randn(QuaternionF64, 3)
-        ⊗(s, t) = s * t * inv(s)
-        t = rand()
-        @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
-        @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
+    @testset "conjugate invariance" begin
+        for _ in 1:100
+            q, q1, q2 = randn(QuaternionF64, 3)
+            ⊗(s, t) = s * t * inv(s)
+            t = rand()
+            @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
+            @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
+        end
     end
 end
 
