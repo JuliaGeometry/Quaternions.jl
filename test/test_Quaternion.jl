@@ -437,18 +437,20 @@ end
 end
 
 @testset "sylvester/lyap" begin
-    a, b, c = randn(QuaternionF64, 3)
-    x = sylvester(a, b, c)
-    @test a * x + x * b ≈ -c
-    x = sylvester(b, a, c)
-    @test b * x + x * a ≈ -c
-    @test iszero(sylvester(a, b, zero(c)))
-    @test sylvester(a, zero(b), c) ≈ a \ -c
-    @test sylvester(zero(a), b, c) ≈ -c / b
-    @test iszero(sylvester(zero(a), zero(b), zero(c)))
+    for _ in 1:100
+        a, b, c = randn(QuaternionF64, 3)
+        x = sylvester(a, b, c)
+        @test a * x + x * b ≈ -c
+        x = sylvester(b, a, c)
+        @test b * x + x * a ≈ -c
+        @test iszero(sylvester(a, b, zero(c)))
+        @test sylvester(a, zero(b), c) ≈ a \ -c
+        @test sylvester(zero(a), b, c) ≈ -c / b
+        @test iszero(sylvester(zero(a), zero(b), zero(c)))
 
-    @test lyap(a, c) ≈ sylvester(a, a', c)
-    @test lyap(b, c) ≈ sylvester(b, b', c)
-    @test iszero(lyap(a, zero(c)))
-    @test iszero(lyap(zero(a), zero(c)))
+        @test lyap(a, c) ≈ sylvester(a, a', c)
+        @test lyap(b, c) ≈ sylvester(b, b', c)
+        @test iszero(lyap(a, zero(c)))
+        @test iszero(lyap(zero(a), zero(c)))
+    end
 end
