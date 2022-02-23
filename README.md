@@ -1,6 +1,8 @@
 # Quaternions.jl
 A Julia module with quaternion, octonion and dual-quaternion functionality
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaGeometry.github.io/Quaternions.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaGeometry.github.io/Quaternions.jl/dev)
 [![Build Status](https://github.com/JuliaGeometry/Quaternions.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeometry/Quaternions.jl/actions?query=workflow%3ACI+branch%3Amaster)
 [![codecov](https://codecov.io/gh/JuliaGeometry/Quaternions.jl/branch/master/graph/badge.svg?token=dJBiR91dCD)](https://codecov.io/gh/JuliaGeometry/Quaternions.jl)
 
@@ -15,18 +17,49 @@ Implemented functions are:
     conj
     abs
     abs2
-    exp
-    log
     normalize
     normalizea  (return normalized quaternion and absolute value as a pair)
     angleaxis  (taken as an orientation, return the angle and axis (3 vector) as a tuple)
     angle
     axis
+    sqrt
     exp
-    log
+    exp2
+    exp10
+    expm1
+    log2
+    log10
+    log1p
+    cis
+    cispi
     sin
     cos
-    sqrt
+    tan
+    asin
+    acos
+    atan
+    sinh
+    cosh
+    tanh
+    asinh
+    acosh
+    atanh
+    csc
+    sec
+    cot
+    acsc
+    asec
+    acot
+    csch
+    sech
+    coth
+    acsch
+    asech
+    acoth
+    sinpi
+    cospi
+    sincos
+    sincospi
     linpol  (interpolate between 2 normalized quaternions)
     rand
     randn
