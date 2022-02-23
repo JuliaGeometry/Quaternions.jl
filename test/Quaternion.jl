@@ -3,6 +3,7 @@ using Quaternions: argq
 using DualNumbers
 using LinearAlgebra
 using Random
+using Test
 
 @testset "type aliases" begin
     @test QuaternionF16 === Quaternion{Float16}
@@ -16,16 +17,15 @@ using Random
     @test DualQuaternionF64 === DualQuaternion{Float64}
 end
 
-# creating random examples
-sample(QT::Type{Quaternion{T}}) where {T <: Integer} = QT(rand(-100:100, 4)..., false)
-sample(QT::Type{Quaternion{T}}) where {T <: AbstractFloat} = QT(rand(Bool) ? quatrand() : nquatrand())
-sample(CT::Type{Complex{T}}) where {T <: Integer} = CT(rand(-100:100, 2)...)
-sample(CT::Type{Complex{T}}) where {T <: AbstractFloat} = CT(randn(2)...)
-sample(T, n) = T[sample(T) for _ in 1:n]
-
 # test algebraic properties of quaternions
 for _ in 1:10, T in (Float32, Float64, Int32, Int64)
-    q, q1, q2, q3 = sample(Quaternion{T}, 4)
+    if T <: Integer
+        q, q1, q2, q3 = [Quaternion(rand(-T(100):T(100), 4)...) for _ in 1:4]
+        c1, c2 = [complex(rand(-T(100):T(100), 2)...) for _ in 1:2]
+    else
+        q, q1, q2, q3 = randn(Quaternion{T}, 4)
+        c1, c2 = randn(Complex{T}, 2)
+    end
 
     # skewfield
     test_group(q1, q2, q3, +, zero(q), -)
@@ -33,7 +33,6 @@ for _ in 1:10, T in (Float32, Float64, Int32, Int64)
     test_multiplicative(q1, q2, *, norm)
 
     # complex embedding
-    c1, c2 = sample(Complex{T}, 2)
     test_multiplicative(c1, c2, *, Quaternion)
     test_multiplicative(c1, c2, +, Quaternion)
 end
@@ -300,8 +299,8 @@ for _ in 1:100
     end
 
     let # test argq
-        q, q2 = sample(Quaternion{Float64}, 2)
         @test q2 * argq(q) * inv(q2) ≈ argq(q2 * q * inv(q2))
+        q, q2 = randn(QuaternionF64, 2)
         v = Quaternion(0, randn(3)...)
         @test argq(v) * norm(v) ≈ v
     end
@@ -339,7 +338,7 @@ for _ in 1:100
 
     end
     let # test conjugation invariance
-        q, q1, q2 = sample(Quaternion{Float64}, 3)
+        q, q1, q2 = randn(QuaternionF64, 3)
         ⊗(s, t) = s * t * inv(s)
         t = rand()
         @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
