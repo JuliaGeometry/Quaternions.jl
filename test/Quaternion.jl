@@ -5,6 +5,11 @@ using LinearAlgebra
 using Random
 using Test
 
+struct MyReal <: Real
+    val::Real
+end
+Base.:(/)(a::MyReal, b::Real) = a.val / b
+
 @testset "Quaternion" begin
     @testset "type aliases" begin
         @test QuaternionF16 === Quaternion{Float16}
@@ -18,7 +23,6 @@ using Test
         @test DualQuaternionF64 === DualQuaternion{Float64}
     end
 
-    # test algebraic properties of quaternions
     @testset "algebraic properties" begin
         for _ in 1:10, T in (Float32, Float64, Int32, Int64)
             if T <: Integer
@@ -104,7 +108,7 @@ using Test
         @test convert(Octonion{Float64},Octonion(1,2,3,4,5,6,7,8)) === Octonion(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0)
     end
 
-    @testset "rotations" begin # test rotations
+    @testset "rotations" begin
         @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
         @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
         @test qrotation([0, 0, 0]) == Quaternion(1.0)
@@ -147,16 +151,14 @@ using Test
                 @test angle(q) ≈ θ
             end
         end
-    end
 
-    # Regression test for
-    # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
-    struct MyReal <: Real
-        val::Real
+        # Regression test for
+        # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
+        # this used to throw an error
+        @testset "qrotation can handle arbitrary reals" begin 
+            @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
+        end
     end
-    Base.:(/)(a::MyReal, b::Real) = a.val / b
-    # this used to throw an error
-    @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
 
     @testset "non-analytic functions" begin
         q, q2 = randn(Quaternion{Float64}, 2)
