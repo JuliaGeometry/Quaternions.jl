@@ -115,43 +115,118 @@ end
 
 argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 
-function exp(q::Quaternion)
+"""
+    extend_analytic(f, q::Quaternion)
+
+Evaluate the extension of the complex analytic function `f` to the quaternions at `q`.
+
+Given ``q = s + a u``, where ``s`` is the real part, ``u`` is a pure unit quaternion,
+and ``a \\ge 0`` is the magnitude of the imaginary part of ``q``,
+
+```math
+f(q) = \\Re(f(z)) + \\Im(f(z)) u,
+```
+is the extension of `f` to the quaternions, where ``z = a + s i`` is a complex analog to
+``q``.
+
+See Theorem 5 of [^Sudbery1970] for details.
+
+[^Sudbery1970]
+    Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge 
+    Philosophical Society,85, pp 199­225
+    doi:[10.1017/S030500410005563](https://doi.org/10.1017/S0305004100055638)
+"""
+function extend_analytic(f, q::Quaternion)
+    a = abs_imag(q)
     s = q.s
-    se = exp(s)
-    scale = se
-    th = abs_imag(q)
-    if th > 0
-        scale *= sin(th) / th
+    z = complex(s, a)
+    w = f(z)
+    wr, wi = reim(w)
+    scale = wi / a
+    norm = _isexpfun(f) && iszero(s)
+    if a > 0
+        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3, norm)
+    else
+        # q == real(q), so f(real(q)) may be real or complex, i.e. wi may be nonzero.
+        # we choose to embed complex numbers in the quaternions by identifying the first
+        # imaginary quaternion basis with the complex imaginary basis.
+        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale), norm)
     end
-    Quaternion(se * cos(th), scale * q.v1, scale * q.v2, scale * q.v3, iszero(s))
+end
+
+_isexpfun(::Union{typeof(exp),typeof(exp2),typeof(exp10)}) = true
+_isexpfun(::Any) = false
+
+"""
+    cis(q::Quaternion)
+
+Return ``\\exp(u * q)``, where ``u`` is the normalized imaginary part of `q`.
+
+Let ``q = s + a u``, where ``s`` is the real part, ``u`` is a pure unit quaternion,
+and ``a \\ge 0`` is the magnitude of the imaginary part of ``q``.
+
+!!! Note
+    This is the extension of `cis(z)` for complex `z` to the quaternions and is not
+    equivalent to `exp(im * q)`. As a result, `cis(Quaternion(z)) ≠ cis(z)` when
+    `imag(z) < 0`.
+"""
+cis(q::Quaternion)
+
+if VERSION ≥ v"1.6"
+    """
+        cispi(q::Quaternion)
+
+    Compute `cis(π * q)` more accurately.
+
+    !!! Note
+        This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
+    """
+    Base.cispi(q::Quaternion) = extend_analytic(cispi, q)
+end
+
+for f in (
+    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p, :cis,
+    :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
+    :csc, :sec, :cot, :acsc, :asec, :acot, :csch, :sech, :coth, :acsch, :asech, :acoth,
+    :sinpi, :cospi,
+)
+    @eval Base.$f(q::Quaternion) = extend_analytic($f, q)
+end
+
+for f in (@static(VERSION ≥ v"1.6" ? (:sincos, :sincospi) : (:sincos,)))
+    @eval begin
+        function Base.$f(q::Quaternion)
+            a = abs_imag(q)
+            z = complex(q.s, a)
+            s, c = $f(z)
+            sr, si = reim(s)
+            cr, ci = reim(c)
+            sscale = si / a
+            cscale = ci / a
+            if a > 0
+                return (
+                    Quaternion(sr, sscale * q.v1, sscale * q.v2, sscale * q.v3),
+                    Quaternion(cr, cscale * q.v1, cscale * q.v2, cscale * q.v3),
+                )
+            else
+                return (
+                    Quaternion(sr, oftype(sscale, si), zero(sscale), zero(sscale)),
+                    Quaternion(cr, oftype(cscale, ci), zero(cscale), zero(cscale)),
+                )
+            end
+        end
+    end
 end
 
 function log(q::Quaternion)
-    q, a = normalizea(q)
-    s = q.s
+    a = abs(q)
     M = abs_imag(q)
-    th = atan(M, s)
-    if M > 0
-        M = th / M
-        return Quaternion(log(a), q.v1 * M, q.v2 * M, q.v3 * M)
-    else
-        return Quaternion(log(a), th, 0.0, 0.0)
-    end
-end
-
-function sin(q::Quaternion)
-    L = argq(q)
-    return (exp(L * q) - exp(-L * q)) / (2 * L)
-end
-
-function cos(q::Quaternion)
-    L = argq(q)
-    return (exp(L * q) + exp(-L * q)) / 2
+    theta = atan(M, q.s)
+    scale = theta / ifelse(iszero(M), oneunit(M), M)
+    return Quaternion(log(a), q.v1 * scale, q.v2 * scale, q.v3 * scale)
 end
 
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
-
-sqrt(q::Quaternion) = exp(0.5 * log(q))
 
 function linpol(p::Quaternion, q::Quaternion, t::Real)
     p = normalize(p)
