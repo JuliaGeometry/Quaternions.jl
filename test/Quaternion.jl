@@ -324,61 +324,84 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "rotations" begin
-        @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
-        @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
-        @test qrotation([0, 0, 0]) == Quaternion(1.0)
-        qx = qrotation([1, 0, 0], pi / 4)
-        @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
-        @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
-        theta = pi / 8
-        qx = qrotation([1, 0, 0], theta)
-        c = cos(theta); s = sin(theta)
-        Rx = [1 0 0; 0 c -s; 0 s c]
-        @test rotationmatrix(qx) ≈ Rx
-        theta = pi / 6
-        qy = qrotation([0, 1, 0], theta)
-        c = cos(theta); s = sin(theta)
-        Ry = [c 0 s; 0 1 0; -s 0 c]
-        @test rotationmatrix(qy) ≈ Ry
-        theta = 4pi / 3
-        qz = qrotation([0, 0, 1], theta)
-        c = cos(theta); s = sin(theta)
-        Rz = [c -s 0; s c 0; 0 0 1]
-        @test rotationmatrix(qz) ≈ Rz
+        @testset "qrotation" begin
+            @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
+            @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
+            @test qrotation([0, 0, 0]) == Quaternion(1.0)
+            qx = qrotation([1, 0, 0], pi / 4)
+            @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
+            @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
 
-        @test rotationmatrix(qx * qy * qz) ≈ Rx * Ry * Rz
-        @test rotationmatrix(qy * qx * qz) ≈ Ry * Rx * Rz
-        @test rotationmatrix(qz * qx * qy) ≈ Rz * Rx * Ry
-
-        a, b = qrotation([0, 0, 1], deg2rad(0)), qrotation([0, 0, 1], deg2rad(180))
-        @test slerp(a, b, 0.0) ≈ a
-        @test slerp(a, b, 1.0) ≈ b
-        @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
-
-        @test angle(qrotation([1, 0, 0], 0)) ≈ 0
-        @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
-        @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
-
-        @testset "numerical stability of angle" begin
-            ax = randn(3)
-            for θ in [1e-9, π - 1e-9]
-                q = qrotation(ax, θ)
-                @test angle(q) ≈ θ
+            # Regression test for
+            # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
+            # this used to throw an error
+            @testset "qrotation can handle arbitrary reals" begin 
+                @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
             end
         end
 
-        # Regression test for
-        # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
-        # this used to throw an error
-        @testset "qrotation can handle arbitrary reals" begin 
-            @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
+        @testset "rotationmatrix" begin
+            theta = pi / 8    
+            qx = qrotation([1, 0, 0], theta)
+            c = cos(theta); s = sin(theta)
+            Rx = [1 0 0; 0 c -s; 0 s c]
+            @test rotationmatrix(qx) ≈ Rx
+            theta = pi / 6
+            qy = qrotation([0, 1, 0], theta)
+            c = cos(theta); s = sin(theta)
+            Ry = [c 0 s; 0 1 0; -s 0 c]
+            @test rotationmatrix(qy) ≈ Ry
+            theta = 4pi / 3
+            qz = qrotation([0, 0, 1], theta)
+            c = cos(theta); s = sin(theta)
+            Rz = [c -s 0; s c 0; 0 0 1]
+            @test rotationmatrix(qz) ≈ Rz
+    
+            @test rotationmatrix(qx * qy * qz) ≈ Rx * Ry * Rz
+            @test rotationmatrix(qy * qx * qz) ≈ Ry * Rx * Rz
+            @test rotationmatrix(qz * qx * qy) ≈ Rz * Rx * Ry    
+
+            for _ in 1:100
+                q1 = nquatrand()
+                q2 = qrotation(rotationmatrix(q1), q1)
+                @test q1 ≈ q2
+            end
         end
 
         @testset "angle/axis/angleaxis" begin
+            @test angle(qrotation([1, 0, 0], 0)) ≈ 0
+            @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
+            @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
+    
+            @testset "numerical stability of angle" begin
+                ax = randn(3)
+                for θ in [1e-9, π - 1e-9]
+                    q = qrotation(ax, θ)
+                    @test angle(q) ≈ θ
+                end
+            end
+
+            @testset "qrotation and angleaxis inverse" begin
+                for _ in 1:100
+                    ax = randn(3)
+                    ax = ax / norm(ax)
+                    Θ = π * rand()
+                    q = qrotation(ax, Θ)
+                    @test angle(q) ≈ Θ
+                    @test axis(q) ≈ ax
+                    @test angleaxis(q)[1] ≈ Θ
+                    @test angleaxis(q)[2] ≈ ax
+                end
+            end
         end    
     
-        @testset "slerp/linpol" begin
+        @testset "slerp/linpol" begin    
             @testset "q1=1" begin
+                a = quat(1, 0, 0, 0., true)
+                b = quat(0, 0, 0, 1., true)
+                @test slerp(a, b, 0.0) ≈ a
+                @test slerp(a, b, 1.0) ≈ b
+                @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
                 for _ in 1:100
                     q1 = quat(1, 0, 0, 0.)
                     # there are numerical stability issues with slerp atm
@@ -404,30 +427,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
                     @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
                 end
-            end
-        end
-
-        @testset "qrotation" begin
-        end
-
-        @testset "qrotation and angleaxis inverse" begin
-            for _ in 1:100
-                ax = randn(3)
-                ax = ax / norm(ax)
-                Θ = π * rand()
-                q = qrotation(ax, Θ)
-                @test angle(q) ≈ Θ
-                @test axis(q) ≈ ax
-                @test angleaxis(q)[1] ≈ Θ
-                @test angleaxis(q)[2] ≈ ax
-            end
-        end
-
-        @testset "rotationmatrix" begin
-            for _ in 1:100
-                q1 = nquatrand()
-                q2 = qrotation(rotationmatrix(q1), q1)
-                @test q1 ≈ q2
             end
         end
     end
