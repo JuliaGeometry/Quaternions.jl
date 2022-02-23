@@ -17,10 +17,11 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "Constructors" begin
-        @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
-        @test Quaternion(1) == 1.0 # test promotion
-        @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
         @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
+    end
+
+    @testset "==" begin
+        @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
     end
 
     @testset "convert" begin
@@ -30,6 +31,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "promote" begin
+        @test Quaternion(1) == 1.0
+        @test Quaternion(1,2,0,0) == Complex(1.0,2.0)
     end
 
     @testset "shorthands" begin
@@ -131,19 +134,22 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
+    @testset "isreal" begin
+    end
+
+    @testset "iszero" begin
+    end
+
+    @testset "isone" begin
+    end
+
     @testset "isfinite" begin
     end
 
     @testset "isinf" begin
     end
 
-    @testset "iszero" begin
-    end
-
     @testset "isnan" begin
-    end
-
-    @testset "==" begin
     end
 
     @testset "+" begin

@@ -12,13 +12,12 @@ using Test
     end
 
     @testset "Constructors" begin    
-        @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
-        @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
-        @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
-        @test Octonion(1) == 1.0 # test promotion
-        @test Octonion(Complex(1,2)) == Complex(1,2)
+    end
+
+    @testset "==" begin
         @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
         @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
+        @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
     end
 
     @testset "convert" begin
@@ -29,6 +28,10 @@ using Test
     end
 
     @testset "promote" begin
+        @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
+        @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
+        @test Octonion(1) == 1.0
+        @test Octonion(Complex(1,2)) == Complex(1,2)
     end
 
     @testset "shorthands" begin
@@ -108,19 +111,22 @@ using Test
         end
     end
 
+    @testset "isreal" begin
+    end
+
+    @testset "iszero" begin
+    end
+
+    @testset "isone" begin
+    end
+
     @testset "isfinite" begin
     end
 
     @testset "isinf" begin
     end
 
-    @testset "iszero" begin
-    end
-
     @testset "isnan" begin
-    end
-
-    @testset "==" begin
     end
 
     @testset "+" begin
