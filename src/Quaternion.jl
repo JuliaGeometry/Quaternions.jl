@@ -396,12 +396,10 @@ function sylvester(a::Quaternion, b::Quaternion, c::Quaternion)
         d2 = -2real(a) - b - invb * abs2a
         x = (c + conj(a) * c * invb) / d2
     end
-    iszero(abs2a) && iszero(abs2b) && iszero(c) && return zero(x)
     return x
 end
 
 function lyap(a::Quaternion, c::Quaternion)
     x = (c + a \ c * a) / -4real(a)
-    iszero(a) && iszero(c) && return zero(x)
     return x
 end
