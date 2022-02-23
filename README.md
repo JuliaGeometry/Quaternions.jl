@@ -15,18 +15,49 @@ Implemented functions are:
     conj
     abs
     abs2
-    exp
-    log
     normalize
     normalizea  (return normalized quaternion and absolute value as a pair)
     angleaxis  (taken as an orientation, return the angle and axis (3 vector) as a tuple)
     angle
     axis
+    sqrt
     exp
-    log
+    exp2
+    exp10
+    expm1
+    log2
+    log10
+    log1p
+    cis
+    cispi
     sin
     cos
-    sqrt
+    tan
+    asin
+    acos
+    atan
+    sinh
+    cosh
+    tanh
+    asinh
+    acosh
+    atanh
+    csc
+    sec
+    cot
+    acsc
+    asec
+    acot
+    csch
+    sech
+    coth
+    acsch
+    asech
+    acoth
+    sinpi
+    cospi
+    sincos
+    sincospi
     linpol  (interpolate between 2 normalized quaternions)
     rand
     randn
