@@ -111,6 +111,14 @@ end
     @test !iszero(Quaternion(0.0, 0.0, 0.0, 0.0, true))
 end
 
+@testset "isnan" begin
+    @test !isnan(Quaternion(1, 2, 3, 4))
+    @test isnan(Quaternion(NaN, 2, 3, 4))
+    @test isnan(Quaternion(1, NaN, 3, 4))
+    @test isnan(Quaternion(1, 2, NaN, 4))
+    @test isnan(Quaternion(1, 2, 3, NaN))
+end
+
 @testset "rotations" begin # test rotations
     @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
     @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)

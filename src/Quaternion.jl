@@ -57,6 +57,7 @@ inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
 isfinite(q::Quaternion) = q.norm ? true : (isfinite(q.s) && isfinite(q.v1) && isfinite(q.v2) && isfinite(q.v3))
 iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
 
 function normalize(q::Quaternion)
     if (q.norm)
