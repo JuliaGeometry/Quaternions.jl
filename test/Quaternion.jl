@@ -1,5 +1,5 @@
 
-using Quaternions: argq
+using Quaternions
 using DualNumbers
 using LinearAlgebra
 using Random
@@ -299,10 +299,10 @@ for _ in 1:100
     end
 
     let # test argq
-        @test q2 * argq(q) * inv(q2) ≈ argq(q2 * q * inv(q2))
         q, q2 = randn(QuaternionF64, 2)
+        @test q2 * Quaternions.argq(q) * inv(q2) ≈ Quaternions.argq(q2 * q * inv(q2))
         v = Quaternion(0, randn(3)...)
-        @test argq(v) * norm(v) ≈ v
+        @test Quaternions.argq(v) * norm(v) ≈ v
     end
 
     let # test normalize
