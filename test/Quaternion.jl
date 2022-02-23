@@ -15,12 +15,166 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test QuaternionF16 === Quaternion{Float16}
         @test QuaternionF32 === Quaternion{Float32}
         @test QuaternionF64 === Quaternion{Float64}
-        @test OctonionF16 === Octonion{Float16}
-        @test OctonionF32 === Octonion{Float32}
-        @test OctonionF64 === Octonion{Float64}
-        @test DualQuaternionF16 === DualQuaternion{Float16}
-        @test DualQuaternionF32 === DualQuaternion{Float32}
-        @test DualQuaternionF64 === DualQuaternion{Float64}
+    end
+
+    @testset "Constructors" begin
+        @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
+        @test Quaternion(1) == 1.0 # test promotion
+        @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
+        @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
+
+        @test Quaternion(1,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
+        @test Quaternion(1,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+        @test DualQuaternion(1) == 1.0 # test promotion
+        @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
+        @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
+    
+        @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
+        @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
+        @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
+        @test Octonion(1) == 1.0 # test promotion
+        @test Octonion(Complex(1,2)) == Complex(1,2)
+        @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
+        @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
+    end
+
+    @testset "convert" begin
+        @test convert(Quaternion{Float64},1) === Quaternion(1.0)
+        @test convert(Quaternion{Float64},Complex(1,2)) === Quaternion(1.0,2.0,0.0,0.0)
+        @test convert(Quaternion{Float64},Quaternion(1,2,3,4)) === Quaternion(1.0,2.0,3.0,4.0)
+
+        @test convert(DualQuaternion{Float64},1) === DualQuaternion(1.0)
+        @test convert(DualQuaternion{Float64},DualNumbers.Dual(1,2)) === DualQuaternion(Quaternion(1.0),Quaternion(2.0))
+        @test convert(DualQuaternion{Float64},Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0))
+        @test convert(DualQuaternion{Float64},DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0),Quaternion(5.0,6.0,7.0,8.0))
+
+        @test convert(Octonion{Float64},1) === Octonion(1.0)
+        @test convert(Octonion{Float64},Complex(1,2)) === Octonion(1.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0)
+        @test convert(Octonion{Float64},Quaternion(1,2,3,4)) === Octonion(1.0,2.0,3.0,4.0,0.0,0.0,0.0,0.0)
+        @test convert(Octonion{Float64},Octonion(1,2,3,4,5,6,7,8)) === Octonion(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0)
+    end
+
+    @testset "promote" begin
+    end
+
+    @testset "shorthands" begin
+        @test quat(1) === Quaternion(1) # checking the .norm field in particular
+        @test quat(1,0,0,0) === Quaternion(1,0,0,0) # checking the .norm field in particular
+        @test quat(1,2,3,4) === Quaternion(1,2,3,4)
+        @test quat(Quaternion(1,0,0,0)) === Quaternion(1,0,0,0) # checking the .norm field in particular
+        @test quat(Quaternion(1,2,3,4)) === Quaternion(1,2,3,4)
+        @test quat(1,0,0,0,false).norm == false # respect the .norm input (even if wrong)
+        @test quat(1,2,3,4,true).norm == true # respect the .norm input (even if wrong)
+    
+        @test dualquat(Quaternion(1,0,0,0)) == Quaternion(1,0,0,0)
+        @test dualquat(Quaternion(1,2,3,4)) == Quaternion(1,2,3,4)
+        @test dualquat(Quaternion(1,0,0,0)) === DualQuaternion(Quaternion(1,0,0,0)) # checking the .norm field in particular
+        @test dualquat(Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1,2,3,4))
+        @test dualquat(1) === DualQuaternion(1)
+        @test dualquat(Dual(1,2)) === DualQuaternion(Dual(1,2))
+        @test dualquat(Dual(1,2),Dual(0),Dual(0),Dual(0)) === DualQuaternion(Dual(1,2),Dual(0),Dual(0),Dual(0))
+        @test dualquat(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
+        @test dualquat(Quaternion(1,0,0,0),Quaternion(0)).norm == false
+        @test dualquat(Quaternion(1,0,0,0),Quaternion(0),false).norm == false # respect the .norm input (even if wrong)
+        @test dualquat(Quaternion(1,2,3,4),Quaternion(0),true).norm == true # respect the .norm input (even if wrong)
+        @test dualquat(Dual(2,0),Dual(0),Dual(0),Dual(0),true).norm == true # respect the .norm input (even if wrong)
+        @test dualquat(Dual(1,0),Dual(0),Dual(0),Dual(0),false).norm == false # respect the .norm input (even if wrong)
+    
+        @test octo(1) === Octonion(1) # checking the .norm field in particular
+        @test octo(1,0,0,0,0,0,0,0) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
+        @test octo(1,2,3,4,5,6,7,8) === Octonion(1,2,3,4,5,6,7,8)
+        @test octo(Octonion(1,0,0,0,0,0,0,0)) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
+        @test octo(Octonion(1,2,3,4,5,6,7,8)) === Octonion(1,2,3,4,5,6,7,8)
+        @test octo(1,0,0,0,0,0,0,0,false).norm == false # respect the .norm input (even if wrong)
+        @test octo(1,2,3,4,5,6,7,8,true).norm == true # respect the .norm input (even if wrong)
+    end
+    
+    @testset "random generation" begin
+        @testset "quatrand" begin
+            rng = Random.MersenneTwister(42)
+            q1 = quatrand(rng)
+            @test q1 isa Quaternion
+            @test !q1.norm
+
+            q2 = quatrand()
+            @test q2 isa Quaternion
+            @test !q2.norm
+        end
+
+        @testset "nquatrand" begin
+            rng = Random.MersenneTwister(42)
+            q1 = nquatrand(rng)
+            @test q1 isa Quaternion
+            @test q1.norm
+
+            q2 = nquatrand()
+            @test q2 isa Quaternion
+            @test q2.norm
+        end
+
+        @testset "rand($H)" for H in (Quaternion, DualQuaternion, Octonion)
+            rng = Random.MersenneTwister(42)
+            q1 = rand(rng, H{Float64})
+            @test q1 isa H{Float64}
+            @test !q1.norm
+
+            q2 = rand(rng, H{Float32})
+            @test q2 isa H{Float32}
+            @test !q2.norm
+
+            qs = rand(rng, H{Float64}, 1000)
+            @test eltype(qs) === H{Float64}
+            @test length(qs) == 1000
+            xs = map(qs) do q
+                if q isa DualQuaternion
+                    return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
+                else
+                    return [real(q); Quaternions.imag(q)]
+                end
+            end
+            xs_mean = sum(xs) / length(xs)
+            xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
+            @test all(isapprox.(xs_mean, 0.5; atol=0.1))
+            @test all(isapprox.(xs_var, 1/12; atol=0.01))
+        end
+
+        @testset "randn($H)" for H in (Quaternion, Octonion)
+            rng = Random.MersenneTwister(42)
+            q1 = randn(rng, H{Float64})
+            @test q1 isa H{Float64}
+            @test !q1.norm
+
+            q2 = randn(rng, H{Float32})
+            @test q2 isa H{Float32}
+            @test !q2.norm
+
+            qs = randn(rng, H{Float64}, 10000)
+            @test eltype(qs) === H{Float64}
+            @test length(qs) == 10000
+            xs = map(qs) do q
+                if q isa DualQuaternion
+                    return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
+                else
+                    return [real(q); Quaternions.imag(q)]
+                end
+            end
+            xs_mean = sum(xs) / length(xs)
+            xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
+            @test all(isapprox.(xs_mean, 0; atol=0.1))
+            if H === Quaternion
+                @test all(isapprox.(xs_var, 1/4; atol=0.1))
+            else
+                @test all(isapprox.(xs_var, 1/8; atol=0.1))
+            end
+        end
+    end
+
+    @testset "basic" begin
+        real
+        imag
+        conj
+        float
+        Quaternions.abs_imag
     end
 
     @testset "algebraic properties" begin
@@ -44,119 +198,54 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
-    @testset "promotions and equalities" begin
-        @test Quaternion(1,0,0,0,false) == Quaternion(1,0,0,0,true) # test that .norm field does not affect equality
-        @test Quaternion(1) == 1.0 # test promotion
-        @test Quaternion(1,2,0,0) == Complex(1.0,2.0) # test promotion
-        @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
-        @test quat(1) === Quaternion(1) # checking the .norm field in particular
-        @test quat(1,0,0,0) === Quaternion(1,0,0,0) # checking the .norm field in particular
-        @test quat(1,2,3,4) === Quaternion(1,2,3,4)
-        @test quat(Quaternion(1,0,0,0)) === Quaternion(1,0,0,0) # checking the .norm field in particular
-        @test quat(Quaternion(1,2,3,4)) === Quaternion(1,2,3,4)
-        @test quat(1,0,0,0,false).norm == false # respect the .norm input (even if wrong)
-        @test quat(1,2,3,4,true).norm == true # respect the .norm input (even if wrong)
-
-        @test Quaternion(1,2,3,4) == DualQuaternion(Quaternion(1,2,3,4))
-        @test Quaternion(1,2,3,4) != DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
-        @test DualQuaternion(1) == 1.0 # test promotion
-        @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(5,6,7,8))
-        @test DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) != DualQuaternion(Quaternion(1.0,2,3,4),Quaternion(1,2,3,4))
-        @test dualquat(Quaternion(1,0,0,0)) == Quaternion(1,0,0,0)
-        @test dualquat(Quaternion(1,2,3,4)) == Quaternion(1,2,3,4)
-        @test dualquat(Quaternion(1,0,0,0)) === DualQuaternion(Quaternion(1,0,0,0)) # checking the .norm field in particular
-        @test dualquat(Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1,2,3,4))
-        @test dualquat(1) === DualQuaternion(1)
-        @test dualquat(Dual(1,2)) === DualQuaternion(Dual(1,2))
-        @test dualquat(Dual(1,2),Dual(0),Dual(0),Dual(0)) === DualQuaternion(Dual(1,2),Dual(0),Dual(0),Dual(0))
-        @test dualquat(Quaternion(1,2,3,4),Quaternion(5,6,7,8)) == DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))
-        @test dualquat(Quaternion(1,0,0,0),Quaternion(0)).norm == false
-        @test dualquat(Quaternion(1,0,0,0),Quaternion(0),false).norm == false # respect the .norm input (even if wrong)
-        @test dualquat(Quaternion(1,2,3,4),Quaternion(0),true).norm == true # respect the .norm input (even if wrong)
-        @test dualquat(Dual(2,0),Dual(0),Dual(0),Dual(0),true).norm == true # respect the .norm input (even if wrong)
-        @test dualquat(Dual(1,0),Dual(0),Dual(0),Dual(0),false).norm == false # respect the .norm input (even if wrong)
-
-        @test Quaternion(1,2,3,4) == Octonion(1,2,3,4,0,0,0,0)
-        @test Quaternion(1,2,3,4) != Octonion(1,2,3,4,5,6,7,8)
-        @test Octonion(1,0,0,0,0,0,0,0,false) == Octonion(1,0,0,0,0,0,0,0,true) # test that .norm field does not affect equality
-        @test Octonion(1) == 1.0 # test promotion
-        @test Octonion(Complex(1,2)) == Complex(1,2)
-        @test Octonion(1.0,2,3,4,5,6,7,8) == Octonion(1,2,3,4,5,6,7,8)
-        @test Octonion(1.0,2,3,4,5,6,7,8) != Octonion(1,2,3,4,1,2,3,4)
-        @test octo(1) === Octonion(1) # checking the .norm field in particular
-        @test octo(1,0,0,0,0,0,0,0) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
-        @test octo(1,2,3,4,5,6,7,8) === Octonion(1,2,3,4,5,6,7,8)
-        @test octo(Octonion(1,0,0,0,0,0,0,0)) === Octonion(1,0,0,0,0,0,0,0) # checking the .norm field in particular
-        @test octo(Octonion(1,2,3,4,5,6,7,8)) === Octonion(1,2,3,4,5,6,7,8)
-        @test octo(1,0,0,0,0,0,0,0,false).norm == false # respect the .norm input (even if wrong)
-        @test octo(1,2,3,4,5,6,7,8,true).norm == true # respect the .norm input (even if wrong)
+    @testset "isfinite" begin
     end
 
-    @testset "conversions" begin
-        @test convert(Quaternion{Float64},1) === Quaternion(1.0)
-        @test convert(Quaternion{Float64},Complex(1,2)) === Quaternion(1.0,2.0,0.0,0.0)
-        @test convert(Quaternion{Float64},Quaternion(1,2,3,4)) === Quaternion(1.0,2.0,3.0,4.0)
-
-        @test convert(DualQuaternion{Float64},1) === DualQuaternion(1.0)
-        @test convert(DualQuaternion{Float64},DualNumbers.Dual(1,2)) === DualQuaternion(Quaternion(1.0),Quaternion(2.0))
-        @test convert(DualQuaternion{Float64},Quaternion(1,2,3,4)) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0))
-        @test convert(DualQuaternion{Float64},DualQuaternion(Quaternion(1,2,3,4),Quaternion(5,6,7,8))) === DualQuaternion(Quaternion(1.0,2.0,3.0,4.0),Quaternion(5.0,6.0,7.0,8.0))
-
-        @test convert(Octonion{Float64},1) === Octonion(1.0)
-        @test convert(Octonion{Float64},Complex(1,2)) === Octonion(1.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0)
-        @test convert(Octonion{Float64},Quaternion(1,2,3,4)) === Octonion(1.0,2.0,3.0,4.0,0.0,0.0,0.0,0.0)
-        @test convert(Octonion{Float64},Octonion(1,2,3,4,5,6,7,8)) === Octonion(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0)
+    @testset "isinf" begin
     end
 
-    @testset "rotations" begin
-        @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
-        @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
-        @test qrotation([0, 0, 0]) == Quaternion(1.0)
-        qx = qrotation([1, 0, 0], pi / 4)
-        @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
-        @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
-        theta = pi / 8
-        qx = qrotation([1, 0, 0], theta)
-        c = cos(theta); s = sin(theta)
-        Rx = [1 0 0; 0 c -s; 0 s c]
-        @test rotationmatrix(qx) ≈ Rx
-        theta = pi / 6
-        qy = qrotation([0, 1, 0], theta)
-        c = cos(theta); s = sin(theta)
-        Ry = [c 0 s; 0 1 0; -s 0 c]
-        @test rotationmatrix(qy) ≈ Ry
-        theta = 4pi / 3
-        qz = qrotation([0, 0, 1], theta)
-        c = cos(theta); s = sin(theta)
-        Rz = [c -s 0; s c 0; 0 0 1]
-        @test rotationmatrix(qz) ≈ Rz
+    @testset "iszero" begin
+    end
 
-        @test rotationmatrix(qx * qy * qz) ≈ Rx * Ry * Rz
-        @test rotationmatrix(qy * qx * qz) ≈ Ry * Rx * Rz
-        @test rotationmatrix(qz * qx * qy) ≈ Rz * Rx * Ry
+    @testset "isnan" begin
+    end
 
-        a, b = qrotation([0, 0, 1], deg2rad(0)), qrotation([0, 0, 1], deg2rad(180))
-        @test slerp(a, b, 0.0) ≈ a
-        @test slerp(a, b, 1.0) ≈ b
-        @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
+    @testset "==" begin
+    end
 
-        @test angle(qrotation([1, 0, 0], 0)) ≈ 0
-        @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
-        @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
+    @testset "+" begin
+    end
 
-        @testset "numerical stability of angle" begin
-            ax = randn(3)
-            for θ in [1e-9, π - 1e-9]
-                q = qrotation(ax, θ)
-                @test angle(q) ≈ θ
+    @testset "-" begin
+    end
+
+    @testset "*" begin
+    end
+
+    @testset "/" begin
+    end
+
+    @testset "^" begin
+        @testset "^(::Quaternion, ::Real)" begin
+            for _ in 1:100
+                q = randn(QuaternionF64)
+                @test q^2.0 ≈ q * q
+                @test q^1.0 ≈ q
+                @test q^-1.0 ≈ inv(q)
+                @test q^1.3 ≈ exp(1.3 * log(q))
+                @test q^7.8 ≈ exp(7.8 * log(q))
+                @test q^1.3f0 ≈ exp(1.3f0 * log(q))
+                @test q^7.8f0 ≈ exp(7.8f0 * log(q))
             end
         end
-
-        # Regression test for
-        # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
-        # this used to throw an error
-        @testset "qrotation can handle arbitrary reals" begin 
-            @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
+        @testset "^(::Quaternion, ::Quaternion)" begin
+            @test Quaternion(ℯ,0,0,0)^Quaternion(0,0,π/2,0) ≈ Quaternion(0,0,1,0)
+            @test Quaternion(3.5,0,0,2.3)^Quaternion(0.2,0,0,1.7) ≈
+                Quaternion(real((3.5+2.3im)^(0.2+1.7im)),0,0,imag((3.5+2.3im)^(0.2+1.7im)))
+            for _ in 1:100
+                q, p = randn(QuaternionF64, 2)
+                @test q^p ≈ exp(p * log(q))
+            end
         end
     end
 
@@ -268,52 +357,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
-    @testset "^" begin
-        @testset "^(::Quaternion, ::Real)" begin
-            for _ in 1:100
-                q = randn(QuaternionF64)
-                @test q^2.0 ≈ q * q
-                @test q^1.0 ≈ q
-                @test q^-1.0 ≈ inv(q)
-                @test q^1.3 ≈ exp(1.3 * log(q))
-                @test q^7.8 ≈ exp(7.8 * log(q))
-                @test q^1.3f0 ≈ exp(1.3f0 * log(q))
-                @test q^7.8f0 ≈ exp(7.8f0 * log(q))
-            end
-        end
-        @testset "^(::Quaternion, ::Quaternion)" begin
-            @test Quaternion(ℯ,0,0,0)^Quaternion(0,0,π/2,0) ≈ Quaternion(0,0,1,0)
-            @test Quaternion(3.5,0,0,2.3)^Quaternion(0.2,0,0,1.7) ≈
-                Quaternion(real((3.5+2.3im)^(0.2+1.7im)),0,0,imag((3.5+2.3im)^(0.2+1.7im)))
-            for _ in 1:100
-                q, p = randn(QuaternionF64, 2)
-                @test q^p ≈ exp(p * log(q))
-            end
-        end
-    end
-
-    @testset "qrotation and angleaxis inverse" begin
-        for _ in 1:100
-            ax = randn(3)
-            ax = ax / norm(ax)
-            Θ = π * rand()
-            q = qrotation(ax, Θ)
-            @test angle(q) ≈ Θ
-            @test axis(q) ≈ ax
-            @test angleaxis(q)[1] ≈ Θ
-            @test angleaxis(q)[2] ≈ ax
-        end
-    end
-
-    @testset "Quaternions.argq" begin
-        for _ in 1:100
-            q, q2 = randn(QuaternionF64, 2)
-            @test q2 * Quaternions.argq(q) * inv(q2) ≈ Quaternions.argq(q2 * q * inv(q2))
-            v = Quaternion(0, randn(3)...)
-            @test Quaternions.argq(v) * norm(v) ≈ v
-        end
-    end
-
     @testset "normalize" begin
         for _ in 1:100
             q = quatrand()
@@ -326,119 +369,126 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
-    @testset "rotation <=> rotationmatrix" begin
+    @testset "normalizea" begin
+    end
+
+    @testset "normalizeq" begin
+    end
+
+    @testset "Quaternions.argq" begin
         for _ in 1:100
-            q1 = nquatrand()
-            q2 = qrotation(rotationmatrix(q1), q1)
-            @test q1 ≈ q2
+            q, q2 = randn(QuaternionF64, 2)
+            @test q2 * Quaternions.argq(q) * inv(q2) ≈ Quaternions.argq(q2 * q * inv(q2))
+            v = Quaternion(0, randn(3)...)
+            @test Quaternions.argq(v) * norm(v) ≈ v
         end
     end
 
-    @testset "slerp/linpol" begin
-        @testset "q1=1" begin
+    @testset "rotations" begin
+        @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
+        @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
+        @test qrotation([0, 0, 0]) == Quaternion(1.0)
+        qx = qrotation([1, 0, 0], pi / 4)
+        @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
+        @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
+        theta = pi / 8
+        qx = qrotation([1, 0, 0], theta)
+        c = cos(theta); s = sin(theta)
+        Rx = [1 0 0; 0 c -s; 0 s c]
+        @test rotationmatrix(qx) ≈ Rx
+        theta = pi / 6
+        qy = qrotation([0, 1, 0], theta)
+        c = cos(theta); s = sin(theta)
+        Ry = [c 0 s; 0 1 0; -s 0 c]
+        @test rotationmatrix(qy) ≈ Ry
+        theta = 4pi / 3
+        qz = qrotation([0, 0, 1], theta)
+        c = cos(theta); s = sin(theta)
+        Rz = [c -s 0; s c 0; 0 0 1]
+        @test rotationmatrix(qz) ≈ Rz
+
+        @test rotationmatrix(qx * qy * qz) ≈ Rx * Ry * Rz
+        @test rotationmatrix(qy * qx * qz) ≈ Ry * Rx * Rz
+        @test rotationmatrix(qz * qx * qy) ≈ Rz * Rx * Ry
+
+        a, b = qrotation([0, 0, 1], deg2rad(0)), qrotation([0, 0, 1], deg2rad(180))
+        @test slerp(a, b, 0.0) ≈ a
+        @test slerp(a, b, 1.0) ≈ b
+        @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
+
+        @test angle(qrotation([1, 0, 0], 0)) ≈ 0
+        @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
+        @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
+
+        @testset "numerical stability of angle" begin
+            ax = randn(3)
+            for θ in [1e-9, π - 1e-9]
+                q = qrotation(ax, θ)
+                @test angle(q) ≈ θ
+            end
+        end
+
+        # Regression test for
+        # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
+        # this used to throw an error
+        @testset "qrotation can handle arbitrary reals" begin 
+            @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
+        end
+
+        @testset "angle/axis/angleaxis" begin
+        end    
+    
+        @testset "slerp/linpol" begin
+            @testset "q1=1" begin
+                for _ in 1:100
+                    q1 = quat(1, 0, 0, 0.)
+                    # there are numerical stability issues with slerp atm
+                    θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
+                    ax = randn(3)
+                    q2 = qrotation(ax, θ)
+                    t = rand()
+                    slerp(q1, q2, 0.) ≈ q1
+                    @test slerp(q1, q2, 0.) ≈ q1
+                    @test slerp(q1, q2, 1.) ≈ q2
+                    @test slerp(q1, q2, t) ≈ qrotation(ax, t * θ)
+                    @test norm(slerp(q1, q2, t)) ≈ 1
+                    @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+                    @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+                end
+            end
+
+            @testset "conjugate invariance" begin
+                for _ in 1:100
+                    q, q1, q2 = randn(QuaternionF64, 3)
+                    ⊗(s, t) = s * t * inv(s)
+                    t = rand()
+                    @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
+                    @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
+                end
+            end
+        end
+
+        @testset "qrotation" begin
+        end
+
+        @testset "qrotation and angleaxis inverse" begin
             for _ in 1:100
-                q1 = quat(1, 0, 0, 0.)
-                # there are numerical stability issues with slerp atm
-                θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
                 ax = randn(3)
-                q2 = qrotation(ax, θ)
-                t = rand()
-                slerp(q1, q2, 0.) ≈ q1
-                @test slerp(q1, q2, 0.) ≈ q1
-                @test slerp(q1, q2, 1.) ≈ q2
-                @test slerp(q1, q2, t) ≈ qrotation(ax, t * θ)
-                @test norm(slerp(q1, q2, t)) ≈ 1
-                @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
-                @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+                ax = ax / norm(ax)
+                Θ = π * rand()
+                q = qrotation(ax, Θ)
+                @test angle(q) ≈ Θ
+                @test axis(q) ≈ ax
+                @test angleaxis(q)[1] ≈ Θ
+                @test angleaxis(q)[2] ≈ ax
             end
         end
-        @testset "conjugate invariance" begin
+
+        @testset "rotationmatrix" begin
             for _ in 1:100
-                q, q1, q2 = randn(QuaternionF64, 3)
-                ⊗(s, t) = s * t * inv(s)
-                t = rand()
-                @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
-                @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
-            end
-        end
-    end
-
-    @testset "random quaternions" begin
-        @testset "quatrand" begin
-            rng = Random.MersenneTwister(42)
-            q1 = quatrand(rng)
-            @test q1 isa Quaternion
-            @test !q1.norm
-
-            q2 = quatrand()
-            @test q2 isa Quaternion
-            @test !q2.norm
-        end
-
-        @testset "nquatrand" begin
-            rng = Random.MersenneTwister(42)
-            q1 = nquatrand(rng)
-            @test q1 isa Quaternion
-            @test q1.norm
-
-            q2 = nquatrand()
-            @test q2 isa Quaternion
-            @test q2.norm
-        end
-
-        @testset "rand($H)" for H in (Quaternion, DualQuaternion, Octonion)
-            rng = Random.MersenneTwister(42)
-            q1 = rand(rng, H{Float64})
-            @test q1 isa H{Float64}
-            @test !q1.norm
-
-            q2 = rand(rng, H{Float32})
-            @test q2 isa H{Float32}
-            @test !q2.norm
-
-            qs = rand(rng, H{Float64}, 1000)
-            @test eltype(qs) === H{Float64}
-            @test length(qs) == 1000
-            xs = map(qs) do q
-                if q isa DualQuaternion
-                    return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
-                else
-                    return [real(q); Quaternions.imag(q)]
-                end
-            end
-            xs_mean = sum(xs) / length(xs)
-            xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
-            @test all(isapprox.(xs_mean, 0.5; atol=0.1))
-            @test all(isapprox.(xs_var, 1/12; atol=0.01))
-        end
-
-        @testset "randn($H)" for H in (Quaternion, Octonion)
-            rng = Random.MersenneTwister(42)
-            q1 = randn(rng, H{Float64})
-            @test q1 isa H{Float64}
-            @test !q1.norm
-
-            q2 = randn(rng, H{Float32})
-            @test q2 isa H{Float32}
-            @test !q2.norm
-
-            qs = randn(rng, H{Float64}, 10000)
-            @test eltype(qs) === H{Float64}
-            @test length(qs) == 10000
-            xs = map(qs) do q
-                if q isa DualQuaternion
-                    return [real(q.q0); Quaternions.imag(q.q0); real(q.qe); Quaternions.imag(q.qe)]
-                else
-                    return [real(q); Quaternions.imag(q)]
-                end
-            end
-            xs_mean = sum(xs) / length(xs)
-            xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
-            @test all(isapprox.(xs_mean, 0; atol=0.1))
-            if H === Quaternion
-                @test all(isapprox.(xs_var, 1/4; atol=0.1))
-            else
-                @test all(isapprox.(xs_var, 1/8; atol=0.1))
+                q1 = nquatrand()
+                q2 = qrotation(rotationmatrix(q1), q1)
+                @test q1 ≈ q2
             end
         end
     end
