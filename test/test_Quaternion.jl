@@ -111,6 +111,28 @@ end
     @test !iszero(Quaternion(0.0, 0.0, 0.0, 0.0, true))
 end
 
+@testset "isfinite" begin
+    @test isfinite(Quaternion(1.0, 2.0, 3.0, 4.0))
+    for inf in (Inf, -Inf)
+        @test !isfinite(Quaternion(inf, 0.0, 0.0, 0.0))
+        @test !isfinite(Quaternion(0.0, inf, 0.0, 0.0))
+        @test !isfinite(Quaternion(0.0, 0.0, inf, 0.0))
+        @test !isfinite(Quaternion(0.0, 0.0, 0.0, inf))
+        @test isfinite(Quaternion(inf, inf, inf, inf, true))
+    end
+end
+
+@testset "isinf" begin
+    @test !isinf(Quaternion(1.0, 2.0, 3.0, 4.0))
+    for inf in (Inf, -Inf)
+        @test isinf(Quaternion(inf, 0.0, 0.0, 0.0))
+        @test isinf(Quaternion(0.0, inf, 0.0, 0.0))
+        @test isinf(Quaternion(0.0, 0.0, inf, 0.0))
+        @test isinf(Quaternion(0.0, 0.0, 0.0, inf))
+        @test !isinf(Quaternion(inf, inf, inf, inf, true))
+    end
+end
+
 @testset "isnan" begin
     @test !isnan(Quaternion(1, 2, 3, 4))
     @test isnan(Quaternion(NaN, 2, 3, 4))
