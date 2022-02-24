@@ -386,6 +386,8 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
 end
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+    isreal(a) && return c / -(a + b)
+    isreal(b) && return -(a + b) \ c
     abs2a = abs2(a)
     abs2b = abs2(b)
     if abs2a > abs2b
@@ -401,7 +403,7 @@ function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {
 end
 sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a, b, c)...)
 sylvester(a::Quaternion, b::Quaternion, c::Real) = sylvester(promote(a, b, c)...)
-# if either a or b commute, can use the simple expression
+# if either a or b commute with x, use a simpler expression
 sylvester(a::Real, b::Real, c::Quaternion) = c / -(a + b)
 sylvester(a::Real, b::Quaternion, c::Quaternion) = c / -(a + b)
 sylvester(a::Quaternion, b::Real, c::Quaternion) = -(a + b) \ c
@@ -409,8 +411,11 @@ sylvester(a::Real, b::Quaternion, c::Real) = -c / (a + b)
 sylvester(a::Quaternion, b::Real, c::Real) = (a + b) \ -c
 
 function lyap(a::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+    # if a commutes with c, use a simpler expression
+    (isreal(a) || isreal(c)) && return c / -2real(a)
     return (c + a \ c * a) / -4real(a)
 end
 lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
+# if a commutes with c, use a simpler expression
 lyap(a::Real, c::Quaternion) = c / -2a
 lyap(a::Quaternion, c::Real) = c / -2real(a)
