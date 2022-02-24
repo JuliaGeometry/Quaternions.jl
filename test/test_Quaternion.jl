@@ -515,8 +515,8 @@ end
     end
     @testset "rational" begin
         a = Quaternion(1, 2, 3, 4)
-        b = Quaternion(1//2, 2//3, 3//4, 4//5)
-        c = Quaternion(1//3, 2//5, 3//7, 4//9)
+        b = Quaternion(1//2, 2//2, 3//2, 4//2)
+        c = Quaternion(-1//2, 2//2, -4//2, -3//2)
         @test @inferred(sylvester(a, b, c)) isa Quaternion{Rational{Int}}
         @test @inferred(lyap(a, c)) isa Quaternion{Rational{Int}}
         a = randn(QuaternionF32)
