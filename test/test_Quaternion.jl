@@ -503,12 +503,14 @@ end
                 elseif isnan(zx)
                     @test isnan(x)
                 end
-                x = lyap(a, f(Tc))
-                zx = lyap(za, f(Tzc))
-                if isinf(zx)
-                    @test isinf(x)
-                elseif isnan(zx)
-                    @test isnan(x)
+                if VERSION ≥ v"1.7"
+                    x = lyap(a, f(Tc))
+                    zx = lyap(za, f(Tzc))
+                    if isinf(zx)
+                        @test isinf(x)
+                    elseif isnan(zx)
+                        @test isnan(x)
+                    end
                 end
             end
         end    
