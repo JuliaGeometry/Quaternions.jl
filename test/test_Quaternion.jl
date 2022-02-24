@@ -466,4 +466,6 @@ end
     end
     @test isnan(sylvester(zero(QuaternionF64), zero(QuaternionF64), zero(QuaternionF64)))
     @test isnan(lyap(zero(QuaternionF64), zero(QuaternionF64)))
+    @test_throws DivideError sylvester(zero(Quaternion{Rational{Int}}), zero(Quaternion{Rational{Int}}), zero(Quaternion{Rational{Int}}))
+    @test_throws DivideError lyap(zero(Quaternion{Rational{Int}}), zero(Quaternion{Rational{Int}}))
 end

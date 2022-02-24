@@ -384,7 +384,8 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
     )
 end
 
-function sylvester(a::Quaternion, b::Quaternion, c::Quaternion)
+sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a,b,c)...)
+function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     abs2a = abs2(a)
     abs2b = abs2(b)
     if abs2a > abs2b
