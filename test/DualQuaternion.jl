@@ -1,4 +1,3 @@
-
 using Quaternions
 using DualNumbers
 using LinearAlgebra

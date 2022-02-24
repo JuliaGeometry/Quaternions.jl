@@ -1,4 +1,3 @@
-
 using Quaternions
 using LinearAlgebra
 using Random
