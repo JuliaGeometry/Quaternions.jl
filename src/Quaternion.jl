@@ -399,8 +399,17 @@ function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {
     return x
 end
 sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a, b, c)...)
+sylvester(a::Quaternion, b::Quaternion, c::Real) = sylvester(promote(a, b, c)...)
+# if either a or b commute, can use the simple expression
+sylvester(a::Real, b::Real, c::Quaternion) = c / -(a + b)
+sylvester(a::Real, b::Quaternion, c::Quaternion) = c / -(a + b)
+sylvester(a::Quaternion, b::Real, c::Quaternion) = -(a + b) \ c
+sylvester(a::Real, b::Quaternion, c::Real) = -c / (a + b)
+sylvester(a::Quaternion, b::Real, c::Real) = (a + b) \ -c
 
 function lyap(a::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     return (c + a \ c * a) / -4real(a)
 end
 lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
+lyap(a::Real, c::Quaternion) = c / -2a
+lyap(a::Quaternion, c::Real) = c / -2real(a)
