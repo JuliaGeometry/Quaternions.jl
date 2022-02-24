@@ -387,8 +387,8 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
 end
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
-    isreal(a) && return c / -(a + b)
-    isreal(b) && return -(a + b) \ c
+    isreal(a) && return sylvester(real(a), b, c)
+    isreal(b) && return sylvester(a, real(b), c)
     abs2a = abs2(a)
     abs2b = abs2(b)
     if abs2a > abs2b
