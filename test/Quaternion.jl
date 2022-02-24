@@ -107,11 +107,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "basic" begin
-        real
-        imag
-        conj
-        float
-        Quaternions.abs_imag
+        # TODO: test real, imag, conj, float, and Quaternions.abs_imag
     end
 
     @testset "algebraic properties" begin
