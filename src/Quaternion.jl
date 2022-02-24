@@ -384,7 +384,6 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
     )
 end
 
-sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a,b,c)...)
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     abs2a = abs2(a)
     abs2b = abs2(b)
@@ -399,8 +398,9 @@ function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {
     end
     return x
 end
+sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a, b, c)...)
 
-function lyap(a::Quaternion, c::Quaternion)
-    x = (c + a \ c * a) / -4real(a)
-    return x
+function lyap(a::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+    return (c + a \ c * a) / -4real(a)
 end
+lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
