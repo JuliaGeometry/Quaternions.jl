@@ -10,7 +10,67 @@ using Test
         @test OctonionF64 === Octonion{Float64}
     end
 
-    @testset "Constructors" begin end
+    @testset "Constructors" begin
+        @testset "from coefficients" begin
+            cs = [
+                (1, 2.0, 3f0, 4//1, 5, 6, 7, 8),
+                (1//1, 2f0, 3f0, 4, 5, 6, 7, 8),
+            ]
+            @testset for coef in cs, T in (Float32, Float64, Int), norm in (true, false)
+                q = @inferred Octonion{T}(coef..., norm)
+                @test q isa Octonion{T}
+                @test q.norm === norm
+                @test q === Octonion{T}(convert.(T, coef)..., norm)
+                q2 = @inferred Octonion(convert.(T, coef)..., norm)
+                @test Octonion(convert.(T, coef)..., norm) === q
+                if !norm
+                    @test Octonion(convert.(T, coef)...) === q
+                end
+            end
+        end
+        @testset "from real" begin
+            @testset for x in (-1//1, 1.0, 2.0), T in (Float32, Float64, Int, Rational{Int})
+                coef = T.((x, zeros(7)...))
+                @test @inferred(Octonion{T}(x)) === Octonion{T}(coef..., isone(abs(x)))
+                @test @inferred(Octonion(T(x))) === Octonion{T}(coef..., isone(abs(x)))
+            end
+        end
+        @testset "from complex" begin
+            @testset for z in (1+0im, -im, 1+2im), T in (Float32, Float64, Int, Rational{Int})
+                coef = T.((reim(z)..., zeros(6)...))
+                z2 = Complex{T}(z)
+                norm = isone(abs(z))
+                @test Octonion{T}(z) === Octonion{T}(coef..., norm)
+                @test @inferred(Octonion(z2)) === Octonion{T}(coef..., norm)
+            end
+        end
+        @testset "from quaternion" begin
+            qs = (Quaternion(1,2,3,4), QuaternionF64(0,1,0,0,true))
+            @testset for q in qs, T in (Float32,Float64)
+                coef = T.((q.s, q.v1, q.v2, q.v3, zeros(4)...))
+                q2 = Quaternion{T}(q)
+                @test @inferred(Octonion{T}(q)) === Octonion{T}(coef..., q.norm)
+                @test @inferred(Octonion(q2)) === Octonion{T}(coef..., q.norm)
+            end
+        end
+        @testset "from octonion" begin
+            os = (
+                Octonion(1,2,3,4,5,6,7,8),
+                OctonionF64(0,1,0,0,0,0,0,0,true)
+            )
+            @testset for o in os, T in (Float32,Float64)
+                coef = T.((o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7))
+                @test @inferred(Octonion{T}(o)) === Octonion{T}(coef..., o.norm)
+                @test @inferred(Octonion(o)) === o
+            end
+        end
+        @testset "from vector" begin
+            s = randn()
+            v = randn(7)
+            @test @inferred(Octonion(s, v)) === Octonion(s, v...)
+            @test @inferred(Octonion(v)) === Octonion(0, v)
+        end
+    end
 
     @testset "==" begin
         @test Octonion(1.0, 2, 3, 4, 5, 6, 7, 8) == Octonion(1, 2, 3, 4, 5, 6, 7, 8)
