@@ -157,7 +157,7 @@ function log(o::Octonion)
                      o.v6 * M,
                      o.v7 * M)
   else
-    return Octonion(log(a), th, 0.0, 0.0)
+    return Octonion(complex(log(a), ifelse(iszero(a), zero(th), th)))
   end
 end
 
