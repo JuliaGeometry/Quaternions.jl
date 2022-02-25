@@ -17,11 +17,11 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "Constructors" begin
         @testset "from coefficients" begin
-            coefs = [
+            cs = [
                 (1, 2.0, 3f0, 4//1),
                 (1//1, 2f0, 3f0, 4),
             ]
-            @testset for coef in coefs, T in (Float32, Float64, Int), norm in (true, false)
+            @testset for coef in cs, T in (Float32, Float64, Int), norm in (true, false)
                 q = @inferred Quaternion{T}(coef..., norm)
                 @test q isa Quaternion{T}
                 @test q.norm === norm
@@ -51,8 +51,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
         @testset "from quaternion" begin
             @testset for q in (Quaternion(1,2,3,4), QuaternionF64(0,1,0,0,true)), T in (Float32,Float64)
-                coefs = T.((q.s, q.v1, q.v2, q.v3))
-                @test @inferred(Quaternion{T}(q)) === Quaternion{T}(coefs..., q.norm)
+                coef = T.((q.s, q.v1, q.v2, q.v3))
+                @test @inferred(Quaternion{T}(q)) === Quaternion{T}(coef..., q.norm)
                 @test @inferred(Quaternion(q)) === q
             end
         end
