@@ -284,7 +284,7 @@ using Test
         @testset "^(::Octonion, ::Real)" begin
             for _ in 1:100
                 o = randn(OctonionF64)
-                @test o^2.0 ≈ o * o
+                @test @inferred(o^2.0) ≈ o * o
                 @test o^1.0 ≈ o
                 @test o^-1.0 ≈ inv(o)
                 @test o^1.3 ≈ exp(1.3 * log(o))
@@ -313,7 +313,8 @@ using Test
             for _ in 1:100
                 o1, o2 = randn(OctonionF64, 2)
                 q = randn(QuaternionF64)
-                @test fun(octo(q)) ≈ @inferred(fun(q))
+                o = octo(q)
+                @test @inferred(fun(o)) ≈ fun(q)
                 @test o2 * fun(o1) * inv(o2) ≈ fun(o2 * o1 * inv(o2))
             end
         end
@@ -329,7 +330,8 @@ using Test
             for _ in 1:100
                 o1, o2 = randn(OctonionF64, 2)
                 q = randn(QuaternionF64)
-                @test fun(octo(q)) ≈ @inferred(fun(q))
+                o = octo(q)
+                @test @inferred(fun(o)) ≈ fun(q)
                 @test o2 * fun(o1) * inv(o2) ≈ fun(o2 * o1 * inv(o2))
             end
         end
@@ -350,7 +352,7 @@ using Test
     @testset "normalize" begin
         for _ in 1:100
             q = quatrand()
-            qnorm = normalize(q)
+            qnorm = @inferred normalize(q)
             @test abs(qnorm) ≈ 1
             @test qnorm.norm
             @test q ≈ abs(q) * qnorm
@@ -362,7 +364,7 @@ using Test
     @testset "normalizea" begin
         for _ in 1:100
             q = quatrand()
-            qnorm, a = normalizea(q)
+            qnorm, a = @inferred normalizea(q)
             @test abs(qnorm) ≈ 1
             @test qnorm.norm
             @test a isa Real
@@ -372,8 +374,4 @@ using Test
         end
         @test_broken @inferred(normalizea(Quaternion(1, 2, 3, 4)))
     end
-
-    @testset "normalize" begin end
-
-    @testset "normalizea" begin end
 end

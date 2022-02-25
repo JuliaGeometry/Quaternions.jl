@@ -299,7 +299,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @testset for fun in unary_funs
             for _ in 1:100
                 c = randn(ComplexF64)
-                @test fun(Quaternion(c)) ≈ fun(c)
+                q = quat(c)
+                @test @inferred(fun(q)) ≈ fun(c)
                 @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
             end
         end
@@ -321,7 +322,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             q, q2 = randn(QuaternionF64, 2)
             for _ in 1:100
                 c = randn(ComplexF64)
-                fun !== cis && @test fun(Quaternion(c)) ≈ fun(c)
+                q = quat(c)
+                fun !== cis && @test @inferred(fun(q)) ≈ fun(c)
                 @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
             end
         end
@@ -423,7 +425,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     @testset "normalize" begin
         for _ in 1:100
             q = quatrand()
-            qnorm = normalize(q)
+            qnorm = @inferred normalize(q)
             @test abs(qnorm) ≈ 1
             @test qnorm.norm
             @test q ≈ abs(q) * qnorm
@@ -435,7 +437,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     @testset "normalizea" begin
         for _ in 1:100
             q = quatrand()
-            qnorm, a = normalizea(q)
+            qnorm, a = @inferred normalizea(q)
             @test abs(qnorm) ≈ 1
             @test qnorm.norm
             @test a isa Real
