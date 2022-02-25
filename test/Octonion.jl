@@ -122,9 +122,9 @@ using Test
 
     @testset "random generation" begin
         @testset "octorand" begin
-            q = octorand()
-            @test q isa Quaternion
-            @test !q.norm
+            o = octorand()
+            @test o isa Octonion
+            @test !o.norm
         end
 
         @testset "rand($H)" for H in (OctonionF32, OctonionF64)
