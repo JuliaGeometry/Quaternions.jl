@@ -22,11 +22,11 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 (1//1, 2f0, 3f0, 4),
             ]
             @testset for coef in coefs, T in (Float32, Float64, Int), norm in (true, false)
-                q = Quaternion{T}(coef..., norm)
+                q = @inferred Quaternion{T}(coef..., norm)
                 @test q isa Quaternion{T}
                 @test q.norm === norm
                 @test q === Quaternion{T}(convert.(T, coef)..., norm)
-                q2 = Quaternion(convert.(T, coef)..., norm)
+                q2 = @inferred Quaternion(convert.(T, coef)..., norm)
                 @test Quaternion(convert.(T, coef)..., norm) === q
                 if !norm
                     @test Quaternion(convert.(T, coef)...) === q
@@ -36,29 +36,31 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @testset "from real" begin
             @testset for x in (-1//1, 1.0, 2.0), T in (Float32, Float64, Int, Rational{Int})
                 coef = T.((x, 0, 0, 0))
-                @test Quaternion{T}(x) === Quaternion{T}(coef..., isone(abs(x)))
-                @test Quaternion(T(x)) === Quaternion{T}(coef..., isone(abs(x)))
+                @test @inferred(Quaternion{T}(x)) === Quaternion{T}(coef..., isone(abs(x)))
+                @test @inferred(Quaternion(T(x))) === Quaternion{T}(coef..., isone(abs(x)))
             end
         end
         @testset "from complex" begin
             @testset for z in (1+0im, -im, 1+2im), T in (Float32, Float64, Int, Rational{Int})
-                coef = Complex{T}.((reim(z)..., 0, 0))
-                @test_broken Quaternion{T}(z) === Quaternion{T}(coef..., isone(abs(z)))
-                @test Quaternion(Complex{T}(z)) === Quaternion{T}(coef..., isone(abs(z)))
+                coef = T.((reim(z)..., 0, 0))
+                z2 = Complex{T}(z)
+                norm = isone(abs(z))
+                @test_broken Quaternion{T}(z) === Quaternion{T}(coef..., norm)
+                @test @inferred(Quaternion(z2)) === Quaternion{T}(coef..., norm)
             end
         end
         @testset "from quaternion" begin
             @testset for q in (Quaternion(1,2,3,4), QuaternionF64(0,1,0,0,true)), T in (Float32,Float64)
                 coefs = T.((q.s, q.v1, q.v2, q.v3))
-                @test Quaternion{T}(q) === Quaternion{T}(coefs..., q.norm)
-                @test Quaternion(q) === q
+                @test @inferred(Quaternion{T}(q)) === Quaternion{T}(coefs..., q.norm)
+                @test @inferred(Quaternion(q)) === q
             end
         end
         @testset "from vector" begin
             s = randn()
             v = randn(3)
-            @test Quaternion(s, v) === Quaternion(s, v...)
-            @test Quaternion(v) === Quaternion(0, v)
+            @test @inferred(Quaternion(s, v)) === Quaternion(s, v...)
+            @test @inferred(Quaternion(v)) === Quaternion(0, v)
         end
     end
 
