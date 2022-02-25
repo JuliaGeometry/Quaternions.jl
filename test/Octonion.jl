@@ -193,17 +193,84 @@ using Test
         end
     end
 
-    @testset "isreal" begin end
+    @testset "isreal" begin
+        @test isreal(octo(1))
+        @test !isreal(octo(1, 1, 0, 0, 0, 0, 0, 0))
+        @test !isreal(octo(1, 0, 1, 0, 0, 0, 0, 0))
+        @test !isreal(octo(1, 0, 0, 1, 0, 0, 0, 0))
+        @test !isreal(octo(1, 0, 0, 0, 1, 0, 0, 0))
+        @test !isreal(octo(1, 0, 0, 0, 0, 1, 0, 0))
+        @test !isreal(octo(1, 0, 0, 0, 0, 0, 1, 0))
+        @test !isreal(octo(1, 0, 0, 0, 0, 0, 0, 1))
+    end
 
-    @testset "iszero" begin end
+    @testset "iszero" begin
+        @test iszero(octo(0))
+        @test !iszero(octo(1))
+        @test !iszero(octo(0, 1, 0, 0, 0, 0, 0, 0))
+        @test !iszero(octo(0, 0, 1, 0, 0, 0, 0, 0))
+        @test !iszero(octo(0, 0, 0, 1, 0, 0, 0, 0))
+        @test !iszero(octo(0, 0, 0, 0, 1, 0, 0, 0))
+        @test !iszero(octo(0, 0, 0, 0, 0, 1, 0, 0))
+        @test !iszero(octo(0, 0, 0, 0, 0, 0, 1, 0))
+        @test !iszero(octo(0, 0, 0, 0, 0, 0, 0, 1))
+        @test !iszero(octo(0, 0, 0, 0, 0, 0, 0, 0, true))
+    end
+    
+    @testset "isone" begin
+        @test isone(octo(1))
+        @test !isone(octo(-1))
+        @test !isone(octo(0, 1, 0, 0, 0, 0, 0, 0))
+        @test !isone(octo(1, 1, 0, 0, 0, 0, 0, 0))
+        @test !isone(octo(1, 0, 1, 0, 0, 0, 0, 0))
+        @test !isone(octo(1, 0, 0, 1, 0, 0, 0, 0))
+        @test !isone(octo(1, 0, 0, 0, 1, 0, 0, 0))
+        @test !isone(octo(1, 0, 0, 0, 0, 1, 0, 0))
+        @test !isone(octo(1, 0, 0, 0, 0, 0, 1, 0))
+        @test !isone(octo(1, 0, 0, 0, 0, 0, 0, 1))
+    end
 
-    @testset "isone" begin end
-
-    @testset "isfinite" begin end
-
-    @testset "isinf" begin end
-
-    @testset "isnan" begin end
+    @testset "isfinite" begin
+        @test isfinite(octo(1:8...))
+        for inf in (Inf, -Inf)
+            @test !isfinite(octo(inf, 0, 0, 0, 0, 0, 0, 0))
+            @test !isfinite(octo(0, inf, 0, 0, 0, 0, 0, 0))
+            @test !isfinite(octo(0, 0, inf, 0, 0, 0, 0, 0))
+            @test !isfinite(octo(0, 0, 0, inf, 0, 0, 0, 0))
+            @test !isfinite(octo(0, 0, 0, 0, inf, 0, 0, 0))
+            @test !isfinite(octo(0, 0, 0, 0, 0, inf, 0, 0))
+            @test !isfinite(octo(0, 0, 0, 0, 0, 0, inf, 0))
+            @test !isfinite(octo(0, 0, 0, 0, 0, 0, 0, inf))
+            @test isfinite(octo(fill(inf, 8)..., true))
+        end
+    end
+    
+    @testset "isinf" begin
+        @test !isinf(octo(1:8...))
+        for inf in (Inf, -Inf)
+            @test isinf(octo(inf, 0, 0, 0, 0, 0, 0, 0))
+            @test isinf(octo(0, inf, 0, 0, 0, 0, 0, 0))
+            @test isinf(octo(0, 0, inf, 0, 0, 0, 0, 0))
+            @test isinf(octo(0, 0, 0, inf, 0, 0, 0, 0))
+            @test isinf(octo(0, 0, 0, 0, inf, 0, 0, 0))
+            @test isinf(octo(0, 0, 0, 0, 0, inf, 0, 0))
+            @test isinf(octo(0, 0, 0, 0, 0, 0, inf, 0))
+            @test isinf(octo(0, 0, 0, 0, 0, 0, 0, inf))
+            @test !isinf(octo(fill(inf, 8)..., true))
+        end
+    end
+    
+    @testset "isnan" begin
+        @test !isnan(octo(1, 2, 3, 4, 5, 6, 7, 8))
+        @test isnan(octo(NaN, 2, 3, 4, 5, 6, 7, 8))
+        @test isnan(octo(1, NaN, 3, 4, 5, 6, 7, 8))
+        @test isnan(octo(1, 2, NaN, 4, 5, 6, 7, 8))
+        @test isnan(octo(1, 2, 3, NaN, 5, 6, 7, 8))
+        @test isnan(octo(1, 2, 3, 4, NaN, 6, 7, 8))
+        @test isnan(octo(1, 2, 3, 4, 5, NaN, 7, 8))
+        @test isnan(octo(1, 2, 3, 4, 5, 6, NaN, 8))
+        @test isnan(octo(1, 2, 3, 4, 5, 6, 7, NaN))
+    end
 
     @testset "+" begin end
 
