@@ -11,7 +11,6 @@ const QuaternionF32 = Quaternion{Float32}
 const QuaternionF64 = Quaternion{Float64}
 
 Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
-Quaternion{T}(q::Quaternion{T}) where {T<:Real} = q
 Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
