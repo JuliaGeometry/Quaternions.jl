@@ -64,8 +64,6 @@ float(q::Octonion{T}) where T = convert(Octonion{float(T)}, q)
 abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7
 inv(o::Octonion) = isunit(o) ? conj(o) : conj(o) / abs2(o)
 
-isunit(o::Octonion) = isone(abs2(o))
-
 function normalize(o::Octonion)
   if (isunit(o))
     return o

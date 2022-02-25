@@ -1,5 +1,3 @@
-using DualNumbers
-
 struct DualQuaternion{T<:Real} <: Number
   q0::Quaternion{T}
   qe::Quaternion{T}
@@ -82,8 +80,6 @@ abs2(dq::DualQuaternion) = isunit(dq) ? dual(one(dq.q0.s)) :
                 dq.q0.v1 * dq.qe.v1 +
                 dq.q0.v2 * dq.qe.v2 +
                 dq.q0.v3 * dq.qe.v3))
-
-isunit(o::Octonion) = isone(abs2(o))
 
 abs(dq::DualQuaternion) = isunit(dq) ? dual(one(dq.q0.s)) : sqrt(abs2(dq))
 float(dq::DualQuaternion{T}) where T = convert(DualQuaternion{float(T)}, dq)

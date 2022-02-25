@@ -8,6 +8,7 @@ module Quaternions
   import Base: rand, randn
   import LinearAlgebra: lyap, norm, normalize, sylvester
   using Random
+  using DualNumbers
 
   Base.@irrational INV_SQRT_EIGHT 0.3535533905932737622004 sqrt(big(0.125))
 
@@ -17,9 +18,11 @@ module Quaternions
   Return `true` if for the hypercomplex number `x`, `abs(x) == 1`.
   """
   function isunit end
-  isunit(x::Real) = isone(abs2(x))
-  isunit(x::Complex) = isone(abs2(x))
-  isunit(x::Dual) = isunit(DualNumbers.value(x)) & iszero(DualNumbers.epsilon(x))
+  isunit(x::Real) = isone(abs(x))
+  isunit(x::Complex) = isone(abs(x))
+  isunit(x::DualNumbers.Dual) = isunit(DualNumbers.value(x)) & iszero(DualNumbers.epsilon(x))
+  # TODO: replace this with something more efficient
+  isunit(x::Number) = isone(abs(x))
 
   include("Quaternion.jl")
   include("Octonion.jl")
