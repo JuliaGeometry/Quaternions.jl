@@ -169,7 +169,7 @@ using Test
         @test conj(conj(q)) === q
         @test conj(conj(qnorm)) === qnorm
         @test float(Octonion(1:8...)) === Octonion(1.0:8.0...)
-        @test_broken Quaternions.abs_imag(q) == abs(Octonion(0, q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7))
+        @test Quaternions.abs_imag(q) == abs(Octonion(0, q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7))
     end
 
     @testset "algebraic properties" begin
