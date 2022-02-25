@@ -513,6 +513,10 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
 
         @testset "angle/axis/angleaxis" begin
+            @test_throws ErrorException qrotation([0, 1], 0.1)
+            @test_throws ErrorException qrotation([0, 1, 0, 0], 0.1)
+            @test_throws ErrorException qrotation([0, 1])
+            @test_throws ErrorException qrotation([0, 1, 0, 0])
             @test angle(qrotation([1, 0, 0], 0)) ≈ 0
             @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
             @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
