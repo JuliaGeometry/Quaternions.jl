@@ -423,18 +423,37 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     @testset "normalize" begin
         for _ in 1:100
             q = quatrand()
-            @test norm(normalize(q)) ≈ 1
-            @test normalize(q).norm
-            @test q ≈ norm(q) * normalize(q)
-            qn = nquatrand()
-            @test qn.norm
-            @test normalize(qn) === qn
+            qnorm = normalize(q)
+            @test abs(qnorm) ≈ 1
+            @test qnorm.norm
+            @test q ≈ abs(q) * qnorm
+            @test normalize(qnorm) === qnorm
         end
+        @test_broken @inferred(normalize(Quaternion(1, 2, 3, 4)))
     end
 
-    @testset "normalizea" begin end
+    @testset "normalizea" begin
+        for _ in 1:100
+            q = quatrand()
+            qnorm, a = normalizea(q)
+            @test abs(qnorm) ≈ 1
+            @test qnorm.norm
+            @test a isa Real
+            @test a ≈ abs(q)
+            @test q ≈ a * qnorm
+            @test normalizea(qnorm) === (qnorm, one(real(q)))
+        end
+        @test_broken @inferred(normalizea(Quaternion(1, 2, 3, 4)))
+    end
 
-    @testset "normalizeq" begin end
+    @testset "Quaternions.normalizeq" begin
+        for _ in 1:10
+            q = quatrand()
+            @test Quaternions.normalizeq(q) === normalize(q)
+        end
+        @test Quaternions.normalizeq(zero(QuaternionF64)) == im
+        @test_broken @inferred(Quaternions.normalizeq(Quaternion(1, 2, 3, 4)))
+    end
 
     @testset "Quaternions.argq" begin
         for _ in 1:100
