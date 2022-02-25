@@ -439,4 +439,68 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             end
         end
     end
+
+    @testset "sylvester/lyap" begin
+        Ts = (Float64, QuaternionF64)
+        Ttrips = [(Ta, Tb, Tc) for Ta in Ts for Tb in Ts for Tc in Ts]
+        Ttrips = filter(x -> any(y -> y <: Quaternion, x), Ttrips)
+        @testset "($Ta, $Tb, $Tc)" for (Ta, Tb, Tc) in Ttrips 
+            for _ in 1:100
+                a = randn(Ta)
+                b = randn(Tb)
+                c = randn(Tc)
+                x = @inferred sylvester(a, b, c)
+                @test a * x + x * b ≈ -c
+                x = @inferred sylvester(b, a, c)
+                @test b * x + x * a ≈ -c
+                @test iszero(sylvester(a, b, zero(c)))
+                @test sylvester(a, zero(b), c) ≈ a \ -c
+                @test sylvester(zero(a), b, c) ≈ -c / b
+                @test iszero(sylvester(zero(a), b, zero(c)))
+                @test iszero(sylvester(a, zero(b), zero(c)))
+                @test iszero(sylvester(a, b, zero(c)))
+                # @test isnan(sylvester(zero(a), zero(b), c))
+    
+                @test @inferred(lyap(a, c)) ≈ sylvester(a, a', c)
+                @test @inferred(lyap(b, c)) ≈ sylvester(b, b', c)
+                @test iszero(lyap(a, zero(c)))
+            end
+            @testset "nan/inf return same as for complex" begin
+                Tza, Tzb, Tzc = map(T -> T <: Quaternion ? complex(real(T)) : T, (Ta, Tb, Tc))
+                a, b = zero(Ta), zero(Tb)
+                za, zb = zero(Tza), zero(Tzb)
+                @testset for f in (one, zero, randn)
+                    x = sylvester(a, b, f(Tc))
+                    zx = sylvester(za, zb, f(Tzc))
+                    if isinf(zx)
+                        @test isinf(x)
+                    elseif isnan(zx)
+                        @test isnan(x)
+                    end
+                    if VERSION ≥ v"1.7"
+                        x = lyap(a, f(Tc))
+                        zx = lyap(za, f(Tzc))
+                        if isinf(zx)
+                            @test isinf(x)
+                        elseif isnan(zx)
+                            @test isnan(x)
+                        end
+                    end
+                end
+            end    
+        end
+        @testset "rational" begin
+            a = Quaternion(1, 2, 3, 4)
+            b = Quaternion(1//2, 2//2, 3//2, 4//2)
+            c = Quaternion(-1//2, 2//2, -4//2, -3//2)
+            @test @inferred(sylvester(a, b, c)) isa Quaternion{Rational{Int}}
+            @test @inferred(lyap(a, c)) isa Quaternion{Rational{Int}}
+            a = randn(QuaternionF32)
+            @test @inferred(sylvester(a, b, c)) isa QuaternionF32
+            @test @inferred(lyap(a, c)) isa QuaternionF32
+            null = zero(Quaternion{Rational{Int}})
+            @test_throws DivideError sylvester(null, null, null)
+            @test_throws DivideError lyap(null, null)
+        end
+    end    
 end
