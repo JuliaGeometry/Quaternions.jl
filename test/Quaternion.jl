@@ -80,9 +80,18 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test convert(Quaternion{Float64}, Complex(1, 2)) === Quaternion(1.0, 2.0, 0.0, 0.0)
         @test convert(Quaternion{Float64}, Quaternion(1, 2, 3, 4)) ===
             Quaternion(1.0, 2.0, 3.0, 4.0)
+        @test convert(Quaternion{Float64}, Quaternion(1.0, 2.0, 3.0, 4.0)) ===
+            Quaternion(1.0, 2.0, 3.0, 4.0)
+        @test convert(Quaternion{Float64}, Quaternion(0, 1, 0, 0, true)) ===
+            Quaternion(0.0, 1.0, 0.0, 0.0, true)
     end
 
     @testset "promote" begin
+        @test promote(Quaternion(1.0, 2, 3, 4), 1.0) === (Quaternion(1.0, 2, 3, 4), Quaternion(1.0))
+        @test promote(Quaternion(1f0, 2, 3, 4), 2.0) === (Quaternion(1.0, 2, 3, 4), Quaternion(2.0))
+        @test promote(Quaternion(1f0), 2+3im) === (Quaternion(1f0), Quaternion(2f0+3f0im))
+        @test promote(Quaternion(1f0), Quaternion(2.0)) === (Quaternion(1.0), Quaternion(2.0))
+
         @test Quaternion(1) == 1.0
         @test Quaternion(1, 2, 0, 0) == Complex(1.0, 2.0)
     end
