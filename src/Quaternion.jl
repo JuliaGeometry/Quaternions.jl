@@ -62,6 +62,7 @@ abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
+isunit(q::Quaternion) = isone(abs2(q))
 isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
 isfinite(q::Quaternion) = q.norm | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
 iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
