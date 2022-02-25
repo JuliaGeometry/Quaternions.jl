@@ -296,7 +296,7 @@ using Test
             end
         end
         @testset "^(::Octonion, ::Octonion)" begin
-            @test octo(ℯ)^octo(0, 0, 0, 0, 0, 0, π / 2, 0) ≈ octo(0, 0, 0, 0, 0, 0, 1, 0)
+            @test octo(Float64(ℯ))^octo(0, 0, 0, 0, 0, 0, π / 2, 0) ≈ octo(0, 0, 0, 0, 0, 0, 1, 0)
             z = (3.5 + 2.3im)^(0.2 + 1.7im)
             @test octo(3.5, 0, 0, 0, 0, 0, 2.3, 0)^octo(0.2, 0, 0, 0, 0, 0, 1.7, 0) ≈
                 octo(real(z), 0, 0, 0, 0, 0, imag(z), 0)
