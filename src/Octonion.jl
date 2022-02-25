@@ -11,8 +11,8 @@ end
 
 Octonion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7::Real, n::Bool = false) =
   Octonion(promote(s, v1, v2, v3, v4, v5, v6, v7)..., n)
-Octonion(x::Real) = Octonion(x, zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), abs(x) == one(x))
-Octonion(z::Complex) = Octonion(z.re, z.im, zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), abs(z) == one(z.re))
+Octonion(x::Real) = Octonion(x, zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), isunit(x))
+Octonion(z::Complex) = Octonion(z.re, z.im, zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), isunit(z))
 Octonion(q::Quaternion) = Octonion(q.s, q.v1, q.v2, q.v3, zero(q.s), zero(q.s), zero(q.s), zero(q.s), isunit(q))
 Octonion(s::Real, a::Vector) = Octonion(s, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 Octonion(a::Vector) = Octonion(0, a[1], a[2], a[3], a[4], a[5], a[6], a[7])

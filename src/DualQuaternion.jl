@@ -15,9 +15,9 @@ DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool) =
   DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
                   Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)), n)
 
-DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), abs(x) == one(x))
+DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), isunit(x))
 
-DualQuaternion(d::Dual) = DualQuaternion(Quaternion(DualNumbers.value(d)), Quaternion(DualNumbers.epsilon(d)), (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
+DualQuaternion(d::Dual) = DualQuaternion(Quaternion(DualNumbers.value(d)), Quaternion(DualNumbers.epsilon(d)), isunit(d))
 
 DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), isunit(q))
 

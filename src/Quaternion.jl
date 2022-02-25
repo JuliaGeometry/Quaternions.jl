@@ -14,8 +14,8 @@ const QuaternionF64 = Quaternion{Float64}
 (::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, isunit(q))
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
-Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
-Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
+Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), isunit(x))
+Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), isunit(z))
 Quaternion(s::Real, a::Vector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
 
