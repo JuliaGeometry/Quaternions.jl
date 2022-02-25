@@ -132,16 +132,47 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "isreal" begin end
 
-    @testset "iszero" begin end
-
+    @testset "iszero" begin
+        @test iszero(Quaternion(0.0, 0.0, 0.0, 0.0))
+        @test !iszero(Quaternion(1.0, 0.0, 0.0, 0.0))
+        @test !iszero(Quaternion(0.0, 1.0, 0.0, 0.0))
+        @test !iszero(Quaternion(0.0, 0.0, 1.0, 0.0))
+        @test !iszero(Quaternion(0.0, 0.0, 0.0, 1.0))
+        @test !iszero(Quaternion(0.0, 0.0, 0.0, 0.0, true))
+    end
+    
     @testset "isone" begin end
 
-    @testset "isfinite" begin end
-
-    @testset "isinf" begin end
-
-    @testset "isnan" begin end
-
+    @testset "isfinite" begin
+        @test isfinite(Quaternion(1.0, 2.0, 3.0, 4.0))
+        for inf in (Inf, -Inf)
+            @test !isfinite(Quaternion(inf, 0.0, 0.0, 0.0))
+            @test !isfinite(Quaternion(0.0, inf, 0.0, 0.0))
+            @test !isfinite(Quaternion(0.0, 0.0, inf, 0.0))
+            @test !isfinite(Quaternion(0.0, 0.0, 0.0, inf))
+            @test isfinite(Quaternion(inf, inf, inf, inf, true))
+        end
+    end
+    
+    @testset "isinf" begin
+        @test !isinf(Quaternion(1.0, 2.0, 3.0, 4.0))
+        for inf in (Inf, -Inf)
+            @test isinf(Quaternion(inf, 0.0, 0.0, 0.0))
+            @test isinf(Quaternion(0.0, inf, 0.0, 0.0))
+            @test isinf(Quaternion(0.0, 0.0, inf, 0.0))
+            @test isinf(Quaternion(0.0, 0.0, 0.0, inf))
+            @test !isinf(Quaternion(inf, inf, inf, inf, true))
+        end
+    end
+    
+    @testset "isnan" begin
+        @test !isnan(Quaternion(1, 2, 3, 4))
+        @test isnan(Quaternion(NaN, 2, 3, 4))
+        @test isnan(Quaternion(1, NaN, 3, 4))
+        @test isnan(Quaternion(1, 2, NaN, 4))
+        @test isnan(Quaternion(1, 2, 3, NaN))
+    end
+    
     @testset "+" begin end
 
     @testset "-" begin end
