@@ -106,7 +106,17 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "basic" begin
-        # TODO: test real, imag, conj, float, and Quaternions.abs_imag
+        q = randn(QuaternionF64)
+        qnorm = normalize(q)
+        @test real(q) === q.s
+        @test_throws MethodError imag(q)
+        @test Quaternions.imag(q) == [q.v1, q.v2, q.v3]
+        @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
+        @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, true)
+        @test conj(conj(q)) === q
+        @test conj(conj(qnorm)) === qnorm
+        @test float(Quaternion(1, 2, 3, 4)) === float(Quaternion(1.0, 2.0, 3.0, 4.0))
+        @test Quaternions.abs_imag(q) == abs(Quaternion(0, q.v1, q.v2, q.v3))
     end
 
     @testset "algebraic properties" begin
