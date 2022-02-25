@@ -11,11 +11,9 @@ const QuaternionF64 = Quaternion{Float64}
 
 (::Type{Quaternion{T}})(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 (::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
-(::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, isunit(q))
-Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
-    Quaternion(promote(s, v1, v2, v3)..., n)
-Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), isunit(x))
-Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), isunit(z))
+(::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3)
+Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x))
+Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re))
 Quaternion(s::Real, a::Vector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
 
@@ -32,9 +30,18 @@ promote_rule(::Type{Complex{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: R
 promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
-quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
+
+Base.@deprecate(
+    Quaternion{T}(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, norm::Bool) where {T<:Real},
+    Quaternion{T}(s, v1, v2, v3)
+)
+Base.@deprecate(
+    Quaternion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, norm::Bool),
+    Quaternion(s, v1, v2, v3, v4)
+)
+Base.@deprecate quat(p, v1, v2, v3, n) quat(p, v1, v2, v3)
 
 function Base.getproperty(q::Quaternion, k::Symbol)
     if k === :norm
@@ -55,7 +62,7 @@ imag(q::Quaternion) = [q.v1, q.v2, q.v3]
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 
-conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, isunit(q))
+conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
 abs(q::Quaternion) = sqrt(q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
@@ -63,17 +70,17 @@ abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
 inv(q::Quaternion) = isunit(q) ? conj(q) : conj(q) / abs2(q)
 
 isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
-isfinite(q::Quaternion) = isunit(q) | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
-iszero(q::Quaternion) = ~isunit(q) & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+isfinite(q::Quaternion) = isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3)
+iszero(q::Quaternion) = iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
 isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
-isinf(q::Quaternion) = ~isunit(q) & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
+isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 
 function normalize(q::Quaternion)
     if (isunit(q))
         return q
     end
     q = q / abs(q)
-    Quaternion(q.s, q.v1, q.v2, q.v3, true)
+    Quaternion(q.s, q.v1, q.v2, q.v3)
 end
 
 function normalizea(q::Quaternion)
@@ -82,20 +89,20 @@ function normalizea(q::Quaternion)
     end
     a = abs(q)
     q = q / a
-    (Quaternion(q.s, q.v1, q.v2, q.v3, true), a)
+    (Quaternion(q.s, q.v1, q.v2, q.v3), a)
 end
 
 function normalizeq(q::Quaternion)
     a = abs(q)
     if a > 0
         q = q / a
-        Quaternion(q.s, q.v1, q.v2, q.v3, true)
+        Quaternion(q.s, q.v1, q.v2, q.v3)
     else
-        Quaternion(0.0, 1.0, 0.0, 0.0, true)
+        Quaternion(0.0, 1.0, 0.0, 0.0)
     end
 end
 
-(-)(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, isunit(q))
+(-)(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3)
 
 (+)(q::Quaternion, w::Quaternion) =
     Quaternion(q.s + w.s, q.v1 + w.v1, q.v2 + w.v2, q.v3 + w.v3)
@@ -106,8 +113,7 @@ end
 (*)(q::Quaternion, w::Quaternion) = Quaternion(q.s * w.s - q.v1 * w.v1 - q.v2 * w.v2 - q.v3 * w.v3,
                                                q.s * w.v1 + q.v1 * w.s + q.v2 * w.v3 - q.v3 * w.v2,
                                                q.s * w.v2 - q.v1 * w.v3 + q.v2 * w.s + q.v3 * w.v1,
-                                               q.s * w.v3 + q.v1 * w.v2 - q.v2 * w.v1 + q.v3 * w.s,
-                                               isunit(q) && isunit(w))
+                                               q.s * w.v3 + q.v1 * w.v2 - q.v2 * w.v1 + q.v3 * w.s)
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
 (==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
@@ -154,19 +160,15 @@ function extend_analytic(f, q::Quaternion)
     w = f(z)
     wr, wi = reim(w)
     scale = wi / a
-    norm = _isexpfun(f) && iszero(s)
     if a > 0
-        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3, norm)
+        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3)
     else
         # q == real(q), so f(real(q)) may be real or complex, i.e. wi may be nonzero.
         # we choose to embed complex numbers in the quaternions by identifying the first
         # imaginary quaternion basis with the complex imaginary basis.
-        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale), norm)
+        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale))
     end
 end
-
-_isexpfun(::Union{typeof(exp),typeof(exp2),typeof(exp10)}) = true
-_isexpfun(::Any) = false
 
 """
     cis(q::Quaternion)
@@ -260,7 +262,7 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
         Quaternion(sp * p.s  + sq * q.s,
                    sp * p.v1 + sq * q.v1,
                    sp * p.v2 + sq * q.v2,
-                   sp * p.v3 + sq * q.v3, true)
+                   sp * p.v3 + sq * q.v3)
     else
         s  =  p.v3
         v1 = -p.v2
@@ -271,7 +273,7 @@ function linpol(p::Quaternion, q::Quaternion, t::Real)
         Quaternion(s,
                    sp * p.v1 + sq * v1,
                    sp * p.v2 + sq * v2,
-                   sp * p.v3 + sq * v3, true)
+                   sp * p.v3 + sq * v3)
     end
 end
 
@@ -279,7 +281,7 @@ quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), ra
 nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
 function rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
-    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T))
 end
 
 function randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
@@ -288,7 +290,6 @@ function randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
         randn(rng, T) * 1//2,
         randn(rng, T) * 1//2,
         randn(rng, T) * 1//2,
-        false,
     )
 end
 
@@ -305,7 +306,7 @@ function qrotation(axis::Vector{T}, theta) where {T <: Real}
     end
     s,c = sincos(theta / 2)
     scaleby = s / normaxis
-    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
+    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3])
 end
 
 # Variant of the above where norm(rotvec) encodes theta
@@ -316,7 +317,7 @@ function qrotation(rotvec::Vector{T}) where {T <: Real}
     theta = norm(rotvec)
     s,c = sincos(theta / 2)
     scaleby = s / (iszero(theta) ? one(theta) : theta)
-    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3], true)
+    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3])
 end
 
 function qrotation(dcm::Matrix{T}) where {T<:Real}

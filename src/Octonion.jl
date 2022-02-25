@@ -9,11 +9,9 @@ struct Octonion{T<:Real} <: Number
   v7::T
 end
 
-Octonion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7::Real, n::Bool = false) =
-  Octonion(promote(s, v1, v2, v3, v4, v5, v6, v7)..., n)
-Octonion(x::Real) = Octonion(x, zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), isunit(x))
-Octonion(z::Complex) = Octonion(z.re, z.im, zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), isunit(z))
-Octonion(q::Quaternion) = Octonion(q.s, q.v1, q.v2, q.v3, zero(q.s), zero(q.s), zero(q.s), zero(q.s), isunit(q))
+Octonion(x::Real) = Octonion(x, zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), zero(x))
+Octonion(z::Complex) = Octonion(z.re, z.im, zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re))
+Octonion(q::Quaternion) = Octonion(q.s, q.v1, q.v2, q.v3, zero(q.s), zero(q.s), zero(q.s), zero(q.s))
 Octonion(s::Real, a::Vector) = Octonion(s, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 Octonion(a::Vector) = Octonion(0, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 
@@ -26,7 +24,7 @@ convert(::Type{Octonion{T}}, z::Complex) where {T} = Octonion(convert(Complex{T}
 convert(::Type{Octonion{T}}, q::Quaternion) where {T} = Octonion(convert(Quaternion{T}, q))
 convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
-  Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), isunit(o))
+  Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7))
 
 promote_rule(::Type{Octonion{T}}, ::Type{T}) where {T <: Real} = Octonion{T}
 promote_rule(::Type{Octonion}, ::Type{T}) where {T <: Real} = Octonion
@@ -36,9 +34,18 @@ promote_rule(::Type{Quaternion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: 
 promote_rule(::Type{Octonion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 
 octo(p, v1, v2, v3, v4, v5, v6, v7) = Octonion(p, v1, v2, v3, v4, v5, v6, v7)
-octo(p, v1, v2, v3, v4, v5, v6, v7, n) = Octonion(p, v1, v2, v3, v4, v5, v6, v7, n)
 octo(x) = Octonion(x)
 octo(s, a) = Octonion(s, a)
+
+Base.@deprecate(
+    Octonion{T}(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7::Real, norm::Bool) where {T<:Real},
+    Octonion{T}(s, v1, v2, v3, v4, v5, v6, v7)
+)
+Base.@deprecate(
+    Octonion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7::Real, norm::Bool),
+    Octonion(s, v1, v2, v3, v4, v5, v6, v7)
+)
+Base.@deprecate octo(p, v1, v2, v3, v4, v5, v6, v7, n) octo(p, v1, v2, v3, v4, v5, v6, v7)
 
 function Base.getproperty(o::Octonion, k::Symbol)
   if k === :norm
@@ -58,7 +65,7 @@ imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
 
-conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, isunit(o))
+conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7)
 abs(o::Octonion) = sqrt(o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
 float(q::Octonion{T}) where T = convert(Octonion{float(T)}, q)
 abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7
@@ -69,7 +76,7 @@ function normalize(o::Octonion)
     return o
   end
   o = o / abs(o)
-  Octonion(o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7, true)
+  Octonion(o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7)
 end
 
 function normalizea(o::Octonion)
@@ -78,10 +85,10 @@ function normalizea(o::Octonion)
   end
   a = abs(o)
   o = o / a
-  (Octonion(o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7, true), a)
+  (Octonion(o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7), a)
 end
 
-(-)(o::Octonion) = Octonion(-o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, isunit(o))
+(-)(o::Octonion) = Octonion(-o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7)
 
 (+)(o::Octonion, w::Octonion) = Octonion(o.s + w.s,
                                             o.v1 + w.v1,
@@ -140,8 +147,7 @@ function exp(o::Octonion)
             scale * o.v4,
             scale * o.v5,
             scale * o.v6,
-            scale * o.v7,
-            abs(s) == 0)
+            scale * o.v7)
 end
 
 function log(o::Octonion)
@@ -174,7 +180,7 @@ octorand() = octo(randn(), randn(), randn(), randn(), randn(), randn(), randn(),
 
 function rand(rng::AbstractRNG, ::Random.SamplerType{Octonion{T}}) where {T<:Real}
   Octonion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T),
-              rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+              rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T))
 end
 
 function randn(rng::AbstractRNG, ::Type{Octonion{T}}) where {T<:AbstractFloat}
@@ -187,6 +193,5 @@ function randn(rng::AbstractRNG, ::Type{Octonion{T}}) where {T<:AbstractFloat}
       randn(rng, T) * INV_SQRT_EIGHT,
       randn(rng, T) * INV_SQRT_EIGHT,
       randn(rng, T) * INV_SQRT_EIGHT,
-      false,
   )
 end
