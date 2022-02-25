@@ -280,13 +280,16 @@ using Test
         @test isnan(octo(1, 2, 3, 4, 5, 6, 7, NaN))
     end
 
-    @testset "+" begin end
-
-    @testset "-" begin end
-
-    @testset "*" begin end
-
-    @testset "/" begin end
+    @testset "/" begin
+        for _ in 1:100
+            o, o2 = randn(OctonionF64, 2)
+            x = randn()
+            @test o / o ≈ o \ o ≈ one(o)
+            @test o / o2 ≈ o * inv(o2)
+            @test o2 \ o ≈ inv(o2) * o
+            @test o / x ≈ x \ o ≈ inv(x) * o
+        end
+    end
 
     @testset "^" begin
         @testset "^(::Octonion, ::Real)" begin

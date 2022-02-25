@@ -258,13 +258,16 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test isnan(Quaternion(1, 2, 3, NaN))
     end
     
-    @testset "+" begin end
-
-    @testset "-" begin end
-
-    @testset "*" begin end
-
-    @testset "/" begin end
+    @testset "/" begin
+        for _ in 1:100
+            q, q2 = randn(QuaternionF64, 2)
+            x = randn()
+            @test q / q ≈ q \ q ≈ one(q)
+            @test q / q2 ≈ q * inv(q2)
+            @test q2 \ q ≈ inv(q2) * q
+            @test q / x ≈ x \ q ≈ inv(x) * q
+        end
+    end
 
     @testset "^" begin
         @testset "^(::Quaternion, ::Real)" begin
