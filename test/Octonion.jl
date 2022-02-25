@@ -121,6 +121,12 @@ using Test
     end
 
     @testset "random generation" begin
+        @testset "octorand" begin
+            q = octorand()
+            @test q isa Quaternion
+            @test !q.norm
+        end
+
         @testset "rand($H)" for H in (OctonionF32, OctonionF64)
             rng = Random.MersenneTwister(42)
             o = rand(rng, H)
