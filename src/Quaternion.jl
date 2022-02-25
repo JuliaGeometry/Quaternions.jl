@@ -3,7 +3,6 @@ struct Quaternion{T<:Real} <: Number
     v1::T
     v2::T
     v3::T
-    norm::Bool
 end
 
 const QuaternionF16 = Quaternion{Float16}
@@ -36,6 +35,14 @@ quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
+
+function Base.getproperty(q::Quaternion, k::Symbol)
+    if k === :norm
+        Base.depwarn("`q.norm` is deprecated. Please use `isunit(q)` instead.", Symbol("q.norm"))
+        return isunit(q)
+    end
+    return getfield(q, k)
+end
 
 function show(io::IO, q::Quaternion)
     pm(x) = x < 0 ? " - $(-x)" : " + $x"

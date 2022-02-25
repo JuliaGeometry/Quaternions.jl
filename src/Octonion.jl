@@ -7,7 +7,6 @@ struct Octonion{T<:Real} <: Number
   v5::T
   v6::T
   v7::T
-  norm::Bool
 end
 
 Octonion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7::Real, n::Bool = false) =
@@ -40,6 +39,14 @@ octo(p, v1, v2, v3, v4, v5, v6, v7) = Octonion(p, v1, v2, v3, v4, v5, v6, v7)
 octo(p, v1, v2, v3, v4, v5, v6, v7, n) = Octonion(p, v1, v2, v3, v4, v5, v6, v7, n)
 octo(x) = Octonion(x)
 octo(s, a) = Octonion(s, a)
+
+function Base.getproperty(o::Octonion, k::Symbol)
+  if k === :norm
+      Base.depwarn("`o.norm` is deprecated. Please use `isunit(o)` instead.", Symbol("o.norm"))
+      return isunit(o)
+  end
+  return getfield(o, k)
+end
 
 function show(io::IO, o::Octonion)
   pm(x) = x < 0 ? " - $(-x)" : " + $x"

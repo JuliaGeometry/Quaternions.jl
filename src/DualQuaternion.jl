@@ -3,7 +3,6 @@ using DualNumbers
 struct DualQuaternion{T<:Real} <: Number
   q0::Quaternion{T}
   qe::Quaternion{T}
-  norm::Bool
 end
 
 DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = false) =
@@ -50,6 +49,14 @@ dualquat(q1, q2, n) = DualQuaternion(q1, q2, n)
 dualquat(d1, d2, d3, d4) = DualQuaternion(d1, d2, d3, d4)
 dualquat(d1, d2, d3, d4, n) = DualQuaternion(d1, d2, d3, d4, n)
 dualquat(x) = DualQuaternion(x)
+
+function Base.getproperty(dq::DualQuaternion, k::Symbol)
+  if k === :norm
+      Base.depwarn("`dq.norm` is deprecated. Please use `isunit(dq)` instead.", Symbol("dq.norm"))
+      return isunit(dq)
+  end
+  return getfield(dq, k)
+end
 
 function show(io::IO, dq::DualQuaternion)
   show(io, dq.q0)
