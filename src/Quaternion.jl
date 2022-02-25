@@ -11,6 +11,7 @@ const QuaternionF32 = Quaternion{Float32}
 const QuaternionF64 = Quaternion{Float64}
 
 Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
+Quaternion{T}(x::Complex) where {T<:Real} = Quaternion(convert(Complex{T}, x))
 Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
@@ -18,8 +19,6 @@ Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
 Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
 Quaternion(s::Real, a::Vector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
-
-convert(::Type{Quaternion{T}}, z::Complex) where {T} = Quaternion(convert(Complex{T}, z))
 
 promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}

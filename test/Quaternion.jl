@@ -45,7 +45,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 coef = T.((reim(z)..., 0, 0))
                 z2 = Complex{T}(z)
                 norm = isone(abs(z))
-                @test_broken Quaternion{T}(z) === Quaternion{T}(coef..., norm)
+                @test Quaternion{T}(z) === Quaternion{T}(coef..., norm)
                 @test @inferred(Quaternion(z2)) === Quaternion{T}(coef..., norm)
             end
         end
