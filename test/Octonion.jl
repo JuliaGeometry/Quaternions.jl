@@ -305,9 +305,73 @@ using Test
         end
     end
 
-    @testset "non-analytic functions" begin end
+    @testset "non-analytic functions" begin
+        unary_funs = [conj, abs, abs2, norm, sign]
+        # since every octonion is conjugate to a quaternion,
+        # one can establish correctness as follows:
+        @testset for fun in unary_funs
+            for _ in 1:100
+                o1, o2 = randn(OctonionF64, 2)
+                q = randn(QuaternionF64)
+                @test fun(octo(q)) ≈ @inferred(fun(q))
+                @test o2 * fun(o1) * inv(o2) ≈ fun(o2 * o1 * inv(o2))
+            end
+        end
+    end
 
-    @testset "analytic functions" begin end
+    @testset "analytic functions" begin
+        unary_funs = [sqrt, inv, exp, log]
+        # since every octonion is conjugate to a quaternion,
+        # one can establish correctness as follows:
+        # since every octonion is conjugate to a quaternion,
+        # one can establish correctness as follows:
+        @testset for fun in unary_funs
+            for _ in 1:100
+                o1, o2 = randn(OctonionF64, 2)
+                q = randn(QuaternionF64)
+                @test fun(octo(q)) ≈ @inferred(fun(q))
+                @test o2 * fun(o1) * inv(o2) ≈ fun(o2 * o1 * inv(o2))
+            end
+        end
+
+        @testset "identities" begin
+            for _ in 1:100
+                o = randn(OctonionF64)
+                @test inv(o) * o ≈ o * inv(o) ≈ one(o)
+                @test sqrt(o) * sqrt(o) ≈ o
+                @test exp(log(o)) ≈ o
+                @test exp(zero(o)) ≈ one(o)
+                @test log(one(o)) ≈ zero(o)
+            end
+            @test log(zero(OctonionF64)) === octo(-Inf)
+        end
+    end
+
+    @testset "normalize" begin
+        for _ in 1:100
+            q = quatrand()
+            qnorm = normalize(q)
+            @test abs(qnorm) ≈ 1
+            @test qnorm.norm
+            @test q ≈ abs(q) * qnorm
+            @test normalize(qnorm) === qnorm
+        end
+        @test_broken @inferred(normalize(Quaternion(1, 2, 3, 4)))
+    end
+
+    @testset "normalizea" begin
+        for _ in 1:100
+            q = quatrand()
+            qnorm, a = normalizea(q)
+            @test abs(qnorm) ≈ 1
+            @test qnorm.norm
+            @test a isa Real
+            @test a ≈ abs(q)
+            @test q ≈ a * qnorm
+            @test normalizea(qnorm) === (qnorm, one(real(q)))
+        end
+        @test_broken @inferred(normalizea(Quaternion(1, 2, 3, 4)))
+    end
 
     @testset "normalize" begin end
 
