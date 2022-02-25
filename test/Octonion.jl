@@ -85,15 +85,27 @@ using Test
             Octonion(1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         @test convert(Octonion{Float64}, Quaternion(1, 2, 3, 4)) ===
             Octonion(1.0, 2.0, 3.0, 4.0, 0.0, 0.0, 0.0, 0.0)
+        @test convert(Octonion{Float64}, Quaternion(0, 1, 0, 0, true)) ===
+            Octonion(0.0, 1.0, 0.0, 0.0, 0, 0, 0, 0, true)
         @test convert(Octonion{Float64}, Octonion(1, 2, 3, 4, 5, 6, 7, 8)) ===
             Octonion(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+        @test convert(Octonion{Float64}, Octonion(0, 0, 0, 0, 1, 0, 0, 0, true)) ===
+            Octonion(0.0, 0.0, 0.0, 0.0, 1, 0, 0, 0, true)
     end
 
     @testset "promote" begin
-        @test Quaternion(1, 2, 3, 4) == Octonion(1, 2, 3, 4, 0, 0, 0, 0)
-        @test Quaternion(1, 2, 3, 4) != Octonion(1, 2, 3, 4, 5, 6, 7, 8)
+        @test promote(Octonion(1.0, 2:8...), 1.0) ===
+            (Octonion(1.0, 2:8...), Octonion(1.0))
+        @test promote(Octonion(1f0, 2:8...), 2.0) === (Octonion(1.0, 2:8...), Octonion(2.0))
+        @test promote(Octonion(1f0), 2+3im) === (Octonion(1f0), Octonion(2f0+3f0im))
+        @test promote(Octonion(1f0), Quaternion(1,2,3,4)) ===
+            (Octonion(1f0), Octonion(1f0:4f0..., fill(0, 4)...))
+        @test promote(Octonion(1f0), Octonion(2.0)) === (Octonion(1.0), Octonion(2.0))
+
         @test Octonion(1) == 1.0
-        @test Octonion(Complex(1, 2)) == Complex(1, 2)
+        @test Octonion(1, 2, fill(0, 6)...) == Complex(1.0, 2.0)
+        @test Octonion(1) == 1.0
+        @test Octonion(1:4..., fill(0, 4)...) == Quaternion(1.0:4.0...)
     end
 
     @testset "shorthands" begin
