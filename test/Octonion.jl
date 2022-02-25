@@ -159,7 +159,17 @@ using Test
     end
 
     @testset "basic" begin
-        # TODO: test real, imag, conj, float, and Quaternions.abs_imag
+        q = randn(OctonionF64)
+        qnorm = normalize(q)
+        @test real(q) === q.s
+        @test_throws MethodError imag(q)
+        @test Quaternions.imag(q) == [q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7]
+        @test conj(q) === Octonion(q.s, -q.v1, -q.v2, -q.v3, -q.v4, -q.v5, -q.v6, -q.v7, q.norm)
+        @test conj(qnorm) === Octonion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, -qnorm.v4, -qnorm.v5, -qnorm.v6, -qnorm.v7, qnorm.norm)
+        @test conj(conj(q)) === q
+        @test conj(conj(qnorm)) === qnorm
+        @test float(Octonion(1:8...)) === Octonion(1.0:8.0...)
+        @test_broken Quaternions.abs_imag(q) == abs(Octonion(0, q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7))
     end
 
     @testset "algebraic properties" begin
