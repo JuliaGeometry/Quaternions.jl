@@ -11,6 +11,16 @@ module Quaternions
 
   Base.@irrational INV_SQRT_EIGHT 0.3535533905932737622004 sqrt(big(0.125))
 
+  """
+      isunit(x)
+  
+  Return `true` if for the hypercomplex number `x`, `abs(x) == 1`.
+  """
+  function isunit end
+  isunit(x::Real) = isone(abs2(x))
+  isunit(x::Complex) = isone(abs2(x))
+  isunit(x::Dual) = isunit(DualNumbers.value(x)) & iszero(DualNumbers.epsilon(x))
+
   include("Quaternion.jl")
   include("Octonion.jl")
   include("DualQuaternion.jl")
@@ -30,6 +40,7 @@ module Quaternions
   export quat
   export octo
   export dualquat
+  export isunit
   export angleaxis
   export angle
   export axis
