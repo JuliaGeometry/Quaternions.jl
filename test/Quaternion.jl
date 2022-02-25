@@ -559,7 +559,9 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test slerp(q1, q2, t) ≈ qrotation(ax, t * θ)
                     @test norm(slerp(q1, q2, t)) ≈ 1
                     @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+                    @test slerp(q1, q1, 0.5) ≈ q1
                     @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
+                    @test linpol(q1, q1, 0.5) ≈ q1
                 end
             end
 
