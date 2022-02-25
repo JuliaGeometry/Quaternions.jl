@@ -65,7 +65,14 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "==" begin
-        @test Quaternion(1, 0, 0, 0, false) == Quaternion(1, 0, 0, 0, true) # test that .norm field does not affect equality
+        @test Quaternion(1, 2, 3, 4) == Quaternion(1.0, 2.0, 3.0, 4.0)
+        @test Quaternion(1, 2, 3, 4) != Quaternion(5, 2, 3, 4)
+        @test Quaternion(1, 2, 3, 4) != Quaternion(1, 5, 3, 4)
+        @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 5, 4)
+        @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 3, 5)
+        x = randn(4)
+        # test that .norm field does not affect equality
+        @test Quaternion(1, 2, 3, 4, false) == Quaternion(1, 2, 3, 4, true)
     end
 
     @testset "convert" begin
