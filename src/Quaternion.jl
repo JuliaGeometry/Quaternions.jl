@@ -55,7 +55,11 @@ abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
-isfinite(q::Quaternion) = q.norm ? true : (isfinite(q.s) && isfinite(q.v1) && isfinite(q.v2) && isfinite(q.v3))
+isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+isfinite(q::Quaternion) = q.norm | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
+iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
+isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
 
 function normalize(q::Quaternion)
     if (q.norm)
@@ -381,3 +385,38 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
         qa.v3 * ratio_a + qm.v3 * ratio_b,
     )
 end
+
+function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+    isreal(a) && return sylvester(real(a), b, c)
+    isreal(b) && return sylvester(a, real(b), c)
+    abs2a = abs2(a)
+    abs2b = abs2(b)
+    if abs2a > abs2b
+        inva = conj(a) / abs2a
+        d1 = -2real(b) - a - inva * abs2b
+        x = d1 \ (c + inva * c * conj(b))
+    else
+        invb = conj(b) / abs2b
+        d2 = -2real(a) - b - invb * abs2a
+        x = (c + conj(a) * c * invb) / d2
+    end
+    return x
+end
+sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a, b, c)...)
+sylvester(a::Quaternion, b::Quaternion, c::Real) = sylvester(promote(a, b, c)...)
+# if either a or b commute with x, use a simpler expression
+sylvester(a::Real, b::Real, c::Quaternion) = c / -(a + b)
+sylvester(a::Real, b::Quaternion, c::Quaternion) = c / -(a + b)
+sylvester(a::Quaternion, b::Real, c::Quaternion) = -(a + b) \ c
+sylvester(a::Real, b::Quaternion, c::Real) = -c / (a + b)
+sylvester(a::Quaternion, b::Real, c::Real) = (a + b) \ -c
+
+function lyap(a::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+    # if a commutes with c, use a simpler expression
+    (isreal(a) || isreal(c)) && return c / -2real(a)
+    return (c + a \ c * a) / -4real(a)
+end
+lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
+# if a commutes with c, use a simpler expression
+lyap(a::Real, c::Quaternion) = c / -2a
+lyap(a::Quaternion, c::Real) = c / -2real(a)
