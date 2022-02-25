@@ -556,6 +556,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
                     ax = randn(3)
                     q2 = qrotation(ax, θ)
+                    qsmall = qrotation(ax, cbrt(eps()))
                     t = rand()
                     slerp(q1, q2, 0.0) ≈ q1
                     @test slerp(q1, q2, 0.0) ≈ q1
@@ -564,8 +565,10 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test norm(slerp(q1, q2, t)) ≈ 1
                     @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
                     @test slerp(q1, q1, 0.5) ≈ q1
+                    @test slerp(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
                     @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
                     @test linpol(q1, q1, 0.5) ≈ q1
+                    @test linpol(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
                 end
             end
 
