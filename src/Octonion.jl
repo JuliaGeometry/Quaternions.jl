@@ -120,7 +120,7 @@ function exp(o::Octonion)
   s = o.s
   se = exp(s)
   scale = se
-  th = abs(Octonion(imag(o)))
+  th = abs_imag(o)
   if th > 0
     scale *= sin(th) / th
   end
@@ -138,7 +138,7 @@ end
 function log(o::Octonion)
   o, a = normalizea(o)
   s = o.s
-  M = abs(Octonion(imag(o)))
+  M = abs_imag(o)
   th = atan(M, s)
   if M > 0
     M = th / M
