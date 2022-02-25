@@ -13,7 +13,7 @@ Octonion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7
   Octonion(promote(s, v1, v2, v3, v4, v5, v6, v7)..., n)
 Octonion(x::Real) = Octonion(x, zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), abs(x) == one(x))
 Octonion(z::Complex) = Octonion(z.re, z.im, zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), zero(z.re), abs(z) == one(z.re))
-Octonion(q::Quaternion) = Octonion(q.s, q.v1, q.v2, q.v3, zero(q.s), zero(q.s), zero(q.s), zero(q.s), q.norm)
+Octonion(q::Quaternion) = Octonion(q.s, q.v1, q.v2, q.v3, zero(q.s), zero(q.s), zero(q.s), zero(q.s), isunit(q))
 Octonion(s::Real, a::Vector) = Octonion(s, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 Octonion(a::Vector) = Octonion(0, a[1], a[2], a[3], a[4], a[5], a[6], a[7])
 
@@ -26,7 +26,7 @@ convert(::Type{Octonion{T}}, z::Complex) where {T} = Octonion(convert(Complex{T}
 convert(::Type{Octonion{T}}, q::Quaternion) where {T} = Octonion(convert(Quaternion{T}, q))
 convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
-  Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
+  Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), isunit(o))
 
 promote_rule(::Type{Octonion{T}}, ::Type{T}) where {T <: Real} = Octonion{T}
 promote_rule(::Type{Octonion}, ::Type{T}) where {T <: Real} = Octonion
@@ -58,16 +58,16 @@ imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
 
-conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, o.norm)
+conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, isunit(o))
 abs(o::Octonion) = sqrt(o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
 float(q::Octonion{T}) where T = convert(Octonion{float(T)}, q)
 abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7
-inv(o::Octonion) = o.norm ? conj(o) : conj(o) / abs2(o)
+inv(o::Octonion) = isunit(o) ? conj(o) : conj(o) / abs2(o)
 
 isunit(o::Octonion) = isone(abs2(o))
 
 function normalize(o::Octonion)
-  if (o.norm)
+  if (isunit(o))
     return o
   end
   o = o / abs(o)
@@ -75,7 +75,7 @@ function normalize(o::Octonion)
 end
 
 function normalizea(o::Octonion)
-  if (o.norm)
+  if (isunit(o))
     return (o, one(o.s))
   end
   a = abs(o)
@@ -83,7 +83,7 @@ function normalizea(o::Octonion)
   (Octonion(o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7, true), a)
 end
 
-(-)(o::Octonion) = Octonion(-o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, o.norm)
+(-)(o::Octonion) = Octonion(-o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, isunit(o))
 
 (+)(o::Octonion, w::Octonion) = Octonion(o.s + w.s,
                                             o.v1 + w.v1,
@@ -125,7 +125,7 @@ end
 (/)(o::Octonion, w::Octonion) = o * inv(w)
 
 (==)(q::Octonion, w::Octonion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) &
-                                 (q.v4 == w.v4) & (q.v5 == w.v5) & (q.v6 == w.v6) & (q.v7 == w.v7) # ignore .norm field
+                                 (q.v4 == w.v4) & (q.v5 == w.v5) & (q.v6 == w.v6) & (q.v7 == w.v7)
 
 function exp(o::Octonion)
   s = o.s

@@ -11,7 +11,7 @@ const QuaternionF64 = Quaternion{Float64}
 
 (::Type{Quaternion{T}})(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 (::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
-(::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
+(::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, isunit(q))
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
@@ -23,7 +23,7 @@ convert(::Type{Quaternion{T}}, x::Real) where {T} = Quaternion(convert(T, x))
 convert(::Type{Quaternion{T}}, z::Complex) where {T} = Quaternion(convert(Complex{T}, z))
 convert(::Type{Quaternion{T}}, q::Quaternion{T}) where {T <: Real} = q
 convert(::Type{Quaternion{T}}, q::Quaternion) where {T} =
-    Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), q.norm)
+    Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), isunit(q))
 
 promote_rule(::Type{Quaternion{T}}, ::Type{T}) where {T <: Real} = Quaternion{T}
 promote_rule(::Type{Quaternion}, ::Type{T}) where {T <: Real} = Quaternion
@@ -55,22 +55,22 @@ imag(q::Quaternion) = [q.v1, q.v2, q.v3]
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 
-conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
+conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, isunit(q))
 abs(q::Quaternion) = sqrt(q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
 abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
-inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
+inv(q::Quaternion) = isunit(q) ? conj(q) : conj(q) / abs2(q)
 
 isunit(q::Quaternion) = isone(abs2(q))
 isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
-isfinite(q::Quaternion) = q.norm | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
-iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+isfinite(q::Quaternion) = isunit(q) | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
+iszero(q::Quaternion) = ~isunit(q) & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
 isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
-isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
+isinf(q::Quaternion) = ~isunit(q) & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
 
 function normalize(q::Quaternion)
-    if (q.norm)
+    if (isunit(q))
         return q
     end
     q = q / abs(q)
@@ -78,7 +78,7 @@ function normalize(q::Quaternion)
 end
 
 function normalizea(q::Quaternion)
-    if (q.norm)
+    if (isunit(q))
         return (q, one(q.s))
     end
     a = abs(q)
@@ -96,7 +96,7 @@ function normalizeq(q::Quaternion)
     end
 end
 
-(-)(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, q.norm)
+(-)(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, isunit(q))
 
 (+)(q::Quaternion, w::Quaternion) =
     Quaternion(q.s + w.s, q.v1 + w.v1, q.v2 + w.v2, q.v3 + w.v3)
@@ -108,10 +108,10 @@ end
                                                q.s * w.v1 + q.v1 * w.s + q.v2 * w.v3 - q.v3 * w.v2,
                                                q.s * w.v2 - q.v1 * w.v3 + q.v2 * w.s + q.v3 * w.v1,
                                                q.s * w.v3 + q.v1 * w.v2 - q.v2 * w.v1 + q.v3 * w.s,
-                                               q.norm && w.norm)
+                                               isunit(q) && isunit(w))
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
-(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
+(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 

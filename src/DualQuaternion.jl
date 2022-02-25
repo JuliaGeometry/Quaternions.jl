@@ -19,7 +19,7 @@ DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), abs
 
 DualQuaternion(d::Dual) = DualQuaternion(Quaternion(DualNumbers.value(d)), Quaternion(DualNumbers.epsilon(d)), (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
 
-DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
+DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), isunit(q))
 
 DualQuaternion(a::Vector) = DualQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
 
@@ -36,7 +36,7 @@ convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} = DualQuaternion(con
 convert(::Type{DualQuaternion{T}}, q::DualQuaternion{T}) where {T <: Real} = q
 
 convert(::Type{DualQuaternion{T}}, dq::DualQuaternion) where {T} =
-    DualQuaternion(convert(Quaternion{T}, dq.q0), convert(Quaternion{T}, dq.qe), dq.norm)
+    DualQuaternion(convert(Quaternion{T}, dq.q0), convert(Quaternion{T}, dq.qe), isunit(dq))
 
 promote_rule(::Type{DualQuaternion{T}}, ::Type{T}) where {T <: Real} = DualQuaternion{T}
 promote_rule(::Type{DualQuaternion}, ::Type{T}) where {T <: Real} = DualQuaternion
@@ -76,24 +76,25 @@ Qe(dq::DualQuaternion) = dq.qe
                   dual(dq.q0.v2, dq.qe.v2) / d,
                   dual(dq.q0.v3, dq.qe.v3) / d)
 
-abs2(dq::DualQuaternion) = dq.norm ? dual(one(dq.q0.s)) :
+abs2(dq::DualQuaternion) = isunit(dq) ? dual(one(dq.q0.s)) :
   dual(abs2(dq.q0),
         2.0 * (dq.q0.s  * dq.qe.s  +
                 dq.q0.v1 * dq.qe.v1 +
                 dq.q0.v2 * dq.qe.v2 +
                 dq.q0.v3 * dq.qe.v3))
 
-abs(dq::DualQuaternion) = dq.norm ? dual(one(dq.q0.s)) : sqrt(abs2(dq))
 isunit(o::Octonion) = isone(abs2(o))
+
+abs(dq::DualQuaternion) = isunit(dq) ? dual(one(dq.q0.s)) : sqrt(abs2(dq))
 float(dq::DualQuaternion{T}) where T = convert(DualQuaternion{float(T)}, dq)
 
-conj(dq::DualQuaternion) = DualQuaternion(conj(dq.q0), conj(dq.qe), dq.norm)
-dconj(dq::DualQuaternion) = DualQuaternion(dq.q0, -dq.qe, dq.norm)
+conj(dq::DualQuaternion) = DualQuaternion(conj(dq.q0), conj(dq.qe), isunit(dq))
+dconj(dq::DualQuaternion) = DualQuaternion(dq.q0, -dq.qe, isunit(dq))
 
-inv(dq::DualQuaternion) = dq.norm ? conj(dq) : conj(dq) / abs2(dq)
+inv(dq::DualQuaternion) = isunit(dq) ? conj(dq) : conj(dq) / abs2(dq)
 
 function normalize(dq::DualQuaternion)
-  if (dq.norm)
+  if (isunit(dq))
     return dq
   end
   a = abs(dq)
@@ -106,7 +107,7 @@ function normalize(dq::DualQuaternion)
 end
 
 function normalizea(dq::DualQuaternion)
-  if (dq.norm)
+  if (isunit(dq))
     return (dq, one(dual))
   end
   a = abs(dq)
@@ -118,15 +119,15 @@ function normalizea(dq::DualQuaternion)
   end
 end
 
-(-)(dq::DualQuaternion) = DualQuaternion(-dq.q0, -dq.qe, dq.norm)
+(-)(dq::DualQuaternion) = DualQuaternion(-dq.q0, -dq.qe, isunit(dq))
 
 (+)(dq::DualQuaternion, dw::DualQuaternion) = DualQuaternion(dq.q0 + dw.q0, dq.qe + dw.qe)
 (-)(dq::DualQuaternion, dw::DualQuaternion) = DualQuaternion(dq.q0 - dw.q0, dq.qe - dw.qe)
 (*)(dq::DualQuaternion, dw::DualQuaternion) = DualQuaternion(dq.q0 * dw.q0,
                                                               dq.q0 * dw.qe + dq.qe * dw.q0,
-                                                              dq.norm && dw.norm)
+                                                              isunit(dq) && isunit(dw))
 (/)(dq::DualQuaternion, dw::DualQuaternion) = dq * inv(dw)
-(==)(q::DualQuaternion, w::DualQuaternion) = (q.q0 == w.q0) & (q.qe == w.qe) # ignore .norm field
+(==)(q::DualQuaternion, w::DualQuaternion) = (q.q0 == w.q0) & (q.qe == w.qe)
 
 function angleaxis(dq::DualQuaternion)
   tq = dq.qe * conj(dq.q0)
@@ -162,7 +163,7 @@ function exp(dq::DualQuaternion)
   se = exp(se)
   dq = dualquat(quat(0.0, imag(dq.q0)), quat(0.0, imag(dq.qe)))
   dq, th = normalizea(dq)
-  if dq.norm
+  if isunit(dq)
     dualquat(se) * (dualquat(cos(th)) + dq * dualquat(sin(th)))
   else
     dualquat(se)
