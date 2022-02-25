@@ -20,14 +20,8 @@ Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) =
 Quaternion(s::Real, a::Vector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::Vector) = Quaternion(0, a[1], a[2], a[3])
 
-convert(::Type{Quaternion{T}}, x::Real) where {T} = Quaternion(convert(T, x))
 convert(::Type{Quaternion{T}}, z::Complex) where {T} = Quaternion(convert(Complex{T}, z))
-convert(::Type{Quaternion{T}}, q::Quaternion{T}) where {T <: Real} = q
-convert(::Type{Quaternion{T}}, q::Quaternion) where {T} =
-    Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), q.norm)
 
-promote_rule(::Type{Quaternion{T}}, ::Type{T}) where {T <: Real} = Quaternion{T}
-promote_rule(::Type{Quaternion}, ::Type{T}) where {T <: Real} = Quaternion
 promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 promote_rule(::Type{Complex{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
