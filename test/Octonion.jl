@@ -175,21 +175,23 @@ using Test
     @testset "algebraic properties" begin
         for _ in 1:10, T in (Float32, Float64, Int32, Int64)
             if T <: Integer
-                q, q1, q2, q3 = [Quaternion(rand((-T(100)):T(100), 4)...) for _ in 1:4]
+                q, q1, q2, q3 = [octo(rand((-T(100)):T(100), 8)...) for _ in 1:4]
                 c1, c2 = [complex(rand((-T(100)):T(100), 2)...) for _ in 1:2]
             else
-                q, q1, q2, q3 = randn(Quaternion{T}, 4)
+                q, q1, q2, q3 = randn(Octonion{T}, 4)
                 c1, c2 = randn(Complex{T}, 2)
             end
 
             # skewfield
             test_group(q1, q2, q3, +, zero(q), -)
-            test_group(q1, q2, q3, *, one(q), inv)
+            # test all group properties but associativity
+            test_neutral(q1, one(q1), *)
+            test_inverse(q1, one(q1), *, inv)
             test_multiplicative(q1, q2, *, norm)
 
             # complex embedding
-            test_multiplicative(c1, c2, *, Quaternion)
-            test_multiplicative(c1, c2, +, Quaternion)
+            test_multiplicative(c1, c2, *, Octonion)
+            test_multiplicative(c1, c2, +, Octonion)
         end
     end
 
@@ -293,7 +295,7 @@ using Test
                 @test o^7.8f0 ≈ exp(7.8f0 * log(o))
             end
         end
-        @testset "^(::Quaternion, ::Quaternion)" begin
+        @testset "^(::Octonion, ::Octonion)" begin
             @test octo(ℯ)^octo(0, 0, 0, 0, 0, 0, π / 2, 0) ≈ octo(0, 0, 0, 0, 0, 0, 1, 0)
             z = (3.5 + 2.3im)^(0.2 + 1.7im)
             @test octo(3.5, 0, 0, 0, 0, 0, 2.3, 0)^octo(0.2, 0, 0, 0, 0, 0, 1.7, 0) ≈
@@ -324,8 +326,6 @@ using Test
         unary_funs = [sqrt, inv, exp, log]
         # since every octonion is conjugate to a quaternion,
         # one can establish correctness as follows:
-        # since every octonion is conjugate to a quaternion,
-        # one can establish correctness as follows:
         @testset for fun in unary_funs
             for _ in 1:100
                 o1, o2 = randn(OctonionF64, 2)
@@ -351,19 +351,19 @@ using Test
 
     @testset "normalize" begin
         for _ in 1:100
-            q = quatrand()
+            q = randn(OctonionF64)
             qnorm = @inferred normalize(q)
             @test abs(qnorm) ≈ 1
             @test qnorm.norm
             @test q ≈ abs(q) * qnorm
             @test normalize(qnorm) === qnorm
         end
-        @test_broken @inferred(normalize(Quaternion(1, 2, 3, 4)))
+        @test_broken @inferred(normalize(octo(1:8...)))
     end
 
     @testset "normalizea" begin
         for _ in 1:100
-            q = quatrand()
+            q = randn(OctonionF64)
             qnorm, a = @inferred normalizea(q)
             @test abs(qnorm) ≈ 1
             @test qnorm.norm
@@ -372,6 +372,6 @@ using Test
             @test q ≈ a * qnorm
             @test normalizea(qnorm) === (qnorm, one(real(q)))
         end
-        @test_broken @inferred(normalizea(Quaternion(1, 2, 3, 4)))
+        @test_broken @inferred(normalizea(octo(1:8...)))
     end
 end
