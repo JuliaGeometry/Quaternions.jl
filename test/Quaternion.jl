@@ -201,7 +201,12 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
-    @testset "isreal" begin end
+    @testset "isreal" begin
+        @test isreal(Quaternion(1, 0, 0, 0))
+        @test !isreal(Quaternion(2, 1, 0, 0))
+        @test !isreal(Quaternion(2, 0, 1, 0))
+        @test !isreal(Quaternion(2, 0, 0, 1))
+    end
 
     @testset "iszero" begin
         @test iszero(Quaternion(0.0, 0.0, 0.0, 0.0))
@@ -212,7 +217,14 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test !iszero(Quaternion(0.0, 0.0, 0.0, 0.0, true))
     end
     
-    @testset "isone" begin end
+    @testset "isone" begin
+        @test isone(Quaternion(1))
+        @test !isone(Quaternion(-1))
+        @test !isone(Quaternion(0, 1, 0, 0))
+        @test !isone(Quaternion(1, 1, 0, 0))
+        @test !isone(Quaternion(1, 0, 1, 0))
+        @test !isone(Quaternion(1, 0, 0, 1))
+    end
 
     @testset "isfinite" begin
         @test isfinite(Quaternion(1.0, 2.0, 3.0, 4.0))
