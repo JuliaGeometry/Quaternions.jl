@@ -3,7 +3,7 @@ using LinearAlgebra
 using Random
 using Test
 
-@testset "Quaternion" begin
+@testset "Octonion" begin
     @testset "type aliases" begin
         @test OctonionF16 === Octonion{Float16}
         @test OctonionF32 === Octonion{Float32}
