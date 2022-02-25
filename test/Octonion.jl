@@ -280,7 +280,30 @@ using Test
 
     @testset "/" begin end
 
-    @testset "^" begin end
+    @testset "^" begin
+        @testset "^(::Octonion, ::Real)" begin
+            for _ in 1:100
+                o = randn(OctonionF64)
+                @test o^2.0 ≈ o * o
+                @test o^1.0 ≈ o
+                @test o^-1.0 ≈ inv(o)
+                @test o^1.3 ≈ exp(1.3 * log(o))
+                @test o^7.8 ≈ exp(7.8 * log(o))
+                @test o^1.3f0 ≈ exp(1.3f0 * log(o))
+                @test o^7.8f0 ≈ exp(7.8f0 * log(o))
+            end
+        end
+        @testset "^(::Quaternion, ::Quaternion)" begin
+            @test octo(ℯ)^octo(0, 0, 0, 0, 0, 0, π / 2, 0) ≈ octo(0, 0, 0, 0, 0, 0, 1, 0)
+            z = (3.5 + 2.3im)^(0.2 + 1.7im)
+            @test octo(3.5, 0, 0, 0, 0, 0, 2.3, 0)^octo(0.2, 0, 0, 0, 0, 0, 1.7, 0) ≈
+                octo(real(z), 0, 0, 0, 0, 0, imag(z), 0)
+            for _ in 1:100
+                q, p = randn(OctonionF64, 2)
+                @test @inferred(q^p) ≈ exp(p * log(q))
+            end
+        end
+    end
 
     @testset "non-analytic functions" begin end
 
