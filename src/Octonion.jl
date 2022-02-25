@@ -29,11 +29,9 @@ convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
 convert(::Type{Octonion{T}}, o::Octonion) where {T} =
   Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
 
-promote_rule(::Type{Octonion{T}}, ::Type{T}) where {T <: Real} = Octonion{T}
-promote_rule(::Type{Octonion}, ::Type{T}) where {T <: Real} = Octonion
 promote_rule(::Type{Octonion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
-promote_rule(::Type{Complex{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
-promote_rule(::Type{Quaternion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
+promote_rule(::Type{Octonion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
+promote_rule(::Type{Octonion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 promote_rule(::Type{Octonion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 
 octo(p, v1, v2, v3, v4, v5, v6, v7) = Octonion(p, v1, v2, v3, v4, v5, v6, v7)
