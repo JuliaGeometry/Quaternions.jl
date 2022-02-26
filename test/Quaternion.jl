@@ -193,7 +193,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         # all complex analytic functions can be extended to the quaternions
         #! format: off
         unary_funs = [
-            sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p, cis,
+            sqrt, inv, exp, exp2, exp10, expm1, log, log2, log10, log1p,
             sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh,
             csc, sec, cot, acsc, asec, acot, csch, sech, coth, acsch, asech, acoth,
             sinpi, cospi,
@@ -205,7 +205,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             q, q2 = randn(QuaternionF64, 2)
             for _ in 1:100
                 c = randn(ComplexF64)
-                fun !== cis && @test fun(Quaternion(c)) ≈ fun(c)
+                @test fun(Quaternion(c)) ≈ fun(c)
                 @test q2 * fun(q) * inv(q2) ≈ fun(q2 * q * inv(q2))
             end
         end
@@ -251,8 +251,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 ]
                     @test f(q) ≈ finv(inv(q))
                 end
-                @test cis(q) ≈ exp(normalize(q - real(q)) * q)
-                VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
             end
         end
 
