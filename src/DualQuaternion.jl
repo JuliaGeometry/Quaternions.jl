@@ -6,6 +6,7 @@ struct DualQuaternion{T<:Real} <: Number
   norm::Bool
 end
 
+DualQuaternion{T}(dq::DualQuaternion) where {T<:Real} = DualQuaternion{T}(dq.q0, dq.qe, dq.norm)
 function DualQuaternion{T}(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool=false) where {T<:Real}
   return DualQuaternion{T}(
     Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
@@ -19,7 +20,7 @@ end
 function DualQuaternion{T}(d::Dual) where {T<:Real}
   return DualQuaternion(
     Quaternion{T}(DualNumbers.value(d)),
-    Quaternion{T}(DualNumbers.epsilon(d)), abs(x) == one(x))
+    Quaternion{T}(DualNumbers.epsilon(d)), abs(d) == one(d))
 end
 function DualQuaternion{T}(x::Real) where {T<:Real}
   return DualQuaternion(convert(Quaternion{T}, x), zero(Quaternion{T}), abs(x) == one(x))

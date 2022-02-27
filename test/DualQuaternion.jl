@@ -36,6 +36,7 @@ using Test
                 dq2 = @inferred DualQuaternion(convert.(Dual{T}, coef)..., norm)
                 @test DualQuaternion(convert.(Dual{T}, coef)..., norm) === dq
                 @test DualQuaternion(coef[1]) == DualQuaternion(coef[1], fill(zero(coef[1]), 3)...)
+                @test DualQuaternion{T}(coef[1]) == DualQuaternion(convert(Dual{T}, coef[1]), fill(zero(Dual{T}), 3)...)
                 if !norm
                     @test DualQuaternion(convert.(Dual{T}, coef)...) === dq
                 end
@@ -47,6 +48,11 @@ using Test
                 @test @inferred(DualQuaternion{T}(x)) === DualQuaternion{T}(coef..., isone(abs(x)))
                 @test @inferred(DualQuaternion(T(x))) === DualQuaternion{T}(coef..., isone(abs(x)))
             end
+        end
+        @testset "from dual quaternion" begin
+            dq = DualQuaternion(QuaternionF32(1,2,3,4,false), QuaternionF32(4,5,6,7,false), false)
+            @test @inferred(DualQuaternion(dq)) === dq  
+            @test @inferred(DualQuaternion{T}(dq)) === DualQuaternion{T}(dq.q0, dq.qe, false)
         end
         @testset "from vector" begin
             v = randn(3)
