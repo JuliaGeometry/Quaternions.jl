@@ -111,6 +111,18 @@ using Test
     end
 
     @testset "random generation" begin
+        @testset "dualquatrand" begin
+            dq = dualquatrand()
+            @test dq isa DualQuaternionF64
+            @test !dq.norm
+        end
+
+        @testset "ndualquatrand" begin
+            dq = ndualquatrand()
+            @test dq isa DualQuaternionF64
+            @test dq.norm
+        end
+
         @testset "rand($H)" for H in (DualQuaternionF32, DualQuaternionF64)
             rng = Random.MersenneTwister(42)
             dq = rand(rng, H)
