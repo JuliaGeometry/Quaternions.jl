@@ -20,7 +20,8 @@ end
 function DualQuaternion{T}(d::Dual) where {T<:Real}
   return DualQuaternion(
     Quaternion{T}(DualNumbers.value(d)),
-    Quaternion{T}(DualNumbers.epsilon(d)), abs(d) == one(d))
+    Quaternion{T}(DualNumbers.epsilon(d)),
+    (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
 end
 function DualQuaternion{T}(x::Real) where {T<:Real}
   return DualQuaternion(convert(Quaternion{T}, x), zero(Quaternion{T}), abs(x) == one(x))
