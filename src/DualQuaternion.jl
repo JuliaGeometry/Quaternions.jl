@@ -35,17 +35,6 @@ const DualQuaternionF16 = DualQuaternion{Float16}
 const DualQuaternionF32 = DualQuaternion{Float32}
 const DualQuaternionF64 = DualQuaternion{Float64}
 
-convert(::Type{DualQuaternion{T}}, x::Real) where {T} = DualQuaternion(convert(T, x))
-
-convert(::Type{DualQuaternion{T}}, d::Dual) where {T} = DualQuaternion(convert(Dual{T}, d))
-
-convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} = DualQuaternion(convert(Quaternion{T}, q))
-
-convert(::Type{DualQuaternion{T}}, q::DualQuaternion{T}) where {T <: Real} = q
-
-convert(::Type{DualQuaternion{T}}, dq::DualQuaternion) where {T} =
-    DualQuaternion(convert(Quaternion{T}, dq.q0), convert(Quaternion{T}, dq.qe), dq.norm)
-
 promote_rule(::Type{DualQuaternion{T}}, ::Type{T}) where {T <: Real} = DualQuaternion{T}
 promote_rule(::Type{DualQuaternion}, ::Type{T}) where {T <: Real} = DualQuaternion
 promote_rule(::Type{DualQuaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
