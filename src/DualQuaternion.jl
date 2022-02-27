@@ -26,13 +26,9 @@ DualQuaternion(q0::Quaternion, qe::Quaternion) = DualQuaternion(promote(q0, qe).
 DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool=false) =
   DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
                   Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)), n)
-
 DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), abs(x) == one(x))
-
 DualQuaternion(d::Dual) = DualQuaternion(Quaternion(DualNumbers.value(d)), Quaternion(DualNumbers.epsilon(d)), (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
-
 DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
-
 DualQuaternion(a::Vector) = DualQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
 
 const DualQuaternionF16 = DualQuaternion{Float16}
