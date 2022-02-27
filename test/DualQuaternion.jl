@@ -11,7 +11,43 @@ using Test
         @test DualQuaternionF64 === DualQuaternion{Float64}
     end
 
-    @testset "Constructors" begin end
+    @testset "Constructors" begin
+        @testset "from quaternions" begin
+            q0 = Quaternion{Int}(1, 2, 3, 4, false)
+            qe = QuaternionF32(5, 6, 7, 8, false)
+            @test @inferred(DualQuaternion(q0, qe)) isa DualQuaternionF32
+            @test DualQuaternion(q0, qe) === DualQuaternionF32(QuaternionF32(1,2,3,4,false), QuaternionF32(5,6,7,8,false), false)
+            @test @inferred(DualQuaternionF64(q0, qe, false)) ===DualQuaternionF64(QuaternionF64(1,2,3,4,false), QuaternionF64(5,6,7,8,false), false)
+            @test DualQuaternionF64(q0, qe, true) === DualQuaternionF64(QuaternionF64(1,2,3,4,false), QuaternionF64(5,6,7,8,false), true)
+        end
+        @testset "from dual" begin
+            coef = (dual(1, 2), dual(3.0, 4.0), dual(5f0, 6f0), dual(7//1, 8//1))
+            @testset for T in (Float32, Float64, Int), norm in (true, false)
+                dq = @inferred DualQuaternion{T}(coef..., norm)
+                @test dq isa DualQuaternion{T}
+                @test dq.norm === norm
+                @test dq === DualQuaternion{T}(convert.(Dual{T}, coef)..., norm)
+                @test dq == DualQuaternion(Quaternion(DualNumbers.value.(coef)...), Quaternion(DualNumbers.epsilon.(coef)...))
+                dq2 = @inferred DualQuaternion(convert.(Dual{T}, coef)..., norm)
+                @test DualQuaternion(convert.(Dual{T}, coef)..., norm) === dq
+                @test DualQuaternion(coef[1]) == DualQuaternion(coef[1], fill(zero(coef[1]), 3)...)
+                if !norm
+                    @test DualQuaternion(convert.(Dual{T}, coef)...) === dq
+                end
+            end
+        end
+        @testset "from real" begin
+            @testset for x in (-1//1, 1.0, 2.0), T in (Float32, Float64, Int, Rational{Int})
+                coef = (Quaternion{T}(x, 0, 0, 0, isone(abs(x))), zero(Quaternion{T}))
+                @test @inferred(DualQuaternion{T}(x)) === DualQuaternion{T}(coef..., isone(abs(x)))
+                @test @inferred(DualQuaternion(T(x))) === DualQuaternion{T}(coef..., isone(abs(x)))
+            end
+        end
+        @testset "from vector" begin
+            v = randn(3)
+            @test @inferred(DualQuaternion(v)) === DualQuaternion(Quaternion(zero(v)), Quaternion(v))
+        end
+    end
 
     @testset "==" begin
         @test DualQuaternion(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8)) ==
