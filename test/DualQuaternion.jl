@@ -52,7 +52,7 @@ using Test
         @testset "from dual quaternion" begin
             dq = DualQuaternion(QuaternionF32(1,2,3,4,false), QuaternionF32(4,5,6,7,false), false)
             @test @inferred(DualQuaternion(dq)) === dq  
-            @test @inferred(DualQuaternion{T}(dq)) === DualQuaternion{T}(dq.q0, dq.qe, false)
+            @test @inferred(DualQuaternionF64(dq)) === DualQuaternionF64(dq.q0, dq.qe, false)
         end
         @testset "from vector" begin
             v = randn(3)
