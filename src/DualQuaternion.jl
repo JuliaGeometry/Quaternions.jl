@@ -28,7 +28,6 @@ function DualQuaternion{T}(x::Real) where {T<:Real}
 end
 
 DualQuaternion(q0::Quaternion, qe::Quaternion) = DualQuaternion(promote(q0, qe)..., false)
-DualQuaternion(q0::Quaternion) = DualQuaternion(q0, zero(q0), q0.norm)
 DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool=false) =
   DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
                   Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)), n)
