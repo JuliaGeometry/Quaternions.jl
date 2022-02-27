@@ -148,7 +148,16 @@ using Test
     end
 
     @testset "basic" begin
-        # TODO: test real, imag, conj, dconj, float, and Quaternions.abs_imag
+        q = rand(DualQuaternionF64)
+        qnorm = normalize(q)
+        @test_throws MethodError imag(q)
+        @test conj(q) === dualquat(conj(q.q0), conj(q.qe), q.norm)
+        @test conj(qnorm) === dualquat(conj(qnorm.q0), conj(qnorm.qe), qnorm.norm)
+        @test conj(conj(q)) === q
+        @test conj(conj(qnorm)) === qnorm
+        @test float(dualquat(dual.(1:4, 5:8)...)) === dualquat(dual.(1.0:4.0, 5.0:8.0)...)
+        @test dconj(q) === dualquat(q.q0, -q.qe, q.norm)
+        @test dconj(qnorm) === dualquat(qnorm.q0, -qnorm.qe, qnorm.norm)
     end
 
     @testset "algebraic properties" begin end
