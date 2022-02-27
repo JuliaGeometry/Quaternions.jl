@@ -80,6 +80,12 @@ using Test
     end
 
     @testset "promote" begin
+        @test promote(DualQuaternion(1.0), 1.0) === (DualQuaternion(1.0), DualQuaternion(1.0))
+        @test promote(DualQuaternion(1f0), 2.0) === (DualQuaternion(1.0), DualQuaternion(2.0))
+        @test promote(DualQuaternion(1f0), dual(1, 2)) === (DualQuaternion(1f0), DualQuaternion(dual(1f0, 2f0)))
+        @test promote(DualQuaternion(1f0), Quaternion(3//1)) === (DualQuaternion(1f0), DualQuaternion(3f0))
+        @test promote(DualQuaternion(1f0), DualQuaternion(2.0)) === (DualQuaternion(1.0), DualQuaternion(2.0))
+
         @test Quaternion(1, 2, 3, 4) == DualQuaternion(Quaternion(1, 2, 3, 4))
         @test Quaternion(1, 2, 3, 4) !=
             DualQuaternion(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
