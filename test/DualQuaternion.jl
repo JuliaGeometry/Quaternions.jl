@@ -19,6 +19,11 @@ using Test
             @test DualQuaternion(q0, qe) === DualQuaternionF32(QuaternionF32(1,2,3,4,false), QuaternionF32(5,6,7,8,false), false)
             @test @inferred(DualQuaternionF64(q0, qe, false)) ===DualQuaternionF64(QuaternionF64(1,2,3,4,false), QuaternionF64(5,6,7,8,false), false)
             @test DualQuaternionF64(q0, qe, true) === DualQuaternionF64(QuaternionF64(1,2,3,4,false), QuaternionF64(5,6,7,8,false), true)
+
+            qnorm = Quaternion(0//1, 1//1, 0//1, 0//1, true)
+            @test @inferred(DualQuaternion(q0)) isa DualQuaternion{Int}
+            @test DualQuaternion(qnorm) === DualQuaternion(qnorm, zero(qnorm), true)
+            @test @inferred(DualQuaternionF64(q0)) === DualQuaternionF64(QuaternionF64(q0), zero(QuaternionF64), false)
         end
         @testset "from dual" begin
             coef = (dual(1, 2), dual(3.0, 4.0), dual(5f0, 6f0), dual(7//1, 8//1))
