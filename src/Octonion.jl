@@ -48,10 +48,7 @@ end
 
 real(o::Octonion) = o.s
 imag_part(o::Octonion) = (o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7)
-function imag(o::Octonion)
-    Base.depwarn("`imag(o::Octonion)` is deprecated, use `collect(imag_part(o))` instead.", ((Base.Core).Typeof(imag)).name.mt.name)
-    collect(imag_part(o))
-end
+@deprecate imag(o::Octonion) collect(imag_part(o)) false
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
 
