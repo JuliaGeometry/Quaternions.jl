@@ -57,7 +57,7 @@ using Test
             @test eltype(os) === H
             @test length(os) == 1000
             xs = map(os) do o
-                return [real(o); Quaternions.imag(o)]
+                return [real(o); Quaternions.imag_part(o)...]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
@@ -75,7 +75,7 @@ using Test
             @test eltype(os) === H
             @test length(os) == 10000
             xs = map(os) do o
-                return [real(o); Quaternions.imag(o)]
+                return [real(o); Quaternions.imag_part(o)...]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)

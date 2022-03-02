@@ -47,7 +47,11 @@ function show(io::IO, o::Octonion)
 end
 
 real(o::Octonion) = o.s
-imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
+imag_part(o::Octonion) = (o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7)
+function imag(o::Octonion)
+    Base.depwarn("`imag(o::Octonion)` is deprecated, use `collect(imag_part(o))` instead.", ((Base.Core).Typeof(imag)).name.mt.name)
+    collect(imag_part(o))
+end
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
 
@@ -122,7 +126,7 @@ function exp(o::Octonion)
   s = o.s
   se = exp(s)
   scale = se
-  th = abs(Octonion(imag(o)))
+  th = abs(Octonion(0, imag_part(o)...))
   if th > 0
     scale *= sin(th) / th
   end
@@ -140,7 +144,7 @@ end
 function log(o::Octonion)
   o, a = normalizea(o)
   s = o.s
-  M = abs(Octonion(imag(o)))
+  M = abs(0, Octonion(imag_part(o)...))
   th = atan(M, s)
   if M > 0
     M = th / M

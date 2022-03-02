@@ -78,7 +78,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test eltype(qs) === H
             @test length(qs) == 1000
             xs = map(qs) do q
-                return [real(q); Quaternions.imag(q)]
+                return [real(q); Quaternions.imag_part(q)...]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
@@ -96,7 +96,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test eltype(qs) === H
             @test length(qs) == 10000
             xs = map(qs) do q
-                return [real(q); Quaternions.imag(q)]
+                return [real(q); Quaternions.imag_part(q)...]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)

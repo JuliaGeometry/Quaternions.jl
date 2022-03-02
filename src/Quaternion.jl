@@ -44,7 +44,11 @@ end
 
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
-imag(q::Quaternion) = [q.v1, q.v2, q.v3]
+imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
+function imag(q::Quaternion)
+    Base.depwarn("`imag(q::Quaternion)` is deprecated, use `collect(imag_part(q))` instead.", :imag)
+    collect(imag_part(q))
+end
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 

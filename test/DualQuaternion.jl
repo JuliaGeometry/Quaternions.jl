@@ -70,9 +70,9 @@ using Test
             xs = map(dqs) do dq
                 return [
                     real(dq.q0)
-                    Quaternions.imag(dq.q0)
+                    Quaternions.imag_part(dq.q0)...
                     real(dq.qe)
-                    Quaternions.imag(dq.qe)
+                    Quaternions.imag_part(dq.qe)...
                 ]
             end
             xs_mean = sum(xs) / length(xs)
