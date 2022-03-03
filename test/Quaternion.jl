@@ -17,6 +17,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "Constructors" begin
         @test Quaternion{Float64}(1) === Quaternion(1.0) # explicit type construction
+        @test Quaternion(1, [1, 2, 3]) === Quaternion(1, 1, 2, 3)
+        @test Quaternion([1, 2, 3]) === Quaternion(0, 1, 2, 3)
     end
 
     @testset "==" begin
@@ -334,7 +336,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
             @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
             @test qrotation([0, 0, 0]) == Quaternion(1.0)
-            qx = qrotation([1, 0, 0], pi / 4)
+            qx = qrotation(view([1, 0, 0], :), pi / 4)
             @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
             @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
 
