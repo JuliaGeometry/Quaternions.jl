@@ -141,7 +141,7 @@ end
 function log(o::Octonion)
   o, a = normalizea(o)
   s = o.s
-  M = abs(0, Octonion(imag_part(o)...))
+  M = abs(Octonion(0, imag_part(o)...))
   th = atan(M, s)
   if M > 0
     M = th / M
