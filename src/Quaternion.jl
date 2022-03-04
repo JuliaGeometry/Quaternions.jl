@@ -232,42 +232,6 @@ end
 
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
-function linpol(p::Quaternion, q::Quaternion, t::Real)
-    p = normalize(p)
-    q = normalize(q)
-    qm = -q
-    if abs(p - q) > abs(p - qm)
-        q = qm
-    end
-    c = p.s * q.s + p.v1 * q.v1 + p.v2 * q.v2 + p.v3 * q.v3
-    if c > - 1.0
-        if c < 1.0
-            o = acos(c)
-            s = sin(o)
-            sp = sin((1 - t) * o) / s
-            sq = sin(t * o) / s
-        else
-            sp = 1 - t
-            sq = t
-        end
-        Quaternion(sp * p.s  + sq * q.s,
-                   sp * p.v1 + sq * q.v1,
-                   sp * p.v2 + sq * q.v2,
-                   sp * p.v3 + sq * q.v3, true)
-    else
-        s  =  p.v3
-        v1 = -p.v2
-        v2 =  p.v1
-        v3 = -p.s
-        sp = sin((0.5 - t) * pi)
-        sq = sin(t * pi)
-        Quaternion(s,
-                   sp * p.v1 + sq * v1,
-                   sp * p.v2 + sq * v2,
-                   sp * p.v3 + sq * v3, true)
-    end
-end
-
 quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
 nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
@@ -378,6 +342,8 @@ function slerp(qa::Quaternion, qb::Quaternion, t::Real)
         true
     )
 end
+
+Base.@deprecate_binding linpol slerp
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     isreal(a) && return sylvester(real(a), b, c)

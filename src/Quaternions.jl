@@ -33,7 +33,6 @@ module Quaternions
   export angleaxis
   export angle
   export axis
-  export linpol
   export normalize
   export normalizea
   export dconj
