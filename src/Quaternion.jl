@@ -351,7 +351,7 @@ function rotationmatrix_normalized(q::Quaternion)
 end
 
 
-function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
+function slerp(qa::Quaternion, qb::Quaternion, t::Real)
     qa = normalize(qa)
     qb = normalize(qb)
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
