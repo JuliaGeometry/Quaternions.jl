@@ -160,7 +160,39 @@ using Test
         @test dconj(qnorm) === dualquat(qnorm.q0, -qnorm.qe, qnorm.norm)
     end
 
-    @testset "algebraic properties" begin end
+    @testset "algebraic properties" begin
+        @testset "addition/subtraction" begin
+            dq1, dq2 = rand(DualQuaternionF64, 2)
+            @test (dq1 + dq2).q0 ≈ dq1.q0 + dq2.q0
+            @test (dq1 + dq2).qe ≈ dq1.qe + dq2.qe
+            @test (dq1 - dq2).q0 ≈ dq1.q0 - dq2.q0
+            @test (dq1 - dq2).qe ≈ dq1.qe - dq2.qe
+            @test (+dq1).q0 ≈ dq1.q0
+            @test (+dq1).qe ≈ dq1.qe
+            @test (-dq1).q0 ≈ -dq1.q0
+            @test (-dq1).qe ≈ -dq1.qe
+        end
+        @testset "division" begin
+            for _ in 1:100
+                dq = rand(DualQuaternionF64)
+                dq2 = dq / dq
+                @test dq2.q0 ≈ 1
+                @test dq2.qe ≈ zero(dq2.qe) atol=1e-6
+                dq2 = dq \ dq
+                @test dq2.q0 ≈ 1
+                @test dq2.qe ≈ zero(dq2.qe) atol=1e-6
+            end
+        end
+        @testset "multiplication is associative" begin
+            for _ in 1:100
+                dq1, dq2, dq3 = rand(DualQuaternionF64, 3)
+                dq4 = (dq1 * dq2) * dq3
+                dq5 = dq1 * (dq2 * dq3)
+                @test dq4.q0 ≈ dq5.q0
+                @test dq4.qe ≈ dq5.qe
+            end
+        end
+    end
 
     @testset "isreal" begin end
 
