@@ -194,31 +194,115 @@ using Test
         end
     end
 
-    @testset "isreal" begin end
+    @testset "iszero" begin
+        @test iszero(dualquat(0))
+        @test !iszero(dualquat(1))
+        @test !iszero(dualquat(quat(0, 1, 0, 0)))
+        @test !iszero(dualquat(quat(0, 0, 1, 0)))
+        @test !iszero(dualquat(quat(0, 0, 0, 1)))
+        @test !iszero(dualquat(quat(0), quat(1)))
+        @test !iszero(dualquat(quat(0), quat(0, 1, 0, 0)))
+        @test !iszero(dualquat(quat(0), quat(0, 0, 1, 0)))
+        @test !iszero(dualquat(quat(0), quat(0, 0, 0, 1)))
+    end
 
-    @testset "iszero" begin end
+    @testset "isone" begin
+        @test isone(dualquat(1))
+        @test !isone(dualquat(-1))
+        @test !isone(dualquat(quat(0, 1, 0, 0)))
+        @test !isone(dualquat(quat(1, 1, 0, 0)))
+        @test !isone(dualquat(quat(1, 0, 1, 0)))
+        @test !isone(dualquat(quat(1, 0, 0, 1)))
+        @test !isone(dualquat(quat(0), quat(1)))
+        @test !isone(dualquat(quat(0), quat(0, 1, 0, 0)))
+        @test !isone(dualquat(quat(0), quat(0, 0, 1, 0)))
+        @test !isone(dualquat(quat(0), quat(0, 0, 0, 1)))
+    end
 
-    @testset "isone" begin end
+    @testset "^" begin
+        dq = rand(DualQuaternionF64)
+        @testset "^(::DualQuaternion, ::Real)" begin
+            for _ in 1:100
+                dq = rand(DualQuaternionF64)
+                @test_broken (dq^2.0).q0 ≈ (dq * dq).q0
+                @test_broken (dq^2.0).qe ≈ (dq * dq).qe
+                @test_broken (dq^1.0).q0 ≈ dq.q0
+                @test_broken (dq^1.0).qe ≈ dq.qe
+                @test_broken (dq^-1.0).q0 ≈ inv(dq).q0
+                @test_broken (dq^-1.0).qe ≈ inv(dq).qe
+                for p in (1.3, 7.8, 1.3f0, 7.8f0)
+                    @test_broken (dq^p).q0 ≈ exp(p * log(dq)).q0
+                    @test_broken (dq^p).qe ≈ exp(p * log(dq)).qe
+                end
+            end
+        end
+        @testset "^(::DualQuaternion, ::DualQuaternion)" begin
+            for _ in 1:100
+                q, p = randn(QuaternionF64, 2)
+                @test q^p ≈ exp(p * log(q))
+            end
+        end
+    end
 
-    @testset "isfinite" begin end
+    @testset "non-analytic functions" begin
+        dq, dq2 = rand(DualQuaternionF64, 2)
+        unary_funs = [conj, abs, abs2, norm, sign]
+        # since every dual quaternion is conjugate to a dual complex number,
+        # one can establish correctness as follows:
+        @testset for fun in unary_funs
+            for _ in 1:100
+                c = dual(randn(ComplexF64), randn(ComplexF64))
+                q = dualquat(reim(c)..., reim(zero(c))...)
+                p = dualquat(@inferred(fun(q)))
+                @test p.q0 ≈ DualNumbers.value(fun(c))
+                @test p.qe ≈ DualNumbers.epsilon(fun(c))
+                p2 = q2 * fun(q) * inv(q2)
+                p3 = dualquat(fun(q2 * q * inv(q2)))
+                @test p2.q0 ≈ p3.q0
+                @test p2.qe ≈ p3.qe
+            end
+        end
+    end
 
-    @testset "isinf" begin end
+    @testset "analytic functions" begin
+        unary_funs = [sqrt, inv, exp, log]
+        # since every dual quaternion is conjugate to a dual complex number,
+        # one can establish correctness as follows:
+        @testset for fun in unary_funs
+            (fun === log || fun === sqrt) && continue  # log is currently broken
+            for _ in 1:100
+                dq1, dq2 = rand(DualQuaternionF64, 2)
+                c = dual(randn(ComplexF64), randn(ComplexF64))
+                q = dualquat(reim(c)..., reim(zero(c))...)
+                p = dualquat(@inferred(fun(q)))
+                @test p.q0 ≈ DualNumbers.value(fun(c))
+                @test p.qe ≈ DualNumbers.epsilon(fun(c))
+                p2 = q2 * fun(q) * inv(q2)
+                p3 = dualquat(fun(q2 * q * inv(q2)))
+                @test p2.q0 ≈ p3.q0
+                @test p2.qe ≈ p3.qe
+            end
+        end
 
-    @testset "isnan" begin end
-
-    @testset "+" begin end
-
-    @testset "-" begin end
-
-    @testset "*" begin end
-
-    @testset "/" begin end
-
-    @testset "^" begin end
-
-    @testset "non-analytic functions" begin end
-
-    @testset "analytic functions" begin end
+        @testset "identities" begin
+            for _ in 1:100
+                dq = rand(DualQuaternionF64)
+                @test (inv(dq) * dq).q0 ≈ one(dq.q0)
+                @test (inv(dq) * dq).qe ≈ zero(dq.qe) atol=1e-6
+                @test (dq * inv(dq)).q0 ≈ one(dq.q0)
+                @test (dq * inv(dq)).qe ≈ zero(dq.qe) atol=1e-6
+                @test_broken (sqrt(dq) * sqrt(dq)).q0 ≈ dq.q0
+                @test_broken (sqrt(dq) * sqrt(dq)).qe ≈ dq.qe
+                @test_broken exp(log(dq)).q0 ≈ dq.q0
+                @test_broken exp(log(dq)).qe ≈ dq.qe
+                @test exp(zero(dq)).q0 ≈ one(dq.q0)
+                @test exp(zero(dq)).qe ≈ zero(dq.qe) atol=1e-6
+                @test log(one(dq)).q0 ≈ zero(dq.q0) atol=1e-6
+                @test log(one(dq)).qe ≈ zero(dq.qe) atol=1e-6
+            end
+            @test_broken log(zero(DualQuaternionF64)) === dualquat(-Inf)
+        end
+    end
 
     @testset "normalize" begin end
 
