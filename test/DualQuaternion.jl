@@ -226,6 +226,16 @@ end
                 @test dq4.qe ≈ dq5.qe
             end
         end
+        @testset "multiplication by dual" begin
+            for _ in 1:10
+                dq = rand(DualQuaternionF64)
+                d = dual(randn(2)...)
+                @test (dq * d).q0 ≈ (dq * dualquat(d)).q0
+                @test (dq * d).qe ≈ (dq * dualquat(d)).qe
+                @test (d * dq).q0 ≈ (dualquat(d) * dq).q0
+                @test (d * dq).qe ≈ (dualquat(d) * dq).qe
+            end
+        end
     end
 
     @testset "iszero" begin
@@ -345,6 +355,8 @@ end
         dqnorm2 = fdquat_to_dualquat(qnorm)
         @test dqnorm.q0 ≈ dqnorm2.q0
         @test dqnorm.qe ≈ dqnorm2.qe
+        @test normalize(dqnorm) === dqnorm
+        @test iszero(normalize(zero(dq)))
     end
 
     @testset "normalizea" begin
