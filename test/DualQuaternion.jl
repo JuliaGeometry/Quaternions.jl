@@ -42,27 +42,39 @@ end
             q0 = Quaternion{Int}(1, 2, 3, 4, false)
             qe = QuaternionF32(5, 6, 7, 8, false)
             @test @inferred(DualQuaternion(q0, qe)) isa DualQuaternionF32
-            @test DualQuaternion(q0, qe) === DualQuaternionF32(QuaternionF32(1,2,3,4,false), QuaternionF32(5,6,7,8,false), false)
-            @test @inferred(DualQuaternionF64(q0, qe, false)) ===DualQuaternionF64(QuaternionF64(1,2,3,4,false), QuaternionF64(5,6,7,8,false), false)
-            @test DualQuaternionF64(q0, qe, true) === DualQuaternionF64(QuaternionF64(1,2,3,4,false), QuaternionF64(5,6,7,8,false), true)
+            @test DualQuaternion(q0, qe) === DualQuaternionF32(
+                QuaternionF32(1, 2, 3, 4, false), QuaternionF32(5, 6, 7, 8, false), false
+            )
+            @test @inferred(DualQuaternionF64(q0, qe, false)) === DualQuaternionF64(
+                QuaternionF64(1, 2, 3, 4, false), QuaternionF64(5, 6, 7, 8, false), false
+            )
+            @test DualQuaternionF64(q0, qe, true) === DualQuaternionF64(
+                QuaternionF64(1, 2, 3, 4, false), QuaternionF64(5, 6, 7, 8, false), true
+            )
 
             qnorm = Quaternion(0//1, 1//1, 0//1, 0//1, true)
             @test @inferred(DualQuaternion(q0)) isa DualQuaternion{Int}
             @test DualQuaternion(qnorm) === DualQuaternion(qnorm, zero(qnorm), true)
-            @test @inferred(DualQuaternionF64(q0)) === DualQuaternionF64(QuaternionF64(q0), zero(QuaternionF64), false)
+            @test @inferred(DualQuaternionF64(q0)) ===
+                DualQuaternionF64(QuaternionF64(q0), zero(QuaternionF64), false)
         end
         @testset "from dual" begin
-            coef = (dual(1, 2), dual(3.0, 4.0), dual(5f0, 6f0), dual(7//1, 8//1))
+            coef = (dual(1, 2), dual(3.0, 4.0), dual(5.0f0, 6.0f0), dual(7//1, 8//1))
             @testset for T in (Float32, Float64, Int), norm in (true, false)
                 dq = @inferred DualQuaternion{T}(coef..., norm)
                 @test dq isa DualQuaternion{T}
                 @test dq.norm === norm
                 @test dq === DualQuaternion{T}(convert.(Dual{T}, coef)..., norm)
-                @test dq == DualQuaternion(Quaternion(DualNumbers.value.(coef)...), Quaternion(DualNumbers.epsilon.(coef)...))
+                @test dq == DualQuaternion(
+                    Quaternion(DualNumbers.value.(coef)...),
+                    Quaternion(DualNumbers.epsilon.(coef)...),
+                )
                 dq2 = @inferred DualQuaternion(convert.(Dual{T}, coef)..., norm)
                 @test DualQuaternion(convert.(Dual{T}, coef)..., norm) === dq
-                @test DualQuaternion(coef[1]) == DualQuaternion(coef[1], fill(zero(coef[1]), 3)...)
-                @test DualQuaternion{T}(coef[1]) == DualQuaternion(convert(Dual{T}, coef[1]), fill(zero(Dual{T}), 3)...)
+                @test DualQuaternion(coef[1]) ==
+                    DualQuaternion(coef[1], fill(zero(coef[1]), 3)...)
+                @test DualQuaternion{T}(coef[1]) ==
+                    DualQuaternion(convert(Dual{T}, coef[1]), fill(zero(Dual{T}), 3)...)
                 if !norm
                     @test DualQuaternion(convert.(Dual{T}, coef)...) === dq
                 end
@@ -71,18 +83,24 @@ end
         @testset "from real" begin
             @testset for x in (-1//1, 1.0, 2.0), T in (Float32, Float64, Int, Rational{Int})
                 coef = (Quaternion{T}(x, 0, 0, 0, isone(abs(x))), zero(Quaternion{T}))
-                @test @inferred(DualQuaternion{T}(x)) === DualQuaternion{T}(coef..., isone(abs(x)))
-                @test @inferred(DualQuaternion(T(x))) === DualQuaternion{T}(coef..., isone(abs(x)))
+                @test @inferred(DualQuaternion{T}(x)) ===
+                    DualQuaternion{T}(coef..., isone(abs(x)))
+                @test @inferred(DualQuaternion(T(x))) ===
+                    DualQuaternion{T}(coef..., isone(abs(x)))
             end
         end
         @testset "from dual quaternion" begin
-            dq = DualQuaternion(QuaternionF32(1,2,3,4,false), QuaternionF32(4,5,6,7,false), false)
-            @test @inferred(DualQuaternion(dq)) === dq  
-            @test @inferred(DualQuaternionF64(dq)) === DualQuaternionF64(dq.q0, dq.qe, false)
+            dq = DualQuaternion(
+                QuaternionF32(1, 2, 3, 4, false), QuaternionF32(4, 5, 6, 7, false), false
+            )
+            @test @inferred(DualQuaternion(dq)) === dq
+            @test @inferred(DualQuaternionF64(dq)) ===
+                DualQuaternionF64(dq.q0, dq.qe, false)
         end
         @testset "from vector" begin
             v = randn(3)
-            @test @inferred(DualQuaternion(v)) === DualQuaternion(Quaternion(zero(v)), Quaternion(v))
+            @test @inferred(DualQuaternion(v)) ===
+                DualQuaternion(Quaternion(zero(v)), Quaternion(v))
         end
     end
 
@@ -106,11 +124,16 @@ end
     end
 
     @testset "promote" begin
-        @test promote(DualQuaternion(1.0), 1.0) === (DualQuaternion(1.0), DualQuaternion(1.0))
-        @test promote(DualQuaternion(1f0), 2.0) === (DualQuaternion(1.0), DualQuaternion(2.0))
-        @test promote(DualQuaternion(1f0), dual(1, 2)) === (DualQuaternion(1f0), DualQuaternion(dual(1f0, 2f0)))
-        @test promote(DualQuaternion(1f0), Quaternion(3//1)) === (DualQuaternion(1f0), DualQuaternion(3f0))
-        @test promote(DualQuaternion(1f0), DualQuaternion(2.0)) === (DualQuaternion(1.0), DualQuaternion(2.0))
+        @test promote(DualQuaternion(1.0), 1.0) ===
+            (DualQuaternion(1.0), DualQuaternion(1.0))
+        @test promote(DualQuaternion(1.0f0), 2.0) ===
+            (DualQuaternion(1.0), DualQuaternion(2.0))
+        @test promote(DualQuaternion(1.0f0), dual(1, 2)) ===
+            (DualQuaternion(1.0f0), DualQuaternion(dual(1.0f0, 2.0f0)))
+        @test promote(DualQuaternion(1.0f0), Quaternion(3//1)) ===
+            (DualQuaternion(1.0f0), DualQuaternion(3.0f0))
+        @test promote(DualQuaternion(1.0f0), DualQuaternion(2.0)) ===
+            (DualQuaternion(1.0), DualQuaternion(2.0))
 
         @test Quaternion(1, 2, 3, 4) == DualQuaternion(Quaternion(1, 2, 3, 4))
         @test Quaternion(1, 2, 3, 4) !=
@@ -205,10 +228,10 @@ end
                 dq = rand(DualQuaternionF64)
                 dq2 = dq / dq
                 @test dq2.q0 ≈ 1
-                @test dq2.qe ≈ zero(dq2.qe) atol=1e-6
+                @test dq2.qe ≈ zero(dq2.qe) atol = 1e-6
                 dq2 = dq \ dq
                 @test dq2.q0 ≈ 1
-                @test dq2.qe ≈ zero(dq2.qe) atol=1e-6
+                @test dq2.qe ≈ zero(dq2.qe) atol = 1e-6
                 s = randn()
                 @test (dq / s).q0 ≈ dq.q0 / s
                 @test (dq / s).qe ≈ dq.qe / s
@@ -331,17 +354,17 @@ end
             for _ in 1:100
                 dq = rand(DualQuaternionF64)
                 @test (inv(dq) * dq).q0 ≈ one(dq.q0)
-                @test (inv(dq) * dq).qe ≈ zero(dq.qe) atol=1e-6
+                @test (inv(dq) * dq).qe ≈ zero(dq.qe) atol = 1e-6
                 @test (dq * inv(dq)).q0 ≈ one(dq.q0)
-                @test (dq * inv(dq)).qe ≈ zero(dq.qe) atol=1e-6
+                @test (dq * inv(dq)).qe ≈ zero(dq.qe) atol = 1e-6
                 @test_broken (sqrt(dq) * sqrt(dq)).q0 ≈ dq.q0
                 @test_broken (sqrt(dq) * sqrt(dq)).qe ≈ dq.qe
                 @test_broken exp(log(dq)).q0 ≈ dq.q0
                 @test_broken exp(log(dq)).qe ≈ dq.qe
                 @test exp(zero(dq)).q0 ≈ one(dq.q0)
-                @test exp(zero(dq)).qe ≈ zero(dq.qe) atol=1e-6
-                @test log(one(dq)).q0 ≈ zero(dq.q0) atol=1e-6
-                @test log(one(dq)).qe ≈ zero(dq.qe) atol=1e-6
+                @test exp(zero(dq)).qe ≈ zero(dq.qe) atol = 1e-6
+                @test log(one(dq)).q0 ≈ zero(dq.q0) atol = 1e-6
+                @test log(one(dq)).qe ≈ zero(dq.qe) atol = 1e-6
             end
             @test_broken log(zero(DualQuaternionF64)) === dualquat(-Inf)
         end

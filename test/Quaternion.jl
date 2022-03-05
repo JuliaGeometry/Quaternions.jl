@@ -17,10 +17,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "Constructors" begin
         @testset "from coefficients" begin
-            cs = [
-                (1, 2.0, 3f0, 4//1),
-                (1//1, 2f0, 3f0, 4),
-            ]
+            cs = [(1, 2.0, 3.0f0, 4//1), (1//1, 2.0f0, 3.0f0, 4)]
             @testset for coef in cs, T in (Float32, Float64, Int), norm in (true, false)
                 q = @inferred Quaternion{T}(coef..., norm)
                 @test q isa Quaternion{T}
@@ -41,7 +38,9 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             end
         end
         @testset "from complex" begin
-            @testset for z in (1+0im, -im, 1+2im), T in (Float32, Float64, Int, Rational{Int})
+            @testset for z in (1 + 0im, -im, 1 + 2im),
+                T in (Float32, Float64, Int, Rational{Int})
+
                 coef = T.((reim(z)..., 0, 0))
                 z2 = Complex{T}(z)
                 norm = isone(abs(z))
@@ -50,7 +49,9 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             end
         end
         @testset "from quaternion" begin
-            @testset for q in (Quaternion(1,2,3,4), QuaternionF64(0,1,0,0,true)), T in (Float32,Float64)
+            @testset for q in (Quaternion(1, 2, 3, 4), QuaternionF64(0, 1, 0, 0, true)),
+                T in (Float32, Float64)
+
                 coef = T.((q.s, q.v1, q.v2, q.v3))
                 @test @inferred(Quaternion{T}(q)) === Quaternion{T}(coef..., q.norm)
                 @test @inferred(Quaternion(q)) === q
@@ -87,10 +88,14 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "promote" begin
-        @test promote(Quaternion(1.0, 2, 3, 4), 1.0) === (Quaternion(1.0, 2, 3, 4), Quaternion(1.0))
-        @test promote(Quaternion(1f0, 2, 3, 4), 2.0) === (Quaternion(1.0, 2, 3, 4), Quaternion(2.0))
-        @test promote(Quaternion(1f0), 2+3im) === (Quaternion(1f0), Quaternion(2f0+3f0im))
-        @test promote(Quaternion(1f0), Quaternion(2.0)) === (Quaternion(1.0), Quaternion(2.0))
+        @test promote(Quaternion(1.0, 2, 3, 4), 1.0) ===
+            (Quaternion(1.0, 2, 3, 4), Quaternion(1.0))
+        @test promote(Quaternion(1.0f0, 2, 3, 4), 2.0) ===
+            (Quaternion(1.0, 2, 3, 4), Quaternion(2.0))
+        @test promote(Quaternion(1.0f0), 2 + 3im) ===
+            (Quaternion(1.0f0), Quaternion(2.0f0 + 3.0f0im))
+        @test promote(Quaternion(1.0f0), Quaternion(2.0)) ===
+            (Quaternion(1.0), Quaternion(2.0))
 
         @test Quaternion(1) == 1.0
         @test Quaternion(1, 2, 0, 0) == Complex(1.0, 2.0)
@@ -218,7 +223,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test !iszero(Quaternion(0.0, 0.0, 0.0, 1.0))
         @test !iszero(Quaternion(0.0, 0.0, 0.0, 0.0, true))
     end
-    
+
     @testset "isone" begin
         @test isone(Quaternion(1))
         @test !isone(Quaternion(-1))
@@ -238,7 +243,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test isfinite(Quaternion(inf, inf, inf, inf, true))
         end
     end
-    
+
     @testset "isinf" begin
         @test !isinf(Quaternion(1.0, 2.0, 3.0, 4.0))
         for inf in (Inf, -Inf)
@@ -249,7 +254,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test !isinf(Quaternion(inf, inf, inf, inf, true))
         end
     end
-    
+
     @testset "isnan" begin
         @test !isnan(Quaternion(1, 2, 3, 4))
         @test isnan(Quaternion(NaN, 2, 3, 4))
@@ -257,7 +262,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test isnan(Quaternion(1, 2, NaN, 4))
         @test isnan(Quaternion(1, 2, 3, NaN))
     end
-    
+
     @testset "/" begin
         for _ in 1:100
             q, q2 = randn(QuaternionF64, 2)
@@ -593,7 +598,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         Ts = (Float64, QuaternionF64)
         Ttrips = [(Ta, Tb, Tc) for Ta in Ts for Tb in Ts for Tc in Ts]
         Ttrips = filter(x -> any(y -> y <: Quaternion, x), Ttrips)
-        @testset "($Ta, $Tb, $Tc)" for (Ta, Tb, Tc) in Ttrips 
+        @testset "($Ta, $Tb, $Tc)" for (Ta, Tb, Tc) in Ttrips
             for _ in 1:100
                 a = randn(Ta)
                 b = randn(Tb)
@@ -609,13 +614,15 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test iszero(sylvester(a, zero(b), zero(c)))
                 @test iszero(sylvester(a, b, zero(c)))
                 # @test isnan(sylvester(zero(a), zero(b), c))
-    
+
                 @test @inferred(lyap(a, c)) ≈ sylvester(a, a', c)
                 @test @inferred(lyap(b, c)) ≈ sylvester(b, b', c)
                 @test iszero(lyap(a, zero(c)))
             end
             @testset "nan/inf return same as for complex" begin
-                Tza, Tzb, Tzc = map(T -> T <: Quaternion ? complex(real(T)) : T, (Ta, Tb, Tc))
+                Tza, Tzb, Tzc = map(
+                    T -> T <: Quaternion ? complex(real(T)) : T, (Ta, Tb, Tc)
+                )
                 a, b = zero(Ta), zero(Tb)
                 za, zb = zero(Tza), zero(Tzb)
                 @testset for f in (one, zero, randn)
@@ -636,7 +643,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                         end
                     end
                 end
-            end    
+            end
         end
         @testset "rational" begin
             a = Quaternion(1, 2, 3, 4)
@@ -651,5 +658,5 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test_throws DivideError sylvester(null, null, null)
             @test_throws DivideError lyap(null, null)
         end
-    end    
+    end
 end

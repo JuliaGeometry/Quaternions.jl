@@ -12,10 +12,7 @@ using Test
 
     @testset "Constructors" begin
         @testset "from coefficients" begin
-            cs = [
-                (1, 2.0, 3f0, 4//1, 5, 6, 7, 8),
-                (1//1, 2f0, 3f0, 4, 5, 6, 7, 8),
-            ]
+            cs = [(1, 2.0, 3.0f0, 4//1, 5, 6, 7, 8), (1//1, 2.0f0, 3.0f0, 4, 5, 6, 7, 8)]
             @testset for coef in cs, T in (Float32, Float64, Int), norm in (true, false)
                 q = @inferred Octonion{T}(coef..., norm)
                 @test q isa Octonion{T}
@@ -36,7 +33,9 @@ using Test
             end
         end
         @testset "from complex" begin
-            @testset for z in (1+0im, -im, 1+2im), T in (Float32, Float64, Int, Rational{Int})
+            @testset for z in (1 + 0im, -im, 1 + 2im),
+                T in (Float32, Float64, Int, Rational{Int})
+
                 coef = T.((reim(z)..., zeros(6)...))
                 z2 = Complex{T}(z)
                 norm = isone(abs(z))
@@ -45,8 +44,8 @@ using Test
             end
         end
         @testset "from quaternion" begin
-            qs = (Quaternion(1,2,3,4), QuaternionF64(0,1,0,0,true))
-            @testset for q in qs, T in (Float32,Float64)
+            qs = (Quaternion(1, 2, 3, 4), QuaternionF64(0, 1, 0, 0, true))
+            @testset for q in qs, T in (Float32, Float64)
                 coef = T.((q.s, q.v1, q.v2, q.v3, zeros(4)...))
                 q2 = Quaternion{T}(q)
                 @test @inferred(Octonion{T}(q)) === Octonion{T}(coef..., q.norm)
@@ -55,10 +54,9 @@ using Test
         end
         @testset "from octonion" begin
             os = (
-                Octonion(1,2,3,4,5,6,7,8),
-                OctonionF64(0,1,0,0,0,0,0,0,true)
+                Octonion(1, 2, 3, 4, 5, 6, 7, 8), OctonionF64(0, 1, 0, 0, 0, 0, 0, 0, true)
             )
-            @testset for o in os, T in (Float32,Float64)
+            @testset for o in os, T in (Float32, Float64)
                 coef = T.((o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7))
                 @test @inferred(Octonion{T}(o)) === Octonion{T}(coef..., o.norm)
                 @test @inferred(Octonion(o)) === o
@@ -94,13 +92,14 @@ using Test
     end
 
     @testset "promote" begin
-        @test promote(Octonion(1.0, 2:8...), 1.0) ===
-            (Octonion(1.0, 2:8...), Octonion(1.0))
-        @test promote(Octonion(1f0, 2:8...), 2.0) === (Octonion(1.0, 2:8...), Octonion(2.0))
-        @test promote(Octonion(1f0), 2+3im) === (Octonion(1f0), Octonion(2f0+3f0im))
-        @test promote(Octonion(1f0), Quaternion(1,2,3,4)) ===
-            (Octonion(1f0), Octonion(1f0:4f0..., fill(0, 4)...))
-        @test promote(Octonion(1f0), Octonion(2.0)) === (Octonion(1.0), Octonion(2.0))
+        @test promote(Octonion(1.0, 2:8...), 1.0) === (Octonion(1.0, 2:8...), Octonion(1.0))
+        @test promote(Octonion(1.0f0, 2:8...), 2.0) ===
+            (Octonion(1.0, 2:8...), Octonion(2.0))
+        @test promote(Octonion(1.0f0), 2 + 3im) ===
+            (Octonion(1.0f0), Octonion(2.0f0 + 3.0f0im))
+        @test promote(Octonion(1.0f0), Quaternion(1, 2, 3, 4)) ===
+            (Octonion(1.0f0), Octonion(1.0f0:4.0f0..., fill(0, 4)...))
+        @test promote(Octonion(1.0f0), Octonion(2.0)) === (Octonion(1.0), Octonion(2.0))
 
         @test Octonion(1) == 1.0
         @test Octonion(1, 2, fill(0, 6)...) == Complex(1.0, 2.0)
@@ -170,12 +169,24 @@ using Test
         @test real(q) === q.s
         @test_throws MethodError imag(q)
         @test Quaternions.imag(q) == [q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7]
-        @test conj(q) === Octonion(q.s, -q.v1, -q.v2, -q.v3, -q.v4, -q.v5, -q.v6, -q.v7, q.norm)
-        @test conj(qnorm) === Octonion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, -qnorm.v4, -qnorm.v5, -qnorm.v6, -qnorm.v7, qnorm.norm)
+        @test conj(q) ===
+            Octonion(q.s, -q.v1, -q.v2, -q.v3, -q.v4, -q.v5, -q.v6, -q.v7, q.norm)
+        @test conj(qnorm) === Octonion(
+            qnorm.s,
+            -qnorm.v1,
+            -qnorm.v2,
+            -qnorm.v3,
+            -qnorm.v4,
+            -qnorm.v5,
+            -qnorm.v6,
+            -qnorm.v7,
+            qnorm.norm,
+        )
         @test conj(conj(q)) === q
         @test conj(conj(qnorm)) === qnorm
         @test float(Octonion(1:8...)) === Octonion(1.0:8.0...)
-        @test Quaternions.abs_imag(q) == abs(Octonion(0, q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7))
+        @test Quaternions.abs_imag(q) ==
+            abs(Octonion(0, q.v1, q.v2, q.v3, q.v4, q.v5, q.v6, q.v7))
     end
 
     @testset "algebraic properties" begin
@@ -224,7 +235,7 @@ using Test
         @test !iszero(octo(0, 0, 0, 0, 0, 0, 0, 1))
         @test !iszero(octo(0, 0, 0, 0, 0, 0, 0, 0, true))
     end
-    
+
     @testset "isone" begin
         @test isone(octo(1))
         @test !isone(octo(-1))
@@ -252,7 +263,7 @@ using Test
             @test isfinite(octo(fill(inf, 8)..., true))
         end
     end
-    
+
     @testset "isinf" begin
         @test !isinf(octo(1:8...))
         for inf in (Inf, -Inf)
@@ -267,7 +278,7 @@ using Test
             @test !isinf(octo(fill(inf, 8)..., true))
         end
     end
-    
+
     @testset "isnan" begin
         @test !isnan(octo(1, 2, 3, 4, 5, 6, 7, 8))
         @test isnan(octo(NaN, 2, 3, 4, 5, 6, 7, 8))
@@ -305,7 +316,8 @@ using Test
             end
         end
         @testset "^(::Octonion, ::Octonion)" begin
-            @test octo(Float64(ℯ))^octo(0, 0, 0, 0, 0, 0, π / 2, 0) ≈ octo(0, 0, 0, 0, 0, 0, 1, 0)
+            @test octo(Float64(ℯ))^octo(0, 0, 0, 0, 0, 0, π / 2, 0) ≈
+                octo(0, 0, 0, 0, 0, 0, 1, 0)
             z = (3.5 + 2.3im)^(0.2 + 1.7im)
             @test octo(3.5, 0, 0, 0, 0, 0, 2.3, 0)^octo(0.2, 0, 0, 0, 0, 0, 1.7, 0) ≈
                 octo(real(z), 0, 0, 0, 0, 0, imag(z), 0)
