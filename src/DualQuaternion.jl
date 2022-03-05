@@ -97,16 +97,16 @@ function normalize(dq::DualQuaternion)
   end
 end
 
-function normalizea(dq::DualQuaternion)
+function normalizea(dq::DualQuaternion{T}) where {T}
   if (dq.norm)
-    return (dq, one(dual))
+    return (dq, one(Dual{T}))
   end
   a = abs(dq)
   if abs(a) > 0
     qa = dq / a
     dualquat(qa.q0, qa.qe, true), a
   else
-    dq, zero(dual)
+    dq, zero(Dual{T})
   end
 end
 
@@ -117,6 +117,8 @@ end
 (*)(dq::DualQuaternion, dw::DualQuaternion) = DualQuaternion(dq.q0 * dw.q0,
                                                               dq.q0 * dw.qe + dq.qe * dw.q0,
                                                               dq.norm && dw.norm)
+(*)(dq::DualQuaternion, d::Dual) = (*)(Base.promote(dq, d)...)
+(*)(d::Dual, dq::DualQuaternion) = (*)(Base.promote(d, dq)...)
 (/)(dq::DualQuaternion, dw::DualQuaternion) = dq * inv(dw)
 (==)(q::DualQuaternion, w::DualQuaternion) = (q.q0 == w.q0) & (q.qe == w.qe) # ignore .norm field
 
