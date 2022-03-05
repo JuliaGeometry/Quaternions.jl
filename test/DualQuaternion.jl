@@ -220,7 +220,6 @@ using Test
     end
 
     @testset "^" begin
-        dq = rand(DualQuaternionF64)
         @testset "^(::DualQuaternion, ::Real)" begin
             for _ in 1:100
                 dq = rand(DualQuaternionF64)
@@ -231,8 +230,8 @@ using Test
                 @test_broken (dq^-1.0).q0 ≈ inv(dq).q0
                 @test_broken (dq^-1.0).qe ≈ inv(dq).qe
                 for p in (1.3, 7.8, 1.3f0, 7.8f0)
-                    @test_broken (dq^p).q0 ≈ exp(p * log(dq)).q0
-                    @test_broken (dq^p).qe ≈ exp(p * log(dq)).qe
+                    @test (dq^p).q0 ≈ exp(p * log(dq)).q0
+                    @test (dq^p).qe ≈ exp(p * log(dq)).qe
                 end
             end
         end
@@ -245,19 +244,19 @@ using Test
     end
 
     @testset "non-analytic functions" begin
-        dq, dq2 = rand(DualQuaternionF64, 2)
         unary_funs = [conj, abs, abs2, norm, sign]
         # since every dual quaternion is conjugate to a dual complex number,
         # one can establish correctness as follows:
         @testset for fun in unary_funs
             for _ in 1:100
+                dq1, dq2 = rand(DualQuaternionF64, 2)
                 c = dual(randn(ComplexF64), randn(ComplexF64))
-                q = dualquat(reim(c)..., reim(zero(c))...)
-                p = dualquat(@inferred(fun(q)))
+                dq = dualquat(reim(c)..., reim(zero(c))...)
+                p = dualquat(@inferred(fun(dq)))
                 @test p.q0 ≈ DualNumbers.value(fun(c))
                 @test p.qe ≈ DualNumbers.epsilon(fun(c))
-                p2 = q2 * fun(q) * inv(q2)
-                p3 = dualquat(fun(q2 * q * inv(q2)))
+                p2 = dq2 * fun(dq1) * inv(dq2)
+                p3 = dualquat(fun(dq2 * dq1 * inv(dq2)))
                 @test p2.q0 ≈ p3.q0
                 @test p2.qe ≈ p3.qe
             end
@@ -273,12 +272,12 @@ using Test
             for _ in 1:100
                 dq1, dq2 = rand(DualQuaternionF64, 2)
                 c = dual(randn(ComplexF64), randn(ComplexF64))
-                q = dualquat(reim(c)..., reim(zero(c))...)
-                p = dualquat(@inferred(fun(q)))
+                dq = dualquat(reim(c)..., reim(zero(c))...)
+                p = dualquat(@inferred(fun(dq)))
                 @test p.q0 ≈ DualNumbers.value(fun(c))
                 @test p.qe ≈ DualNumbers.epsilon(fun(c))
-                p2 = q2 * fun(q) * inv(q2)
-                p3 = dualquat(fun(q2 * q * inv(q2)))
+                p2 = dq2 * fun(dq1) * inv(dq2)
+                p3 = dualquat(fun(dq2 * dq1 * inv(dq2)))
                 @test p2.q0 ≈ p3.q0
                 @test p2.qe ≈ p3.qe
             end
