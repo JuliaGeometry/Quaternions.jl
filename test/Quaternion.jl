@@ -246,6 +246,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "isinf" begin
         @test !isinf(Quaternion(1.0, 2.0, 3.0, 4.0))
+        @test !isinf(Quaternion(1.0, 2.0, 3.0, NaN))
         for inf in (Inf, -Inf)
             @test isinf(Quaternion(inf, 0.0, 0.0, 0.0))
             @test isinf(Quaternion(0.0, inf, 0.0, 0.0))
@@ -257,6 +258,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "isnan" begin
         @test !isnan(Quaternion(1, 2, 3, 4))
+        @test !isnan(Quaternion(1, 2, 3, Inf))
+        @test !isnan(Quaternion(1, 2, 3, -Inf))
         @test isnan(Quaternion(NaN, 2, 3, 4))
         @test isnan(Quaternion(1, NaN, 3, 4))
         @test isnan(Quaternion(1, 2, NaN, 4))
@@ -457,7 +460,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "Quaternions.normalizeq" begin
-        for _ in 1:10
+        for _ in 1:100
             q = quatrand()
             @test Quaternions.normalizeq(q) === normalize(q)
         end

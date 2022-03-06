@@ -13,10 +13,10 @@ function fdquat_to_dualquat(q::Quaternion{<:ForwardDiff.Dual})
         ForwardDiff.value(q.v3),
     )
     qe = quat(
-        ForwardDiff.partials(q.s)[1],
-        ForwardDiff.partials(q.v1)[1],
-        ForwardDiff.partials(q.v2)[1],
-        ForwardDiff.partials(q.v3)[1],
+        ForwardDiff.partials(q.s, 1),
+        ForwardDiff.partials(q.v1, 1),
+        ForwardDiff.partials(q.v2, 1),
+        ForwardDiff.partials(q.v3, 1),
     )
     return dualquat(q0, qe)
 end
@@ -213,15 +213,17 @@ end
 
     @testset "algebraic properties" begin
         @testset "addition/subtraction" begin
-            dq1, dq2 = rand(DualQuaternionF64, 2)
-            @test (dq1 + dq2).q0 ≈ dq1.q0 + dq2.q0
-            @test (dq1 + dq2).qe ≈ dq1.qe + dq2.qe
-            @test (dq1 - dq2).q0 ≈ dq1.q0 - dq2.q0
-            @test (dq1 - dq2).qe ≈ dq1.qe - dq2.qe
-            @test (+dq1).q0 ≈ dq1.q0
-            @test (+dq1).qe ≈ dq1.qe
-            @test (-dq1).q0 ≈ -dq1.q0
-            @test (-dq1).qe ≈ -dq1.qe
+            for _ in 1:100
+                dq1, dq2 = rand(DualQuaternionF64, 2)
+                @test (dq1 + dq2).q0 ≈ dq1.q0 + dq2.q0
+                @test (dq1 + dq2).qe ≈ dq1.qe + dq2.qe
+                @test (dq1 - dq2).q0 ≈ dq1.q0 - dq2.q0
+                @test (dq1 - dq2).qe ≈ dq1.qe - dq2.qe
+                @test (+dq1).q0 === dq1.q0
+                @test (+dq1).qe === dq1.qe
+                @test (-dq1).q0 === -dq1.q0
+                @test (-dq1).qe === -dq1.qe
+            end
         end
         @testset "division" begin
             for _ in 1:100
@@ -290,6 +292,8 @@ end
         @testset "^(::DualQuaternion, ::Real)" begin
             for _ in 1:100
                 dq = rand(DualQuaternionF64)
+                @test dq^2 === dq * dq
+                @test dq^1 === dq
                 @test_broken (dq^2.0).q0 ≈ (dq * dq).q0
                 @test_broken (dq^2.0).qe ≈ (dq * dq).qe
                 @test_broken (dq^1.0).q0 ≈ dq.q0
@@ -371,27 +375,31 @@ end
     end
 
     @testset "normalize" begin
-        dq = rand(DualQuaternionF64)
-        q = dualquat_to_fdquat(dq)
-        dqnorm = normalize(dq)
-        qnorm = normalize(q)
-        dqnorm2 = fdquat_to_dualquat(qnorm)
-        @test dqnorm.q0 ≈ dqnorm2.q0
-        @test dqnorm.qe ≈ dqnorm2.qe
-        @test normalize(dqnorm) === dqnorm
-        @test iszero(normalize(zero(dq)))
+        for _ in 1:100
+            dq = rand(DualQuaternionF64)
+            q = dualquat_to_fdquat(dq)
+            dqnorm = normalize(dq)
+            qnorm = normalize(q)
+            dqnorm2 = fdquat_to_dualquat(qnorm)
+            @test dqnorm.q0 ≈ dqnorm2.q0
+            @test dqnorm.qe ≈ dqnorm2.qe
+            @test normalize(dqnorm) === dqnorm
+            @test iszero(normalize(zero(dq)))
+        end
     end
 
     @testset "normalizea" begin
-        dq = rand(DualQuaternionF64)
-        q = dualquat_to_fdquat(dq)
-        dqnorm, dqa = normalizea(dq)
-        qnorm, qa = normalizea(q)
-        dqnorm2 = fdquat_to_dualquat(qnorm)
-        @test dqnorm.q0 ≈ dqnorm2.q0
-        @test dqnorm.qe ≈ dqnorm2.qe
-        @test DualNumbers.value(dqa) ≈ ForwardDiff.value(qa)
-        @test DualNumbers.epsilon(dqa) ≈ ForwardDiff.partials(qa)[1]
+        for _ in 1:100
+            dq = rand(DualQuaternionF64)
+            q = dualquat_to_fdquat(dq)
+            dqnorm, dqa = normalizea(dq)
+            qnorm, qa = normalizea(q)
+            dqnorm2 = fdquat_to_dualquat(qnorm)
+            @test dqnorm.q0 ≈ dqnorm2.q0
+            @test dqnorm.qe ≈ dqnorm2.qe
+            @test DualNumbers.value(dqa) ≈ ForwardDiff.value(qa)
+            @test DualNumbers.epsilon(dqa) ≈ ForwardDiff.partials(qa, 1)
+        end
     end
 
     @testset "angle/axis/angleaxis" begin

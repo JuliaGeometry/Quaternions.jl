@@ -190,7 +190,7 @@ using Test
     end
 
     @testset "algebraic properties" begin
-        for _ in 1:10, T in (Float32, Float64, Int32, Int64)
+        for _ in 1:100, T in (Float32, Float64, Int32, Int64)
             if T <: Integer
                 q, q1, q2, q3 = [octo(rand((-T(100)):T(100), 8)...) for _ in 1:4]
                 c1, c2 = [complex(rand((-T(100)):T(100), 2)...) for _ in 1:2]
@@ -251,21 +251,22 @@ using Test
 
     @testset "isfinite" begin
         @test isfinite(octo(1:8...))
-        for inf in (Inf, -Inf)
-            @test !isfinite(octo(inf, 0, 0, 0, 0, 0, 0, 0))
-            @test !isfinite(octo(0, inf, 0, 0, 0, 0, 0, 0))
-            @test !isfinite(octo(0, 0, inf, 0, 0, 0, 0, 0))
-            @test !isfinite(octo(0, 0, 0, inf, 0, 0, 0, 0))
-            @test !isfinite(octo(0, 0, 0, 0, inf, 0, 0, 0))
-            @test !isfinite(octo(0, 0, 0, 0, 0, inf, 0, 0))
-            @test !isfinite(octo(0, 0, 0, 0, 0, 0, inf, 0))
-            @test !isfinite(octo(0, 0, 0, 0, 0, 0, 0, inf))
-            @test isfinite(octo(fill(inf, 8)..., true))
+        for val in (Inf, -Inf, NaN)
+            @test !isfinite(octo(val, 0, 0, 0, 0, 0, 0, 0))
+            @test !isfinite(octo(0, val, 0, 0, 0, 0, 0, 0))
+            @test !isfinite(octo(0, 0, val, 0, 0, 0, 0, 0))
+            @test !isfinite(octo(0, 0, 0, val, 0, 0, 0, 0))
+            @test !isfinite(octo(0, 0, 0, 0, val, 0, 0, 0))
+            @test !isfinite(octo(0, 0, 0, 0, 0, val, 0, 0))
+            @test !isfinite(octo(0, 0, 0, 0, 0, 0, val, 0))
+            @test !isfinite(octo(0, 0, 0, 0, 0, 0, 0, val))
+            @test isfinite(octo(fill(val, 8)..., true))
         end
     end
 
     @testset "isinf" begin
-        @test !isinf(octo(1:8...))
+        @test !isinf(octo(1, 2, 3, 4, 5, 6, 7, 8))
+        @test !isinf(octo(1, 2, 3, 4, 5, 6, 7, NaN))
         for inf in (Inf, -Inf)
             @test isinf(octo(inf, 0, 0, 0, 0, 0, 0, 0))
             @test isinf(octo(0, inf, 0, 0, 0, 0, 0, 0))
@@ -281,6 +282,8 @@ using Test
 
     @testset "isnan" begin
         @test !isnan(octo(1, 2, 3, 4, 5, 6, 7, 8))
+        @test !isnan(octo(1, 2, 3, 4, 5, 6, 7, Inf))
+        @test !isnan(octo(1, 2, 3, 4, 5, 6, 7, -Inf))
         @test isnan(octo(NaN, 2, 3, 4, 5, 6, 7, 8))
         @test isnan(octo(1, NaN, 3, 4, 5, 6, 7, 8))
         @test isnan(octo(1, 2, NaN, 4, 5, 6, 7, 8))
@@ -363,8 +366,8 @@ using Test
                 @test inv(o) * o ≈ o * inv(o) ≈ one(o)
                 @test sqrt(o) * sqrt(o) ≈ o
                 @test exp(log(o)) ≈ o
-                @test exp(zero(o)) ≈ one(o)
-                @test log(one(o)) ≈ zero(o)
+                @test exp(zero(o)) === one(o)
+                @test log(one(o)) === zero(o)
             end
             @test log(zero(OctonionF64)) === octo(-Inf)
         end
