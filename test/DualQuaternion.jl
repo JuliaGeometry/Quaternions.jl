@@ -410,7 +410,7 @@ end
             t2, v = angleaxis(dualquat_to_fdquat(dq))
             p2 = fdquat_to_dualquat(quat(v))
             @test DualNumbers.value(t1) ≈ ForwardDiff.value(t2)
-            @test_broken DualNumbers.epsilon(t1) ≈ ForwardDiff.partials(t2)[1]
+            @test_broken DualNumbers.epsilon(t1) ≈ ForwardDiff.partials(t2, 1)
             @test p2.q0 ≈ p1.q0
             @test_broken p2.qe ≈ p1.qe
             t3 = angle(dq)

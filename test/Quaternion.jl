@@ -235,12 +235,12 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "isfinite" begin
         @test isfinite(Quaternion(1.0, 2.0, 3.0, 4.0))
-        for inf in (Inf, -Inf)
-            @test !isfinite(Quaternion(inf, 0.0, 0.0, 0.0))
-            @test !isfinite(Quaternion(0.0, inf, 0.0, 0.0))
-            @test !isfinite(Quaternion(0.0, 0.0, inf, 0.0))
-            @test !isfinite(Quaternion(0.0, 0.0, 0.0, inf))
-            @test isfinite(Quaternion(inf, inf, inf, inf, true))
+        for value in (Inf, -Inf, NaN)
+            @test !isfinite(Quaternion(value, 0.0, 0.0, 0.0))
+            @test !isfinite(Quaternion(0.0, value, 0.0, 0.0))
+            @test !isfinite(Quaternion(0.0, 0.0, value, 0.0))
+            @test !isfinite(Quaternion(0.0, 0.0, 0.0, value))
+            @test isfinite(Quaternion(fill(value, 4)..., true))
         end
     end
 
@@ -345,8 +345,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test inv(q) * q ≈ q * inv(q) ≈ one(q)
                 @test sqrt(q) * sqrt(q) ≈ q
                 @test exp(log(q)) ≈ q
-                @test exp(zero(q)) ≈ one(q)
-                @test log(one(q)) ≈ zero(q)
+                @test exp(zero(q)) === one(q)
+                @test log(one(q)) === zero(q)
                 @test exp2(log2(q)) ≈ q
                 @test exp10(log10(q)) ≈ q
                 @test expm1(log1p(q)) ≈ q
