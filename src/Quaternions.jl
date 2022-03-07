@@ -7,6 +7,7 @@ module Quaternions
   import Base: convert, promote_rule, float
   import Base: rand, randn
   import LinearAlgebra: lyap, norm, normalize, sylvester
+  using LinearAlgebra: cross, dot
   using Random
   using DualNumbers
 
