@@ -188,7 +188,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "algebraic properties" begin
-        for _ in 1:10, T in (Float32, Float64, Int32, Int64)
+        for _ in 1:100, T in (Float32, Float64, Int32, Int64)
             if T <: Integer
                 q, q1, q2, q3 = [Quaternion(rand((-T(100)):T(100), 4)...) for _ in 1:4]
                 c1, c2 = [complex(rand((-T(100)):T(100), 2)...) for _ in 1:2]
