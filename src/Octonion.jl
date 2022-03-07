@@ -10,6 +10,12 @@ struct Octonion{T<:Real} <: Number
   norm::Bool
 end
 
+Octonion{T}(x::Real) where {T<:Real} = Octonion(convert(T, x))
+Octonion{T}(x::Complex) where {T<:Real} = Octonion(convert(Complex{T}, x))
+Octonion{T}(q::Quaternion) where {T<:Real} = Octonion(convert(Quaternion{T}, q))
+Octonion{T}(o::Octonion) where {T<:Real} =
+  Octonion{T}(o.s, o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7, o.norm)
+
 Octonion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, v5::Real, v6::Real, v7::Real, n::Bool = false) =
   Octonion(promote(s, v1, v2, v3, v4, v5, v6, v7)..., n)
 Octonion(x::Real) = Octonion(x, zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), zero(x), abs(x) == one(x))
@@ -22,18 +28,9 @@ const OctonionF16 = Octonion{Float16}
 const OctonionF32 = Octonion{Float32}
 const OctonionF64 = Octonion{Float64}
 
-convert(::Type{Octonion{T}}, x::Real) where {T} = Octonion(convert(T, x))
-convert(::Type{Octonion{T}}, z::Complex) where {T} = Octonion(convert(Complex{T}, z))
-convert(::Type{Octonion{T}}, q::Quaternion) where {T} = Octonion(convert(Quaternion{T}, q))
-convert(::Type{Octonion{T}}, o::Octonion{T}) where {T <: Real} = o
-convert(::Type{Octonion{T}}, o::Octonion) where {T} =
-  Octonion(convert(T, o.s), convert(T, o.v1), convert(T, o.v2), convert(T, o.v3), convert(T, o.v4), convert(T, o.v5), convert(T, o.v6), convert(T, o.v7), o.norm)
-
-promote_rule(::Type{Octonion{T}}, ::Type{T}) where {T <: Real} = Octonion{T}
-promote_rule(::Type{Octonion}, ::Type{T}) where {T <: Real} = Octonion
 promote_rule(::Type{Octonion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
-promote_rule(::Type{Complex{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
-promote_rule(::Type{Quaternion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
+promote_rule(::Type{Octonion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
+promote_rule(::Type{Octonion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 promote_rule(::Type{Octonion{T}}, ::Type{Octonion{S}}) where {T <: Real, S <: Real} = Octonion{promote_type(T, S)}
 
 octo(p, v1, v2, v3, v4, v5, v6, v7) = Octonion(p, v1, v2, v3, v4, v5, v6, v7)
@@ -54,8 +51,15 @@ imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
 conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, o.norm)
 abs(o::Octonion) = sqrt(o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
 float(q::Octonion{T}) where T = convert(Octonion{float(T)}, q)
+abs_imag(o::Octonion) = sqrt(o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
 abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7
 inv(o::Octonion) = o.norm ? conj(o) : conj(o) / abs2(o)
+
+isreal(o::Octonion) = iszero(o.v1) & iszero(o.v2) & iszero(o.v3) & iszero(o.v4) & iszero(o.v5) & iszero(o.v6) & iszero(o.v7) 
+isfinite(o::Octonion) = o.norm | (isfinite(real(o)) & isfinite(o.v1) & isfinite(o.v2) & isfinite(o.v3) & isfinite(o.v4) & isfinite(o.v5) & isfinite(o.v6) & isfinite(o.v7))
+iszero(o::Octonion) = ~o.norm & iszero(real(o)) & iszero(o.v1) & iszero(o.v2) & iszero(o.v3) & iszero(o.v4) & iszero(o.v5) & iszero(o.v6) & iszero(o.v7)
+isnan(o::Octonion) = isnan(real(o)) | isnan(o.v1) | isnan(o.v2) | isnan(o.v3) | isnan(o.v4) | isnan(o.v5) | isnan(o.v6) | isnan(o.v7)
+isinf(o::Octonion) = ~o.norm & (isinf(real(o)) | isinf(o.v1) | isinf(o.v2) | isinf(o.v3) | isinf(o.v4) | isinf(o.v5) | isinf(o.v6) | isinf(o.v7))
 
 function normalize(o::Octonion)
   if (o.norm)
@@ -122,7 +126,7 @@ function exp(o::Octonion)
   s = o.s
   se = exp(s)
   scale = se
-  th = abs(Octonion(imag(o)))
+  th = abs_imag(o)
   if th > 0
     scale *= sin(th) / th
   end
@@ -140,7 +144,7 @@ end
 function log(o::Octonion)
   o, a = normalizea(o)
   s = o.s
-  M = abs(Octonion(imag(o)))
+  M = abs_imag(o)
   th = atan(M, s)
   if M > 0
     M = th / M
@@ -153,7 +157,7 @@ function log(o::Octonion)
                      o.v6 * M,
                      o.v7 * M)
   else
-    return Octonion(log(a), th, 0.0, 0.0)
+    return Octonion(complex(log(a), ifelse(iszero(a), zero(th), th)))
   end
 end
 
