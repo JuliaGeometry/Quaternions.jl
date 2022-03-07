@@ -44,7 +44,8 @@ function show(io::IO, o::Octonion)
 end
 
 real(o::Octonion) = o.s
-imag(o::Octonion) = [o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7]
+imag_part(o::Octonion) = (o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7)
+@deprecate imag(o::Octonion) collect(imag_part(o)) false
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
 
