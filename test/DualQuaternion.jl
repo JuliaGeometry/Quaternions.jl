@@ -252,7 +252,7 @@ end
             end
         end
         @testset "multiplication by dual" begin
-            for _ in 1:10
+            for _ in 1:100
                 dq = rand(DualQuaternionF64)
                 d = dual(randn(2)...)
                 @test (dq * d).q0 ≈ (dq * dualquat(d)).q0
