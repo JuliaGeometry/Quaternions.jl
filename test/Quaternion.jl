@@ -525,6 +525,9 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test q1 ≈ q2
                 @test q2 === q3 || q2 === -q3
                 @test real(q3) ≥ 0
+                @test q1.norm
+                @test q2.norm
+                @test q3.norm
             end
         end
 
