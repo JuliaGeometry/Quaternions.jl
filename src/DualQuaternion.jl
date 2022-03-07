@@ -8,6 +8,10 @@ Base.@deprecate(
     DualQuaternion{T}(q0, qe)
 )
 Base.@deprecate(
+    DualQuaternion{T}(d1::Dual, d2::Dual, d3::Dual, d4::Dual, norm::Bool) where {T<:Real},
+    DualQuaternion{T}(d1, d2, d3, d4)
+)
+Base.@deprecate(
     DualQuaternion(q0::Quaternion, qe::Quaternion, norm::Bool),
     DualQuaternion(q0, qe)
 )

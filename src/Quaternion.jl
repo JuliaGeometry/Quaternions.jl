@@ -28,12 +28,12 @@ quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
 Base.@deprecate(
-    Quaternion{T}(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, norm::Bool) where {T<:Real},
+    Quaternion{T}(s::Real, v1::Real, v2::Real, v3::Real, norm::Bool) where {T<:Real},
     Quaternion{T}(s, v1, v2, v3)
 )
 Base.@deprecate(
-    Quaternion(s::Real, v1::Real, v2::Real, v3::Real, v4::Real, norm::Bool),
-    Quaternion(s, v1, v2, v3, v4)
+    Quaternion(s::Real, v1::Real, v2::Real, v3::Real, norm::Bool),
+    Quaternion(s, v1, v2, v3)
 )
 Base.@deprecate quat(p, v1, v2, v3, n) quat(p, v1, v2, v3)
 
