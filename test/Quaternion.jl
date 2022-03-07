@@ -178,7 +178,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         qnorm = normalize(q)
         @test real(q) === q.s
         @test_throws MethodError imag(q)
-        @test Quaternions.imag(q) == [q.v1, q.v2, q.v3]
+        @test @test_deprecated(Quaternions.imag(q)) == [q.v1, q.v2, q.v3]
         @test imag_part(q) === (q.v1, q.v2, q.v3)
         @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
         @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, true)
