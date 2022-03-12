@@ -1,5 +1,3 @@
 Manifest.toml
 /test/coverage/Manifest.toml
 docs/build
-docs/src/assets/logo.svg
-docs/src/assets/favicon.ico
