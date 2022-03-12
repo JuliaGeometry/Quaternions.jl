@@ -3,6 +3,8 @@ using Documenter
 
 DocMeta.setdocmeta!(Quaternions, :DocTestSetup, :(using Quaternions); recursive=true)
 
+include("logo.jl")
+
 makedocs(;
     modules=[Quaternions],
     repo="https://github.com/JuliaGeometry/Quaternions.jl/blob/{commit}{path}#{line}",
@@ -10,7 +12,7 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://JuliaGeometry.github.io/Quaternions.jl",
-        assets = ["assets/custom.css"],
+        assets = ["assets/custom.css", "assets/favicon.ico"],
     ),
     pages=[
         "Home" => "index.md",
