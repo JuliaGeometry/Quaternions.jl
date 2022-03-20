@@ -13,7 +13,7 @@ Implemented functions are:
 
     +-*/^
     real
-    imag  (a vector)
+    imag_part  (tuple)
     conj
     abs
     abs2
@@ -95,7 +95,7 @@ They play a role, for instance, in the mathematical foundation of String theory.
 
     +-*/^
     real
-    imag  (a vector)
+    imag_part  (tuple)
     conj
     abs
     abs2

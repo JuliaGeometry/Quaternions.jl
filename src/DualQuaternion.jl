@@ -173,7 +173,7 @@ end
 function exp(dq::DualQuaternion)
   se = dual(dq.q0.s, dq.qe.s)
   se = exp(se)
-  dq = dualquat(quat(0.0, imag(dq.q0)), quat(0.0, imag(dq.qe)))
+  dq = dualquat(quat(0.0, imag_part(dq.q0)...), quat(0.0, imag_part(dq.qe)...))
   dq, th = normalizea(dq)
   if isunit(dq)
     dualquat(se) * (dualquat(cos(th)) + dq * dualquat(sin(th)))
