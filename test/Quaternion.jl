@@ -267,6 +267,30 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test isnan(Quaternion(1, 2, 3, NaN))
     end
 
+    @testset "*" begin
+        # verify basic correctness
+        q1 = Quaternion(1,0,0,0)
+        qi = Quaternion(0,1,0,0)
+        qj = Quaternion(0,0,1,0)
+        qk = Quaternion(0,0,0,1)
+        @test q1 * q1 == q1
+        @test q1 * qi == qi
+        @test q1 * qj == qj
+        @test q1 * qk == qk
+        @test qi * q1 == qi
+        @test qi * qi == -q1
+        @test qi * qj == qk
+        @test qi * qk == -qj
+        @test qj * q1 == qj
+        @test qj * qi == -qk
+        @test qj * qj == -q1
+        @test qj * qk == qi
+        @test qk * q1 == qk
+        @test qk * qi == qj
+        @test qk * qj == -qi
+        @test qk * qk == -q1
+    end
+
     @testset "/" begin
         for _ in 1:100
             q, q2 = randn(QuaternionF64, 2)
