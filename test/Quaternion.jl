@@ -603,6 +603,11 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test slerp(quat(1),quat(Float32(1)),Float32(1)) isa Quaternion{Float32}
                 @test slerp(quat(Float64(1)),quat(Float32(1)),Float32(1)) isa Quaternion{Float64}
             end
+
+            @testset "DomainError" begin
+                @test_throws DomainError slerp(quat(1),quat(0),1)
+                @test_throws DomainError slerp(quat(0),quat(1),0)
+            end
         end
     end
 
