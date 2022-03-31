@@ -595,6 +595,14 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
                 end
             end
+
+            @testset "type promotion" begin
+                @test slerp(quat(1),quat(1),1) isa Quaternion{Float64}
+                @test slerp(quat(1),quat(1),big(1)) isa Quaternion{BigFloat}
+                @test slerp(quat(1),quat(1),Float32(1)) isa Quaternion{Float32}
+                @test slerp(quat(1),quat(Float32(1)),Float32(1)) isa Quaternion{Float32}
+                @test slerp(quat(Float64(1)),quat(Float32(1)),Float32(1)) isa Quaternion{Float64}
+            end
         end
     end
 
