@@ -309,13 +309,13 @@ end
 
 
 function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where T<:Real
-    qa = sign(qa)
-    qb = sign(qb)
+    _qa = sign(qa)
+    _qb = sign(qb)
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-    coshalftheta = qa.s * qb.s + qa.v1 * qb.v1 + qa.v2 * qb.v2 + qa.v3 * qb.v3;
+    coshalftheta = _qa.s * _qb.s + _qa.v1 * _qb.v1 + _qa.v2 * _qb.v2 + _qa.v3 * _qb.v3;
 
     if coshalftheta < 0
-        qb = -qb
+        _qb = -_qb
         coshalftheta = -coshalftheta
     end
 
@@ -326,15 +326,15 @@ function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where T<:Real
         ratio_a = sin((1 - t) * halftheta) / sinhalftheta
         ratio_b = sin(t * halftheta) / sinhalftheta
     else
-        ratio_a = 1 - t
-        ratio_b = t
+        ratio_a = float(1 - t)
+        ratio_b = float(t)
     end
 
     return Quaternion(
-        qa.s  * ratio_a + qb.s  * ratio_b,
-        qa.v1 * ratio_a + qb.v1 * ratio_b,
-        qa.v2 * ratio_a + qb.v2 * ratio_b,
-        qa.v3 * ratio_a + qb.v3 * ratio_b,
+        _qa.s  * ratio_a + _qb.s  * ratio_b,
+        _qa.v1 * ratio_a + _qb.v1 * ratio_b,
+        _qa.v2 * ratio_a + _qb.v2 * ratio_b,
+        _qa.v3 * ratio_a + _qb.v3 * ratio_b,
         true
     )
 end
