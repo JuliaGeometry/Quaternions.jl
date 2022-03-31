@@ -308,7 +308,7 @@ function rotationmatrix_normalized(q::Quaternion)
 end
 
 
-function slerp(qa::Quaternion, qb::Quaternion, t::Real)
+function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where T<:Real
     qa = sign(qa)
     qb = sign(qb)
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
@@ -337,6 +337,11 @@ function slerp(qa::Quaternion, qb::Quaternion, t::Real)
         qa.v3 * ratio_a + qb.v3 * ratio_b,
         true
     )
+end
+
+function slerp(qa::Quaternion{Ta}, qb::Quaternion{Tb}, t::T) where {Ta, Tb, T}
+    S = promote_type(Ta,Tb,T)
+    return slerp(Quaternion{S}(qa),Quaternion{S}(qb),S(t))
 end
 
 Base.@deprecate_binding linpol slerp
