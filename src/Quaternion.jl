@@ -307,8 +307,9 @@ function rotationmatrix_normalized(q::Quaternion)
         xz - sy      yz + sx  1 - (xx + yy)]
 end
 
-
 function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where T<:Real
+    iszero(qa) && throw(DomainError(qa, "The input quaternion must be non-zero."))
+    iszero(qb) && throw(DomainError(qb, "The input quaternion must be non-zero."))
     _qa = sign(qa)
     _qb = sign(qb)
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
