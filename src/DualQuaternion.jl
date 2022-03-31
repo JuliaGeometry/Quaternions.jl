@@ -6,43 +6,43 @@ struct DualQuaternion{T<:Real} <: Number
   norm::Bool
 end
 
-DualQuaternion(q0::Quaternion, qe::Quaternion, n::Bool = false) =
-  DualQuaternion(promote(q0, qe)..., n)
+DualQuaternion{T}(dq::DualQuaternion) where {T<:Real} = DualQuaternion{T}(dq.q0, dq.qe, dq.norm)
+function DualQuaternion{T}(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool=false) where {T<:Real}
+  return DualQuaternion{T}(
+    Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
+    Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)),
+    n,
+  )
+end
+function DualQuaternion{T}(q0::Quaternion) where {T<:Real}
+  return DualQuaternion{T}(convert(Quaternion{T}, q0), zero(Quaternion{T}), q0.norm)
+end
+function DualQuaternion{T}(d::Dual) where {T<:Real}
+  return DualQuaternion(
+    Quaternion{T}(DualNumbers.value(d)),
+    Quaternion{T}(DualNumbers.epsilon(d)),
+    (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
+end
+function DualQuaternion{T}(x::Real) where {T<:Real}
+  return DualQuaternion(convert(Quaternion{T}, x), zero(Quaternion{T}), abs(x) == one(x))
+end
 
-DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual) =
-  DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4)),
-                  Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)))
-DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool) =
+DualQuaternion(q0::Quaternion, qe::Quaternion) = DualQuaternion(promote(q0, qe)..., false)
+DualQuaternion(d1::Dual, d2::Dual, d3::Dual, d4::Dual, n::Bool=false) =
   DualQuaternion(Quaternion(DualNumbers.value(d1), DualNumbers.value(d2), DualNumbers.value(d3), DualNumbers.value(d4), n),
                   Quaternion(DualNumbers.epsilon(d1), DualNumbers.epsilon(d2), DualNumbers.epsilon(d3), DualNumbers.epsilon(d4)), n)
-
 DualQuaternion(x::Real) = DualQuaternion(Quaternion(x), Quaternion(zero(x)), abs(x) == one(x))
-
 DualQuaternion(d::Dual) = DualQuaternion(Quaternion(DualNumbers.value(d)), Quaternion(DualNumbers.epsilon(d)), (DualNumbers.value(d)==one(DualNumbers.value(d))) & iszero(DualNumbers.epsilon(d)))
-
 DualQuaternion(q::Quaternion) = DualQuaternion(q, zero(q), q.norm)
-
 DualQuaternion(a::Vector) = DualQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
 
 const DualQuaternionF16 = DualQuaternion{Float16}
 const DualQuaternionF32 = DualQuaternion{Float32}
 const DualQuaternionF64 = DualQuaternion{Float64}
 
-convert(::Type{DualQuaternion{T}}, x::Real) where {T} = DualQuaternion(convert(T, x))
-
-convert(::Type{DualQuaternion{T}}, d::Dual) where {T} = DualQuaternion(convert(Dual{T}, d))
-
-convert(::Type{DualQuaternion{T}}, q::Quaternion) where {T} = DualQuaternion(convert(Quaternion{T}, q))
-
-convert(::Type{DualQuaternion{T}}, q::DualQuaternion{T}) where {T <: Real} = q
-
-convert(::Type{DualQuaternion{T}}, dq::DualQuaternion) where {T} =
-    DualQuaternion(convert(Quaternion{T}, dq.q0), convert(Quaternion{T}, dq.qe), dq.norm)
-
-promote_rule(::Type{DualQuaternion{T}}, ::Type{T}) where {T <: Real} = DualQuaternion{T}
-promote_rule(::Type{DualQuaternion}, ::Type{T}) where {T <: Real} = DualQuaternion
 promote_rule(::Type{DualQuaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
-promote_rule(::Type{Quaternion{T}}, ::Type{DualQuaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
+promote_rule(::Type{DualQuaternion{T}}, ::Type{Dual{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
+promote_rule(::Type{DualQuaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
 promote_rule(::Type{DualQuaternion{T}}, ::Type{DualQuaternion{S}}) where {T <: Real, S <: Real} = DualQuaternion{promote_type(T, S)}
 
 dualquat(q1, q2) = DualQuaternion(q1, q2)
@@ -97,16 +97,16 @@ function normalize(dq::DualQuaternion)
   end
 end
 
-function normalizea(dq::DualQuaternion)
+function normalizea(dq::DualQuaternion{T}) where {T}
   if (dq.norm)
-    return (dq, one(dual))
+    return (dq, one(Dual{T}))
   end
   a = abs(dq)
   if abs(a) > 0
     qa = dq / a
     dualquat(qa.q0, qa.qe, true), a
   else
-    dq, zero(dual)
+    dq, zero(Dual{T})
   end
 end
 
@@ -117,6 +117,8 @@ end
 (*)(dq::DualQuaternion, dw::DualQuaternion) = DualQuaternion(dq.q0 * dw.q0,
                                                               dq.q0 * dw.qe + dq.qe * dw.q0,
                                                               dq.norm && dw.norm)
+(*)(dq::DualQuaternion, d::Dual) = (*)(Base.promote(dq, d)...)
+(*)(d::Dual, dq::DualQuaternion) = (*)(Base.promote(d, dq)...)
 (/)(dq::DualQuaternion, dw::DualQuaternion) = dq * inv(dw)
 (==)(q::DualQuaternion, w::DualQuaternion) = (q.q0 == w.q0) & (q.qe == w.qe) # ignore .norm field
 
@@ -152,7 +154,7 @@ end
 function exp(dq::DualQuaternion)
   se = dual(dq.q0.s, dq.qe.s)
   se = exp(se)
-  dq = dualquat(quat(0.0, imag(dq.q0)), quat(0.0, imag(dq.qe)))
+  dq = dualquat(quat(0.0, imag_part(dq.q0)...), quat(0.0, imag_part(dq.qe)...))
   dq, th = normalizea(dq)
   if dq.norm
     dualquat(se) * (dualquat(cos(th)) + dq * dualquat(sin(th)))

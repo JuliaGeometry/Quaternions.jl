@@ -10,9 +10,9 @@ const QuaternionF16 = Quaternion{Float16}
 const QuaternionF32 = Quaternion{Float32}
 const QuaternionF64 = Quaternion{Float64}
 
-(::Type{Quaternion{T}})(x::Real) where {T<:Real} = Quaternion(convert(T, x))
-(::Type{Quaternion{T}})(q::Quaternion{T}) where {T<:Real} = q
-(::Type{Quaternion{T}})(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
+Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
+Quaternion{T}(x::Complex) where {T<:Real} = Quaternion(convert(Complex{T}, x))
+Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
@@ -20,16 +20,8 @@ Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) =
 Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::AbstractVector) = Quaternion(0, a[1], a[2], a[3])
 
-convert(::Type{Quaternion{T}}, x::Real) where {T} = Quaternion(convert(T, x))
-convert(::Type{Quaternion{T}}, z::Complex) where {T} = Quaternion(convert(Complex{T}, z))
-convert(::Type{Quaternion{T}}, q::Quaternion{T}) where {T <: Real} = q
-convert(::Type{Quaternion{T}}, q::Quaternion) where {T} =
-    Quaternion(convert(T, q.s), convert(T, q.v1), convert(T, q.v2), convert(T, q.v3), q.norm)
-
-promote_rule(::Type{Quaternion{T}}, ::Type{T}) where {T <: Real} = Quaternion{T}
-promote_rule(::Type{Quaternion}, ::Type{T}) where {T <: Real} = Quaternion
 promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
-promote_rule(::Type{Complex{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
@@ -44,7 +36,8 @@ end
 
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
-imag(q::Quaternion) = [q.v1, q.v2, q.v3]
+imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
+@deprecate imag(q::Quaternion) collect(imag_part(q)) false
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 
