@@ -291,6 +291,11 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test qk * qk == -q1
     end
 
+    @testset "abs2" for _ in 1:100, T in (Float16, Float32, Float64)
+        q = rand(Quaternion{T})
+        @test abs2(q) == q'*q
+    end
+
     @testset "/" begin
         for _ in 1:100
             q, q2 = randn(QuaternionF64, 2)
