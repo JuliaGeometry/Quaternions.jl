@@ -395,6 +395,11 @@ using Test
         end
     end
 
+    @testset "abs2" for _ in 1:100, T in (Float16, Float32, Float64)
+        o = rand(Octonion{T})
+        @test abs2(o) == o'*o
+    end
+
     @testset "/" begin
         for _ in 1:100
             o, o2 = randn(OctonionF64, 2)
