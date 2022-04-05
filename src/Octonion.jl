@@ -48,15 +48,17 @@ imag_part(o::Octonion) = (o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7)
 @deprecate imag(o::Octonion) collect(imag_part(o)) false
 
 (/)(o::Octonion, x::Real) = Octonion(o.s / x, o.v1 / x, o.v2 / x, o.v3 / x, o.v4 / x, o.v5 / x, o.v6 / x, o.v7 / x)
+(*)(o::Octonion, x::Real) = Octonion(o.s * x, o.v1 * x, o.v2 * x, o.v3 * x, o.v4 * x, o.v5 * x, o.v6 * x, o.v7 * x)
+(*)(x::Real, o::Octonion) = o * x
 
 conj(o::Octonion) = Octonion(o.s, -o.v1, -o.v2, -o.v3, -o.v4, -o.v5, -o.v6, -o.v7, o.norm)
-abs(o::Octonion) = sqrt(o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
+abs(o::Octonion) = sqrt(abs2(o))
 float(q::Octonion{T}) where T = convert(Octonion{float(T)}, q)
-abs_imag(o::Octonion) = sqrt(o.v1 * o.v1 + o.v2 * o.v2 + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7)
-abs2(o::Octonion) = o.s * o.s + o.v1 * o.v1 + o.v2 * o.v2  + o.v3 * o.v3 + o.v4 * o.v4 + o.v5 * o.v5 + o.v6 * o.v6 + o.v7 * o.v7
+abs_imag(o::Octonion) = sqrt((o.v4 * o.v4 + (o.v2 * o.v2 + o.v6 * o.v6)) + ((o.v1 * o.v1 + o.v5 * o.v5) + (o.v3 * o.v3 + o.v7 * o.v7))) # ordered to match abs2
+abs2(o::Octonion) = ((o.s * o.s + o.v4 * o.v4) + (o.v2 * o.v2 + o.v6 * o.v6)) + ((o.v1 * o.v1  + o.v5 * o.v5) + (o.v3 * o.v3 + o.v7 * o.v7))
 inv(o::Octonion) = o.norm ? conj(o) : conj(o) / abs2(o)
 
-isreal(o::Octonion) = iszero(o.v1) & iszero(o.v2) & iszero(o.v3) & iszero(o.v4) & iszero(o.v5) & iszero(o.v6) & iszero(o.v7) 
+isreal(o::Octonion) = iszero(o.v1) & iszero(o.v2) & iszero(o.v3) & iszero(o.v4) & iszero(o.v5) & iszero(o.v6) & iszero(o.v7)
 isfinite(o::Octonion) = o.norm | (isfinite(real(o)) & isfinite(o.v1) & isfinite(o.v2) & isfinite(o.v3) & isfinite(o.v4) & isfinite(o.v5) & isfinite(o.v6) & isfinite(o.v7))
 iszero(o::Octonion) = ~o.norm & iszero(real(o)) & iszero(o.v1) & iszero(o.v2) & iszero(o.v3) & iszero(o.v4) & iszero(o.v5) & iszero(o.v6) & iszero(o.v7)
 isnan(o::Octonion) = isnan(real(o)) | isnan(o.v1) | isnan(o.v2) | isnan(o.v3) | isnan(o.v4) | isnan(o.v5) | isnan(o.v6) | isnan(o.v7)
@@ -99,24 +101,17 @@ end
                                             o.v6 - w.v6,
                                             o.v7 - w.v7)
 
-
-macro ocmul(i, j)
-  si = Symbol("v$i")
-  sj = Symbol("v$j")
-  esc(:(o.$si * w.$sj - o.$sj * w.$si))
+function (*)(o::Octonion, w::Octonion)
+    s  = ((o.s * w.s - o.v4 * w.v4) - (o.v2 * w.v2 + o.v6 * w.v6)) - ((o.v1 * w.v1 + o.v5 * w.v5) + (o.v3 * w.v3 + o.v7 * w.v7))
+    v1 = ((o.s * w.v1 + o.v1 * w.s) + (o.v6 * w.v5 - o.v5 * w.v6)) + ((o.v2 * w.v3 - o.v3 * w.v2) + (o.v7 * w.v4 - o.v4 * w.v7))
+    v2 = ((o.s * w.v2 + o.v2 * w.s) + (o.v4 * w.v6 - o.v6 * w.v4)) + ((o.v3 * w.v1 - o.v1 * w.v3) + (o.v7 * w.v5 - o.v5 * w.v7))
+    v3 = ((o.s * w.v3 + o.v3 * w.s) + (o.v5 * w.v4 - o.v4 * w.v5)) + ((o.v1 * w.v2 - o.v2 * w.v1) + (o.v7 * w.v6 - o.v6 * w.v7))
+    v4 = ((o.s * w.v4 + o.v4 * w.s) + (o.v3 * w.v5 - o.v5 * w.v3)) + ((o.v1 * w.v7 - o.v7 * w.v1) + (o.v6 * w.v2 - o.v2 * w.v6))
+    v5 = ((o.s * w.v5 + o.v5 * w.s) + (o.v2 * w.v7 - o.v7 * w.v2)) + ((o.v1 * w.v6 - o.v6 * w.v1) + (o.v4 * w.v3 - o.v3 * w.v4))
+    v6 = ((o.s * w.v6 + o.v6 * w.s) + (o.v3 * w.v7 - o.v7 * w.v3)) + ((o.v2 * w.v4 - o.v4 * w.v2) + (o.v5 * w.v1 - o.v1 * w.v5))
+    v7 = ((o.s * w.v7 + o.v7 * w.s) + (o.v5 * w.v2 - o.v2 * w.v5)) + ((o.v4 * w.v1 - o.v1 * w.v4) + (o.v6 * w.v3 - o.v3 * w.v6))
+    return Octonion(s, v1, v2, v3, v4, v5, v6, v7, o.norm & w.norm)
 end
-
-(*)(o::Octonion, w::Octonion) =
-  Octonion(
-            o.s * w.s - o.v1 * w.v1 - o.v2 * w.v2 - o.v3 * w.v3 - o.v4 * w.v4 - o.v5 * w.v5 - o.v6 * w.v6 - o.v7 * w.v7,
-            o.s * w.v1 + o.v1 * w.s + @ocmul( 2, 3 ) + @ocmul( 6, 5 ) + @ocmul( 7, 4 ),
-            o.s * w.v2 + o.v2 * w.s + @ocmul( 3, 1 ) + @ocmul( 4, 6 ) + @ocmul( 7, 5 ),
-            o.s * w.v3 + o.v3 * w.s + @ocmul( 1, 2 ) + @ocmul( 5, 4 ) + @ocmul( 7, 6 ),
-            o.s * w.v4 + o.v4 * w.s + @ocmul( 1, 7 ) + @ocmul( 3, 5 ) + @ocmul( 6, 2 ),
-            o.s * w.v5 + o.v5 * w.s + @ocmul( 1, 6 ) + @ocmul( 2, 7 ) + @ocmul( 4, 3 ),
-            o.s * w.v6 + o.v6 * w.s + @ocmul( 2, 4 ) + @ocmul( 3, 7 ) + @ocmul( 5, 1 ),
-            o.s * w.v7 + o.v7 * w.s + @ocmul( 4, 1 ) + @ocmul( 5, 2 ) + @ocmul( 6, 3 )
-          )
 
 (/)(o::Octonion, w::Octonion) = o * inv(w)
 

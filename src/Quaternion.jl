@@ -40,12 +40,14 @@ imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
 @deprecate imag(q::Quaternion) collect(imag_part(q)) false
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
+(*)(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
+(*)(x::Real, q::Quaternion) = q * x
 
 conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
-abs(q::Quaternion) = sqrt(q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
+abs(q::Quaternion) = sqrt(abs2(q))
 float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
-abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
-abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
+abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
+abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
 isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
@@ -89,18 +91,21 @@ end
 (-)(q::Quaternion, w::Quaternion) =
     Quaternion(q.s - w.s, q.v1 - w.v1, q.v2 - w.v2, q.v3 - w.v3)
 
-(*)(q::Quaternion, w::Quaternion) = Quaternion(q.s * w.s - q.v1 * w.v1 - q.v2 * w.v2 - q.v3 * w.v3,
-                                               q.s * w.v1 + q.v1 * w.s + q.v2 * w.v3 - q.v3 * w.v2,
-                                               q.s * w.v2 - q.v1 * w.v3 + q.v2 * w.s + q.v3 * w.v1,
-                                               q.s * w.v3 + q.v1 * w.v2 - q.v2 * w.v1 + q.v3 * w.s,
-                                               q.norm && w.norm)
+function (*)(q::Quaternion, w::Quaternion)
+    s  = (q.s * w.s - q.v2 * w.v2) - (q.v1 * w.v1 + q.v3 * w.v3)
+    v1 = (q.s * w.v1 + q.v1 * w.s) + (q.v2 * w.v3 - q.v3 * w.v2)
+    v2 = (q.s * w.v2 + q.v2 * w.s) + (q.v3 * w.v1 - q.v1 * w.v3)
+    v3 = (q.s * w.v3 + q.v3 * w.s) + (q.v1 * w.v2 - q.v2 * w.v1)
+    return Quaternion(s, v1, v2, v3, q.norm & w.norm)
+end
+
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
 (==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-angle(q::Quaternion) = 2 * atan(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
+angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
 
 function axis(q::Quaternion)
     q = normalize(q)
@@ -129,7 +134,7 @@ is the extension of `f` to the quaternions, where ``z = a + s i`` is a complex a
 See Theorem 5 of [^Sudbery1970] for details.
 
 [^Sudbery1970]
-    Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge 
+    Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge
     Philosophical Society,85, pp 199­225
     doi:[10.1017/S030500410005563](https://doi.org/10.1017/S0305004100055638)
 """
