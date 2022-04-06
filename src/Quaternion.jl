@@ -345,7 +345,7 @@ function slerp(qa::Quaternion{Ta}, qb::Quaternion{Tb}, t::T) where {Ta, Tb, T}
     return slerp(Quaternion{S}(qa),Quaternion{S}(qb),S(t))
 end
 
-Base.@deprecate_binding linpol slerp
+Base.@deprecate linpol(p::Quaternion, q::Quaternion, t::Real) slerp(p, q, t)
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     isreal(a) && return sylvester(real(a), b, c)
