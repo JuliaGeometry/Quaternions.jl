@@ -564,6 +564,9 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test slerp(a, b, 0.0) ≈ a
                 @test slerp(a, b, 1.0) ≈ b
                 @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
+                @test slerp(a, b, 0.0).norm
+                @test slerp(a, b, 1.0).norm
+                @test slerp(a, b, 0.5).norm
                 for _ in 1:100
                     q1 = quat(1, 0, 0, 0.0)
                     # there are numerical stability issues with slerp atm
@@ -607,6 +610,19 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @testset "DomainError" begin
                 @test_throws DomainError slerp(quat(1),quat(0),1)
                 @test_throws DomainError slerp(quat(0),quat(1),0)
+            end
+
+            @testset "Deprecated warning" begin
+                @test_deprecated linpol(quat(1),quat(1),0)
+            end
+
+            @testset "Normalizing input quaternions" begin
+                for _ in 1:100
+                    q1 = randn(QuaternionF64)
+                    q2 = randn(QuaternionF64)
+                    t = rand()
+                    @test slerp(sign(q1),sign(q2),t) ≈ slerp(q1,q2,t)
+                end
             end
         end
     end
