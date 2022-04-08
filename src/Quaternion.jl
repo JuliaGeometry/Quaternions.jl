@@ -307,13 +307,13 @@ function rotationmatrix_normalized(q::Quaternion)
         xz - sy      yz + sx  1 - (xx + yy)]
 end
 
-function slerp(qa0::Quaternion{T}, qb0::Quaternion{T}, t::T) where T<:Real
+@inline function slerp(qa0::Quaternion{T}, qb0::Quaternion{T}, t::T) where T<:Real
+    # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
     iszero(qa0) && throw(DomainError(qa0, "The input quaternion must be non-zero."))
     iszero(qb0) && throw(DomainError(qb0, "The input quaternion must be non-zero."))
-    qa = sign(qa0)
-    qb = sign(qb0)
-    # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-    coshalftheta = qa.s * qb.s + qa.v1 * qb.v1 + qa.v2 * qb.v2 + qa.v3 * qb.v3;
+    qa = qa0 / abs(qa0)
+    qb = qb0 / abs(qa0)
+    coshalftheta = qa.s * qb.s + qa.v1 * qb.v1 + qa.v2 * qb.v2 + qa.v3 * qb.v3
 
     if coshalftheta < 0
         qb = -qb
