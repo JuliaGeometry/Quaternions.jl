@@ -304,18 +304,23 @@ function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
     c2 = 1 - dcm[1,1] + dcm[2,2] - dcm[3,3]
     d2 = 1 - dcm[1,1] - dcm[2,2] + dcm[3,3]
 
-    if a2 >= max(b2, c2, d2)
+    if a2 ≥ max(b2, c2, d2)
         a = sqrt(a2)/2
-        return Quaternion(a, (dcm[3,2]-dcm[2,3])/4a, (dcm[1,3]-dcm[3,1])/4a, (dcm[2,1]-dcm[1,2])/4a)
-    elseif b2 >= max(c2, d2)
+        b,c,d = (dcm[3,2]-dcm[2,3])/4a, (dcm[1,3]-dcm[3,1])/4a, (dcm[2,1]-dcm[1,2])/4a
+    elseif b2 ≥ max(c2, d2)
         b = sqrt(b2)/2
-        return Quaternion((dcm[3,2]-dcm[2,3])/4b, b, (dcm[2,1]+dcm[1,2])/4b, (dcm[1,3]+dcm[3,1])/4b)
-    elseif c2 >= d2
+        a,c,d = (dcm[3,2]-dcm[2,3])/4b, (dcm[2,1]+dcm[1,2])/4b, (dcm[1,3]+dcm[3,1])/4b
+    elseif c2 ≥ d2
         c = sqrt(c2)/2
-        return Quaternion((dcm[1,3]-dcm[3,1])/4c, (dcm[2,1]+dcm[1,2])/4c, c, (dcm[3,2]+dcm[2,3])/4c)
+        a,b,d = (dcm[1,3]-dcm[3,1])/4c, (dcm[2,1]+dcm[1,2])/4c, (dcm[3,2]+dcm[2,3])/4c
     else
         d = sqrt(d2)/2
-        return Quaternion((dcm[2,1]-dcm[1,2])/4d, (dcm[1,3]+dcm[3,1])/4d, (dcm[3,2]+dcm[2,3])/4d, d)
+        a,b,c = (dcm[2,1]-dcm[1,2])/4d, (dcm[1,3]+dcm[3,1])/4d, (dcm[3,2]+dcm[2,3])/4d
+    end
+    if a > 0
+        return Quaternion(a,b,c,d,true)
+    else
+        return Quaternion(-a,-b,-c,-d,true)
     end
 end
 
