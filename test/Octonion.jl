@@ -295,6 +295,111 @@ using Test
         @test isnan(octo(1, 2, 3, 4, 5, 6, 7, NaN))
     end
 
+    @testset "*" begin
+        # verify basic correctness
+        q0 = Octonion(1,0,0,0,0,0,0,0)
+        q1 = Octonion(0,1,0,0,0,0,0,0)
+        q2 = Octonion(0,0,1,0,0,0,0,0)
+        q3 = Octonion(0,0,0,1,0,0,0,0)
+        q4 = Octonion(0,0,0,0,1,0,0,0)
+        q5 = Octonion(0,0,0,0,0,1,0,0)
+        q6 = Octonion(0,0,0,0,0,0,1,0)
+        q7 = Octonion(0,0,0,0,0,0,0,1)
+        @test q0 * q0 == q0
+        @test q0 * q1 == q1
+        @test q0 * q2 == q2
+        @test q0 * q3 == q3
+        @test q0 * q4 == q4
+        @test q0 * q5 == q5
+        @test q0 * q6 == q6
+        @test q0 * q7 == q7
+        @test q1 * q0 == q1
+        @test q1 * q1 == -q0
+        @test q1 * q2 == q3
+        @test q1 * q3 == -q2
+        @test q1 * q4 == -q7
+        @test q1 * q5 == -q6
+        @test q1 * q6 == q5
+        @test q1 * q7 == q4
+        @test q2 * q0 == q2
+        @test q2 * q1 == -q3
+        @test q2 * q2 == -q0
+        @test q2 * q3 == q1
+        @test q2 * q4 == q6
+        @test q2 * q5 == -q7
+        @test q2 * q6 == -q4
+        @test q2 * q7 == q5
+        @test q3 * q0 == q3
+        @test q3 * q1 == q2
+        @test q3 * q2 == -q1
+        @test q3 * q3 == -q0
+        @test q3 * q4 == -q5
+        @test q3 * q5 == q4
+        @test q3 * q6 == -q7
+        @test q3 * q7 == q6
+        @test q4 * q0 == q4
+        @test q4 * q1 == q7
+        @test q4 * q2 == -q6
+        @test q4 * q3 == q5
+        @test q4 * q4 == -q0
+        @test q4 * q5 == -q3
+        @test q4 * q6 == q2
+        @test q4 * q7 == -q1
+        @test q5 * q0 == q5
+        @test q5 * q1 == q6
+        @test q5 * q2 == q7
+        @test q5 * q3 == -q4
+        @test q5 * q4 == q3
+        @test q5 * q5 == -q0
+        @test q5 * q6 == -q1
+        @test q5 * q7 == -q2
+        @test q6 * q0 == q6
+        @test q6 * q1 == -q5
+        @test q6 * q2 == q4
+        @test q6 * q3 == q7
+        @test q6 * q4 == -q2
+        @test q6 * q5 == q1
+        @test q6 * q6 == -q0
+        @test q6 * q7 == -q3
+        @test q7 * q0 == q7
+        @test q7 * q1 == -q4
+        @test q7 * q2 == -q5
+        @test q7 * q3 == -q6
+        @test q7 * q4 == q1
+        @test q7 * q5 == q2
+        @test q7 * q6 == q3
+        @test q7 * q7 == -q0
+
+        @testset "* same between Quaternions and Octonion" begin
+            # make sure this tracks the `*` tests for Quaternions
+            q1 = Octonion(1,0,0,0,0,0,0,0)
+            qi = Octonion(0,1,0,0,0,0,0,0)
+            qj = Octonion(0,0,1,0,0,0,0,0)
+            qk = Octonion(0,0,0,1,0,0,0,0)
+            @test q1 * q1 == q1
+            @test q1 * qi == qi
+            @test q1 * qj == qj
+            @test q1 * qk == qk
+            @test qi * q1 == qi
+            @test qi * qi == -q1
+            @test qi * qj == qk
+            @test qi * qk == -qj
+            @test qj * q1 == qj
+            @test qj * qi == -qk
+            @test qj * qj == -q1
+            @test qj * qk == qi
+            @test qk * q1 == qk
+            @test qk * qi == qj
+            @test qk * qj == -qi
+            @test qk * qk == -q1
+        end
+    end
+
+    @testset "abs2" for _ in 1:100, T in (Float16, Float32, Float64)
+        o = rand(Octonion{T})
+        @test abs2(o) == o'*o
+    end
+
     @testset "/" begin
         for _ in 1:100
             o, o2 = randn(OctonionF64, 2)
