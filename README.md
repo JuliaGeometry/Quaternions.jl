@@ -60,7 +60,7 @@ Implemented functions are:
     cospi
     sincos
     sincospi
-    linpol  (interpolate between 2 normalized quaternions)
+    slerp
     rand
     randn
 
