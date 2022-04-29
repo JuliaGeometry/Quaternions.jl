@@ -604,8 +604,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test slerp(a, b, 0.5).norm
                 for _ in 1:100
                     q1 = quat(1, 0, 0, 0.0)
-                    # there are numerical stability issues with slerp atm
-                    θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
+                    θ = rand() * π
                     ax = randn(3)
                     q2 = qrotation(ax, θ)
                     qsmall = qrotation(ax, cbrt(eps()))
