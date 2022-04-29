@@ -29,11 +29,6 @@ quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
-function show(io::IO, q::Quaternion)
-    pm(x) = x < 0 ? " - $(-x)" : " + $x"
-    print(io, q.s, pm(q.v1), "im", pm(q.v2), "jm", pm(q.v3), "km")
-end
-
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
