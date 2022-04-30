@@ -202,6 +202,7 @@ end
         @test_throws MethodError imag(q)
         @test_throws MethodError Quaternions.imag(q)
         @test_throws MethodError imag_part(q)
+        @test_throws MethodError reim(q)
         @test conj(q) === dualquat(conj(q.q0), conj(q.qe), q.norm)
         @test conj(qnorm) === dualquat(conj(qnorm.q0), conj(qnorm.qe), qnorm.norm)
         @test conj(conj(q)) === q
