@@ -51,13 +51,6 @@ dualquat(d1, d2, d3, d4) = DualQuaternion(d1, d2, d3, d4)
 dualquat(d1, d2, d3, d4, n) = DualQuaternion(d1, d2, d3, d4, n)
 dualquat(x) = DualQuaternion(x)
 
-function show(io::IO, dq::DualQuaternion)
-  show(io, dq.q0)
-  print(io, " + ( ")
-  show(io, dq.qe)
-  print(io, " )du")
-end
-
 Q0(dq::DualQuaternion) = dq.q0
 Qe(dq::DualQuaternion) = dq.qe
 

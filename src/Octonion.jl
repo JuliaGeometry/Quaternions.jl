@@ -38,11 +38,6 @@ octo(p, v1, v2, v3, v4, v5, v6, v7, n) = Octonion(p, v1, v2, v3, v4, v5, v6, v7,
 octo(x) = Octonion(x)
 octo(s, a) = Octonion(s, a)
 
-function show(io::IO, o::Octonion)
-  pm(x) = x < 0 ? " - $(-x)" : " + $x"
-  print(io, o.s, pm(o.v1), "im", pm(o.v2), "jm", pm(o.v3), "km", pm(o.v4), "ilm", pm(o.v5), "jlm", pm(o.v6), "klm", pm(o.v7), "lm")
-end
-
 real(o::Octonion) = o.s
 imag_part(o::Octonion) = (o.v1, o.v2, o.v3, o.v4, o.v5, o.v6, o.v7)
 @deprecate imag(o::Octonion) collect(imag_part(o)) false
