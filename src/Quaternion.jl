@@ -86,6 +86,12 @@ julia> quat([1, 2, 3])
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
+function quat(A::AbstractArray{T}) where T
+    if !isconcretetype(T)
+        error("`quat` not defined on abstractly-typed arrays; please convert to a more specific type")
+    end
+    convert(AbstractArray{typeof(quat(zero(T)))}, A)
+end
 
 """
     real(T::Type{<:Quaternion})
