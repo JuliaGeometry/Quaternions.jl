@@ -66,6 +66,23 @@ Quaternion{Int64}(0, 1, 2, 3)
 """
 quat
 
+"""
+    quat(r, [i, j, k])
+
+Convert real numbers or arrays to quaternion. `i, j, k` defaults to zero.
+
+# Examples
+```jldoctest
+julia> quat(7)
+Quaternion{Int64}(7, 0, 0, 0, false)
+
+julia> quat([1, 2, 3])
+3-element Vector{Quaternion{Int64}}:
+  Quaternion{Int64}(1, 0, 0, 0, true)
+ Quaternion{Int64}(2, 0, 0, 0, false)
+ Quaternion{Int64}(3, 0, 0, 0, false)
+```
+"""
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
