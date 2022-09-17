@@ -178,11 +178,19 @@ if VERSION ≥ v"1.6"
     !!! Note
         This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
     """
-    Base.cispi(q::Quaternion) = extend_analytic(cispi, q)
+    function Base.cispi(q::Quaternion)
+        Base.depwarn("`cispi(::Quaternion)` will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cispi)
+        extend_analytic(cispi, q)
+    end
+end
+
+function Base.cis(q::Quaternion)
+    Base.depwarn("`cis(::Quaternion)` will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cis)
+    extend_analytic(cis, q)
 end
 
 for f in (
-    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p, :cis,
+    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
     :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
     :csc, :sec, :cot, :acsc, :asec, :acot, :csch, :sech, :coth, :acsch, :asech, :acoth,
     :sinpi, :cospi,
