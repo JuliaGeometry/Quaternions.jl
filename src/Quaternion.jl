@@ -179,13 +179,13 @@ if VERSION ≥ v"1.6"
         This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
     """
     function Base.cispi(q::Quaternion)
-        Base.depwarn("`cispi(::Quaternion)` will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cispi)
+        Base.depwarn("`cispi(::Quaternion)` is deprecated and will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cispi)
         extend_analytic(cispi, q)
     end
 end
 
 function Base.cis(q::Quaternion)
-    Base.depwarn("`cis(::Quaternion)` will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cis)
+    Base.depwarn("`cis(::Quaternion)` is deprecated and will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cis)
     extend_analytic(cis, q)
 end
 
