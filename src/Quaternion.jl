@@ -153,7 +153,7 @@ See Theorem 5 of [^Sudbery1970] for details.
 
 [^Sudbery1970]
     Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge
-    Philosophical Society,85, pp 199­225
+    Philosophical Society,85, pp 199225
     doi:[10.1017/S030500410005563](https://doi.org/10.1017/S0305004100055638)
 """
 function extend_analytic(f, q::Quaternion)
