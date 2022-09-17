@@ -113,8 +113,8 @@ end
 
     @testset "deprecated warning" begin
         @test_deprecated DualQuaternion(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
-        @test_deprecated DualQuaternion{Int}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
-        @test_deprecated DualQuaternion{Float64}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
+        @test_deprecated DualQuaternion{Int}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8), false)
+        @test_deprecated DualQuaternion{Float64}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8), false)
     end
 
     @testset "convert" begin
