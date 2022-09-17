@@ -54,6 +54,21 @@ julia> real(quat(1,2,3,4))
 """
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
+
+"""
+    imag_part(q::Quaternion{T})
+
+Return the imaginary part of the quaternion `q` with type `Tuple{T,T,T}`.
+Note that this function is different from `Base.imag` which returns `Real`.
+
+See also: [`conj`](@ref).
+
+# Examples
+```jldoctest
+julia> imag_part(Quaternion(1,2,3,4))
+(2, 3, 4)
+```
+"""
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
 @deprecate imag(q::Quaternion) collect(imag_part(q)) false
 
@@ -61,6 +76,17 @@ imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
 (*)(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
 (*)(x::Real, q::Quaternion) = q * x
 
+"""
+    conj(q::Quaternion)
+
+Compute the quaternion conjugate of a quaternion `q`.
+
+# Examples
+```jldoctest
+julia> conj(Quaternion(1,2,3,4))
+Quaternion{Int64}(1, -2, -3, -4, false)
+```
+"""
 conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
 abs(q::Quaternion) = sqrt(abs2(q))
 float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
