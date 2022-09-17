@@ -410,8 +410,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 ]
                     @test f(q) ≈ finv(inv(q))
                 end
-                @test cis(q) ≈ exp(normalize(q - real(q)) * q)
-                VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
+                @test @test_deprecated(cis(q)) ≈ exp(normalize(q - real(q)) * q)
+                VERSION ≥ v"1.6" && @test @test_deprecated(cispi(q)) ≈ cis(π * q)
             end
         end
 
