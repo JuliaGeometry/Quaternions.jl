@@ -111,6 +111,12 @@ end
             DualQuaternion(Quaternion(1.0, 2, 3, 4), Quaternion(1, 2, 3, 4))
     end
 
+    @testset "deprecated warning" begin
+        @test_deprecated DualQuaternion(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
+        @test_deprecated DualQuaternion{Int}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
+        @test_deprecated DualQuaternion{Float64}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
+    end
+
     @testset "convert" begin
         @test convert(DualQuaternion{Float64}, 1) === DualQuaternion(1.0)
         @test convert(DualQuaternion{Float64}, DualNumbers.Dual(1, 2)) ===
