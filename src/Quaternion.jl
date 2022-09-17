@@ -1,3 +1,13 @@
+"""
+    Quaternion{T<:Real} <: Number
+
+Quaternion number type with real and imaginary part of type `T`.
+
+`QuaternionF16`, `QuaternionF32` and `QuaternionF64` are aliases for
+`Quaternion{Float16}`, `Quaternion{Float32}` and `Quaternion{Float64}` respectively.
+
+See also: [`quat`](@ref), [`real`](@ref), [`imag_part`](@ref).
+"""
 struct Quaternion{T<:Real} <: Number
     s::T
     v1::T
@@ -29,6 +39,19 @@ quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
+"""
+    real(q::Quaternion)
+
+Return the real part of the quaternion `q`.
+
+See also: [`imag_part`](@ref), [`quat`](@ref), [`isreal`](@ref).
+
+# Examples
+```jldoctest
+julia> real(quat(1,2,3,4))
+1
+```
+"""
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
