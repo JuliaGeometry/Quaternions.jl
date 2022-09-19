@@ -4,7 +4,7 @@ struct DualQuaternion{T<:Real} <: Number
   q0::Quaternion{T}
   qe::Quaternion{T}
   norm::Bool
-  function DualQuaternion{T}(q0::Quaternion, qe::Quaternion, norm::Bool) where T <: Real
+  function DualQuaternion{T}(q0, qe, norm) where T
     Base.depwarn("`DualQuaternion` is deprecated and will be removed in the next breaking release. Use `Quaternion{ForwardDiff.Dual}` instead.", :DualQuaternion)
     return new{T}(q0, qe, norm)
   end
