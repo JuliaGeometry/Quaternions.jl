@@ -104,6 +104,7 @@ end
 
 randdualquat(rng::AbstractRNG,T=Float64) = dualquat(rand(rng, Quaternion{T}), rand(rng, Quaternion{T}))
 randdualquat(T=Float64) = randdualquat(Random.GLOBAL_RNG,T)
+nothing  # hide
 ```
 
 ## Example: transforming a point
