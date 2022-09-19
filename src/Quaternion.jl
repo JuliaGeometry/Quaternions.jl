@@ -61,7 +61,7 @@ real(q::Quaternion) = q.s
 Return the imaginary part of the quaternion `q` with type `Tuple{T,T,T}`.
 Note that this function is different from `Base.imag` which returns `Real`.
 
-See also: [`conj`](@ref).
+See also: [`real`](@ref), [`conj`](@ref).
 
 # Examples
 ```jldoctest
