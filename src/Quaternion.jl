@@ -40,6 +40,21 @@ quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
 """
+    real(T::Type)
+
+Return the type that represents the real part of a value of type `T`.
+e.g: for `T == Quaternion{R}`, returns `R`.
+Equivalent to `typeof(real(zero(T)))`.
+
+# Examples
+```jldoctest
+julia> real(Quaternion{Int})
+Int64
+```
+"""
+real(::Type{Quaternion{T}}) where {T} = T
+
+"""
     real(q::Quaternion)
 
 Return the real part of the quaternion `q`.
@@ -52,7 +67,6 @@ julia> real(quat(1,2,3,4))
 1
 ```
 """
-real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
 
 """
