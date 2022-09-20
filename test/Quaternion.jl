@@ -591,7 +591,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             end
         end
 
-        @testset "slerp/linpol" begin
+        @testset "slerp" begin
             @testset "q1=1" begin
                 a = quat(1, 0, 0, 0.0, true)
                 b = quat(0, 0, 0, 1.0, true)
@@ -616,9 +616,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
                     @test slerp(q1, q1, 0.5) ≈ q1
                     @test slerp(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
-                    @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
-                    @test linpol(q1, q1, 0.5) ≈ q1
-                    @test linpol(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
                 end
             end
 
@@ -628,7 +625,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     ⊗(s, t) = s * t * inv(s)
                     t = rand()
                     @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
-                    @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
                 end
             end
 
