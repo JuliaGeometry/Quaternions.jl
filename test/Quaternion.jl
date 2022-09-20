@@ -178,7 +178,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         qnorm = normalize(q)
         @test real(q) === q.s
         @test_throws MethodError imag(q)
-        @test @test_deprecated(Quaternions.imag(q)) == [q.v1, q.v2, q.v3]
         @test imag_part(q) === (q.v1, q.v2, q.v3)
         @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
         @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, true)
@@ -644,10 +643,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @testset "DomainError" begin
                 @test_throws DomainError slerp(quat(1),quat(0),1)
                 @test_throws DomainError slerp(quat(0),quat(1),0)
-            end
-
-            @testset "Deprecated warning" begin
-                @test_deprecated linpol(quat(1),quat(1),0)
             end
 
             @testset "Normalizing input quaternions" begin
