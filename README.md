@@ -64,47 +64,5 @@ Implemented functions are:
     rand
     randn
 
-[Dual quaternions](http://en.wikipedia.org/wiki/Dual_quaternion) are an extension, combining quaternions with
-[dual numbers](https://github.com/scidom/DualNumbers.jl).
-On top of just orientation, they can represent all rigid transformations.
-
-There are two conjugation concepts here
-
-    conj  (quaternion conjugation)
-    dconj (dual conjugation)
-
-further implemented here:
-
-    Q0  (the 'real' quaternion)
-    Qe  ( the 'dual' part)
-    +-*/^
-    abs
-    abs2
-    normalize
-    normalizea
-    angleaxis
-    angle
-    axis
-    exp
-    log
-    sqrt
-    rand
-
-[Octonions](http://en.wikipedia.org/wiki/Octonion) form the logical next step on the Complex-Quaternion path.
-They play a role, for instance, in the mathematical foundation of String theory.
-
-    +-*/^
-    real
-    imag_part  (tuple)
-    conj
-    abs
-    abs2
-    exp
-    log
-    normalize
-    normalizea  (return normalized octonion and absolute value as a tuple)
-    exp
-    log
-    sqrt
-    rand
-    randn
+Currently, this package supports `DualQuaternion` and `Octonion` types, but these will be removed in the next breaking release.
+See https://github.com/JuliaGeometry/Quaternions.jl/issues/90 and https://github.com/JuliaGeometry/Quaternions.jl/pull/92 for more information.
