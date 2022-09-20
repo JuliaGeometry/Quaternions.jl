@@ -8,6 +8,13 @@ struct Octonion{T<:Real} <: Number
   v6::T
   v7::T
   norm::Bool
+  function Octonion{T}(s,v1,v2,v3,v4,v5,v6,v7,norm) where T <: Real
+    Base.depwarn("`Octonion` is deprecated and will be removed in the next breaking release. Use Octonions.jl package instead.", :Octonion)
+    return new{T}(s,v1,v2,v3,v4,v5,v6,v7,norm)
+  end
+end
+function Octonion(s::T,v1::T,v2::T,v3::T,v4::T,v5::T,v6::T,v7::T,norm::Bool) where T <: Real
+  return Octonion{T}(s,v1,v2,v3,v4,v5,v6,v7,norm)
 end
 
 Octonion{T}(x::Real) where {T<:Real} = Octonion(convert(T, x))
