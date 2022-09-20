@@ -4,6 +4,14 @@ struct DualQuaternion{T<:Real} <: Number
   q0::Quaternion{T}
   qe::Quaternion{T}
   norm::Bool
+  function DualQuaternion{T}(q0, qe, norm) where T <: Real
+    Base.depwarn("`DualQuaternion` is deprecated and will be removed in the next breaking release. Use `Quaternion{ForwardDiff.Dual}` instead.", :DualQuaternion)
+    return new{T}(q0, qe, norm)
+  end
+end
+
+function DualQuaternion(q0::Quaternion{T}, qe::Quaternion{T}, norm::Bool) where T <: Real
+  return DualQuaternion{T}(q0, qe, norm)
 end
 
 DualQuaternion{T}(dq::DualQuaternion) where {T<:Real} = DualQuaternion{T}(dq.q0, dq.qe, dq.norm)
@@ -50,13 +58,6 @@ dualquat(q1, q2, n) = DualQuaternion(q1, q2, n)
 dualquat(d1, d2, d3, d4) = DualQuaternion(d1, d2, d3, d4)
 dualquat(d1, d2, d3, d4, n) = DualQuaternion(d1, d2, d3, d4, n)
 dualquat(x) = DualQuaternion(x)
-
-function show(io::IO, dq::DualQuaternion)
-  show(io, dq.q0)
-  print(io, " + ( ")
-  show(io, dq.qe)
-  print(io, " )du")
-end
 
 Q0(dq::DualQuaternion) = dq.q0
 Qe(dq::DualQuaternion) = dq.qe
@@ -154,7 +155,7 @@ end
 function exp(dq::DualQuaternion)
   se = dual(dq.q0.s, dq.qe.s)
   se = exp(se)
-  dq = dualquat(quat(0.0, imag(dq.q0)), quat(0.0, imag(dq.qe)))
+  dq = dualquat(quat(0.0, imag_part(dq.q0)...), quat(0.0, imag_part(dq.qe)...))
   dq, th = normalizea(dq)
   if dq.norm
     dualquat(se) * (dualquat(cos(th)) + dq * dualquat(sin(th)))

@@ -10,7 +10,7 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://JuliaGeometry.github.io/Quaternions.jl",
-        assets = ["assets/custom.css"],
+        assets = ["assets/custom.css", "assets/favicon.ico"],
     ),
     pages=[
         "Home" => "index.md",

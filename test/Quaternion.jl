@@ -146,7 +146,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test eltype(qs) === H
             @test length(qs) == 1000
             xs = map(qs) do q
-                return [real(q); Quaternions.imag(q)]
+                return [real(q); imag_part(q)...]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
@@ -164,7 +164,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test eltype(qs) === H
             @test length(qs) == 10000
             xs = map(qs) do q
-                return [real(q); Quaternions.imag(q)]
+                return [real(q); imag_part(q)...]
             end
             xs_mean = sum(xs) / length(xs)
             xs_var = sum(x -> abs2.(x .- xs_mean), xs) / (length(xs) - 1)
@@ -178,7 +178,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         qnorm = normalize(q)
         @test real(q) === q.s
         @test_throws MethodError imag(q)
-        @test Quaternions.imag(q) == [q.v1, q.v2, q.v3]
+        @test @test_deprecated(Quaternions.imag(q)) == [q.v1, q.v2, q.v3]
+        @test imag_part(q) === (q.v1, q.v2, q.v3)
         @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
         @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, true)
         @test conj(conj(q)) === q
@@ -264,6 +265,35 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test isnan(Quaternion(1, NaN, 3, 4))
         @test isnan(Quaternion(1, 2, NaN, 4))
         @test isnan(Quaternion(1, 2, 3, NaN))
+    end
+
+    @testset "*" begin
+        # verify basic correctness
+        q1 = Quaternion(1,0,0,0)
+        qi = Quaternion(0,1,0,0)
+        qj = Quaternion(0,0,1,0)
+        qk = Quaternion(0,0,0,1)
+        @test q1 * q1 == q1
+        @test q1 * qi == qi
+        @test q1 * qj == qj
+        @test q1 * qk == qk
+        @test qi * q1 == qi
+        @test qi * qi == -q1
+        @test qi * qj == qk
+        @test qi * qk == -qj
+        @test qj * q1 == qj
+        @test qj * qi == -qk
+        @test qj * qj == -q1
+        @test qj * qk == qi
+        @test qk * q1 == qk
+        @test qk * qi == qj
+        @test qk * qj == -qi
+        @test qk * qk == -q1
+    end
+
+    @testset "abs2" for _ in 1:100, T in (Float16, Float32, Float64)
+        q = rand(Quaternion{T})
+        @test abs2(q) == q'*q
     end
 
     @testset "/" begin
@@ -519,7 +549,13 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             for _ in 1:100
                 q1 = nquatrand()
                 q2 = qrotation(rotationmatrix(q1), q1)
+                q3 = qrotation(rotationmatrix(q1))
                 @test q1 ≈ q2
+                @test q2 === q3 || q2 === -q3
+                @test real(q3) ≥ 0
+                @test q1.norm
+                @test q2.norm
+                @test q3.norm
             end
         end
 
@@ -561,10 +597,12 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test slerp(a, b, 0.0) ≈ a
                 @test slerp(a, b, 1.0) ≈ b
                 @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
-                for _ in 1:100
+                @test slerp(a, b, 0.0).norm
+                @test slerp(a, b, 1.0).norm
+                @test slerp(a, b, 0.5).norm
+                for _ in 1:100, scale in (1, 1e-5, 1e-10)
                     q1 = quat(1, 0, 0, 0.0)
-                    # there are numerical stability issues with slerp atm
-                    θ = clamp(rand() * 3.5, deg2rad(5e-1), π)
+                    θ = rand() * π * scale
                     ax = randn(3)
                     q2 = qrotation(ax, θ)
                     qsmall = qrotation(ax, cbrt(eps()))
@@ -590,6 +628,32 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     t = rand()
                     @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
                     @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
+                end
+            end
+
+            @testset "type promotion" begin
+                @test slerp(quat(1),quat(1),1) isa Quaternion{Float64}
+                @test slerp(quat(1),quat(1),big(1)) isa Quaternion{BigFloat}
+                @test slerp(quat(1),quat(1),Float32(1)) isa Quaternion{Float32}
+                @test slerp(quat(1),quat(Float32(1)),Float32(1)) isa Quaternion{Float32}
+                @test slerp(quat(Float64(1)),quat(Float32(1)),Float32(1)) isa Quaternion{Float64}
+            end
+
+            @testset "DomainError" begin
+                @test_throws DomainError slerp(quat(1),quat(0),1)
+                @test_throws DomainError slerp(quat(0),quat(1),0)
+            end
+
+            @testset "Deprecated warning" begin
+                @test_deprecated linpol(quat(1),quat(1),0)
+            end
+
+            @testset "Normalizing input quaternions" begin
+                for _ in 1:100
+                    q1 = randn(QuaternionF64)
+                    q2 = randn(QuaternionF64)
+                    t = rand()
+                    @test slerp(sign(q1),sign(q2),t) ≈ slerp(q1,q2,t)
                 end
             end
         end

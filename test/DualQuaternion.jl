@@ -111,6 +111,12 @@ end
             DualQuaternion(Quaternion(1.0, 2, 3, 4), Quaternion(1, 2, 3, 4))
     end
 
+    @testset "deprecated warning" begin
+        @test_deprecated DualQuaternion(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8))
+        @test_deprecated DualQuaternion{Int}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8), false)
+        @test_deprecated DualQuaternion{Float64}(Quaternion(1, 2, 3, 4), Quaternion(5, 6, 7, 8), false)
+    end
+
     @testset "convert" begin
         @test convert(DualQuaternion{Float64}, 1) === DualQuaternion(1.0)
         @test convert(DualQuaternion{Float64}, DualNumbers.Dual(1, 2)) ===
@@ -184,9 +190,9 @@ end
             xs = map(dqs) do dq
                 return [
                     real(dq.q0)
-                    Quaternions.imag(dq.q0)
+                    imag_part(dq.q0)...
                     real(dq.qe)
-                    Quaternions.imag(dq.qe)
+                    imag_part(dq.qe)...
                 ]
             end
             xs_mean = sum(xs) / length(xs)
@@ -200,6 +206,8 @@ end
         q = rand(DualQuaternionF64)
         qnorm = normalize(q)
         @test_throws MethodError imag(q)
+        @test_throws MethodError Quaternions.imag(q)
+        @test_throws MethodError imag_part(q)
         @test conj(q) === dualquat(conj(q.q0), conj(q.qe), q.norm)
         @test conj(qnorm) === dualquat(conj(qnorm.q0), conj(qnorm.qe), qnorm.norm)
         @test conj(conj(q)) === q

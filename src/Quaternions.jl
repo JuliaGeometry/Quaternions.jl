@@ -30,11 +30,11 @@ module Quaternions
     DualQuaternionF64
   export quat
   export octo
+  export imag_part
   export dualquat
   export angleaxis
   export angle
   export axis
-  export linpol
   export normalize
   export normalizea
   export dconj

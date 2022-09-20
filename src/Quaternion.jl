@@ -29,22 +29,20 @@ quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
-function show(io::IO, q::Quaternion)
-    pm(x) = x < 0 ? " - $(-x)" : " + $x"
-    print(io, q.s, pm(q.v1), "im", pm(q.v2), "jm", pm(q.v3), "km")
-end
-
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
-imag(q::Quaternion) = [q.v1, q.v2, q.v3]
+imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
+@deprecate imag(q::Quaternion) collect(imag_part(q)) false
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
+(*)(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
+(*)(x::Real, q::Quaternion) = q * x
 
 conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
-abs(q::Quaternion) = sqrt(q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
+abs(q::Quaternion) = sqrt(abs2(q))
 float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
-abs_imag(q::Quaternion) = sqrt(q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3)
-abs2(q::Quaternion) = q.s * q.s + q.v1 * q.v1 + q.v2 * q.v2 + q.v3 * q.v3
+abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
+abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
 inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
 isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
@@ -88,18 +86,21 @@ end
 (-)(q::Quaternion, w::Quaternion) =
     Quaternion(q.s - w.s, q.v1 - w.v1, q.v2 - w.v2, q.v3 - w.v3)
 
-(*)(q::Quaternion, w::Quaternion) = Quaternion(q.s * w.s - q.v1 * w.v1 - q.v2 * w.v2 - q.v3 * w.v3,
-                                               q.s * w.v1 + q.v1 * w.s + q.v2 * w.v3 - q.v3 * w.v2,
-                                               q.s * w.v2 - q.v1 * w.v3 + q.v2 * w.s + q.v3 * w.v1,
-                                               q.s * w.v3 + q.v1 * w.v2 - q.v2 * w.v1 + q.v3 * w.s,
-                                               q.norm && w.norm)
+function (*)(q::Quaternion, w::Quaternion)
+    s  = (q.s * w.s - q.v2 * w.v2) - (q.v1 * w.v1 + q.v3 * w.v3)
+    v1 = (q.s * w.v1 + q.v1 * w.s) + (q.v2 * w.v3 - q.v3 * w.v2)
+    v2 = (q.s * w.v2 + q.v2 * w.s) + (q.v3 * w.v1 - q.v1 * w.v3)
+    v3 = (q.s * w.v3 + q.v3 * w.s) + (q.v1 * w.v2 - q.v2 * w.v1)
+    return Quaternion(s, v1, v2, v3, q.norm & w.norm)
+end
+
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
 (==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-angle(q::Quaternion) = 2 * atan(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
+angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
 
 function axis(q::Quaternion)
     q = normalize(q)
@@ -128,7 +129,7 @@ is the extension of `f` to the quaternions, where ``z = a + s i`` is a complex a
 See Theorem 5 of [^Sudbery1970] for details.
 
 [^Sudbery1970]
-    Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge 
+    Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge
     Philosophical Society,85, pp 199­225
     doi:[10.1017/S030500410005563](https://doi.org/10.1017/S0305004100055638)
 """
@@ -197,29 +198,6 @@ end
 
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
-function linpol(p::Quaternion, q::Quaternion, t::Real)
-    p = normalize(p)
-    q = normalize(q)
-    qm = -q
-    if abs(p - q) > abs(p - qm)
-        q = qm
-    end
-    c = p.s * q.s + p.v1 * q.v1 + p.v2 * q.v2 + p.v3 * q.v3
-    if c < 1.0
-        o = acos(c)
-        s = sin(o)
-        sp = sin((1 - t) * o) / s
-        sq = sin(t * o) / s
-    else
-        sp = 1 - t
-        sq = t
-    end
-    Quaternion(sp * p.s  + sq * q.s,
-                sp * p.v1 + sq * q.v1,
-                sp * p.v2 + sq * q.v2,
-                sp * p.v3 + sq * q.v3, true)
-end
-
 quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
 nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
@@ -271,18 +249,23 @@ function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
     c2 = 1 - dcm[1,1] + dcm[2,2] - dcm[3,3]
     d2 = 1 - dcm[1,1] - dcm[2,2] + dcm[3,3]
 
-    if a2 >= max(b2, c2, d2)
+    if a2 ≥ max(b2, c2, d2)
         a = sqrt(a2)/2
-        return Quaternion(a, (dcm[3,2]-dcm[2,3])/4a, (dcm[1,3]-dcm[3,1])/4a, (dcm[2,1]-dcm[1,2])/4a)
-    elseif b2 >= max(c2, d2)
+        b,c,d = (dcm[3,2]-dcm[2,3])/4a, (dcm[1,3]-dcm[3,1])/4a, (dcm[2,1]-dcm[1,2])/4a
+    elseif b2 ≥ max(c2, d2)
         b = sqrt(b2)/2
-        return Quaternion((dcm[3,2]-dcm[2,3])/4b, b, (dcm[2,1]+dcm[1,2])/4b, (dcm[1,3]+dcm[3,1])/4b)
-    elseif c2 >= d2
+        a,c,d = (dcm[3,2]-dcm[2,3])/4b, (dcm[2,1]+dcm[1,2])/4b, (dcm[1,3]+dcm[3,1])/4b
+    elseif c2 ≥ d2
         c = sqrt(c2)/2
-        return Quaternion((dcm[1,3]-dcm[3,1])/4c, (dcm[2,1]+dcm[1,2])/4c, c, (dcm[3,2]+dcm[2,3])/4c)
+        a,b,d = (dcm[1,3]-dcm[3,1])/4c, (dcm[2,1]+dcm[1,2])/4c, (dcm[3,2]+dcm[2,3])/4c
     else
         d = sqrt(d2)/2
-        return Quaternion((dcm[2,1]-dcm[1,2])/4d, (dcm[1,3]+dcm[3,1])/4d, (dcm[3,2]+dcm[2,3])/4d, d)
+        a,b,c = (dcm[2,1]-dcm[1,2])/4d, (dcm[1,3]+dcm[3,1])/4d, (dcm[3,2]+dcm[2,3])/4d
+    end
+    if a > 0
+        return Quaternion(a,b,c,d,true)
+    else
+        return Quaternion(-a,-b,-c,-d,true)
     end
 end
 
@@ -302,41 +285,45 @@ function rotationmatrix_normalized(q::Quaternion)
         xz - sy      yz + sx  1 - (xx + yy)]
 end
 
-
-function slerp(qa::Quaternion{T}, qb::Quaternion{T}, t::T) where {T}
+@inline function slerp(qa0::Quaternion{T}, qb0::Quaternion{T}, t::T) where T<:Real
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-    coshalftheta = qa.s * qb.s + qa.v1 * qb.v1 + qa.v2 * qb.v2 + qa.v3 * qb.v3;
+    iszero(qa0) && throw(DomainError(qa0, "The input quaternion must be non-zero."))
+    iszero(qb0) && throw(DomainError(qb0, "The input quaternion must be non-zero."))
+    qa = qa0 / abs(qa0)
+    qb = qb0 / abs(qb0)
+    coshalftheta = qa.s * qb.s + qa.v1 * qb.v1 + qa.v2 * qb.v2 + qa.v3 * qb.v3
 
     if coshalftheta < 0
-        qm = -qb
+        qb = -qb
         coshalftheta = -coshalftheta
+    end
+
+    if coshalftheta < 1
+        halftheta    = acos(coshalftheta)
+        sinhalftheta = sqrt(1 - coshalftheta^2)
+
+        ratio_a = sin((1 - t) * halftheta) / sinhalftheta
+        ratio_b = sin(t * halftheta) / sinhalftheta
     else
-        qm = qb
-    end
-    abs(coshalftheta) >= 1.0 && return qa
-
-    halftheta    = acos(coshalftheta)
-    sinhalftheta = sqrt(one(T) - coshalftheta * coshalftheta)
-
-    if abs(sinhalftheta) < 0.001
-        return Quaternion(
-            T(0.5) * (qa.s  + qb.s),
-            T(0.5) * (qa.v1 + qb.v1),
-            T(0.5) * (qa.v2 + qb.v2),
-            T(0.5) * (qa.v3 + qb.v3),
-        )
+        ratio_a = float(1 - t)
+        ratio_b = float(t)
     end
 
-    ratio_a = sin((one(T) - t) * halftheta) / sinhalftheta
-    ratio_b = sin(t * halftheta) / sinhalftheta
-
-    Quaternion(
-        qa.s  * ratio_a + qm.s  * ratio_b,
-        qa.v1 * ratio_a + qm.v1 * ratio_b,
-        qa.v2 * ratio_a + qm.v2 * ratio_b,
-        qa.v3 * ratio_a + qm.v3 * ratio_b,
+    return Quaternion(
+        qa.s  * ratio_a + qb.s  * ratio_b,
+        qa.v1 * ratio_a + qb.v1 * ratio_b,
+        qa.v2 * ratio_a + qb.v2 * ratio_b,
+        qa.v3 * ratio_a + qb.v3 * ratio_b,
+        true
     )
 end
+
+function slerp(qa::Quaternion{Ta}, qb::Quaternion{Tb}, t::T) where {Ta, Tb, T}
+    S = promote_type(Ta,Tb,T)
+    return slerp(Quaternion{S}(qa),Quaternion{S}(qb),S(t))
+end
+
+Base.@deprecate linpol(p::Quaternion, q::Quaternion, t::Real) slerp(p, q, t)
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     isreal(a) && return sylvester(real(a), b, c)
