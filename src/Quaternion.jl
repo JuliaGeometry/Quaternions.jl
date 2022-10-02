@@ -32,7 +32,6 @@ quat(s, a) = Quaternion(s, a)
 real(::Type{Quaternion{T}}) where {T} = T
 real(q::Quaternion) = q.s
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
-@deprecate imag(q::Quaternion) collect(imag_part(q)) false
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 (*)(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
@@ -178,11 +177,19 @@ if VERSION ≥ v"1.6"
     !!! Note
         This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
     """
-    Base.cispi(q::Quaternion) = extend_analytic(cispi, q)
+    function Base.cispi(q::Quaternion)
+        Base.depwarn("`cispi(::Quaternion)` is deprecated and will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cispi)
+        extend_analytic(cispi, q)
+    end
+end
+
+function Base.cis(q::Quaternion)
+    Base.depwarn("`cis(::Quaternion)` is deprecated and will be removed in the next breaking release. See https://github.com/JuliaGeometry/Quaternions.jl/pull/76 for more information.", :cis)
+    extend_analytic(cis, q)
 end
 
 for f in (
-    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p, :cis,
+    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
     :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
     :csc, :sec, :cot, :acsc, :asec, :acot, :csch, :sech, :coth, :acsch, :asech, :acoth,
     :sinpi, :cospi,
@@ -349,8 +356,6 @@ function slerp(qa::Quaternion{Ta}, qb::Quaternion{Tb}, t::T) where {Ta, Tb, T}
     S = promote_type(Ta,Tb,T)
     return slerp(Quaternion{S}(qa),Quaternion{S}(qb),S(t))
 end
-
-Base.@deprecate linpol(p::Quaternion, q::Quaternion, t::Real) slerp(p, q, t)
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     isreal(a) && return sylvester(real(a), b, c)

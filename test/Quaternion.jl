@@ -178,7 +178,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         qnorm = normalize(q)
         @test real(q) === q.s
         @test_throws MethodError imag(q)
-        @test @test_deprecated(Quaternions.imag(q)) == [q.v1, q.v2, q.v3]
         @test imag_part(q) === (q.v1, q.v2, q.v3)
         @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
         @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, true)
@@ -410,8 +409,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 ]
                     @test f(q) ≈ finv(inv(q))
                 end
-                @test cis(q) ≈ exp(normalize(q - real(q)) * q)
-                VERSION ≥ v"1.6" && @test cispi(q) ≈ cis(π * q)
+                @test @test_deprecated(cis(q)) ≈ exp(normalize(q - real(q)) * q)
+                VERSION ≥ v"1.6" && @test @test_deprecated(cispi(q)) ≈ cis(π * q)
             end
         end
 
@@ -592,7 +591,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             end
         end
 
-        @testset "slerp/linpol" begin
+        @testset "slerp" begin
             @testset "q1=1" begin
                 a = quat(1, 0, 0, 0.0, true)
                 b = quat(0, 0, 0, 1.0, true)
@@ -617,9 +616,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test slerp(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
                     @test slerp(q1, q1, 0.5) ≈ q1
                     @test slerp(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
-                    @test linpol(q1, q2, 0.5) ≈ qrotation(ax, 0.5 * θ)
-                    @test linpol(q1, q1, 0.5) ≈ q1
-                    @test linpol(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
                 end
             end
 
@@ -629,7 +625,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     ⊗(s, t) = s * t * inv(s)
                     t = rand()
                     @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
-                    @test q ⊗ linpol(q1, q2, t) ≈ linpol(q ⊗ q1, q ⊗ q2, t)
                 end
             end
 
@@ -644,10 +639,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @testset "DomainError" begin
                 @test_throws DomainError slerp(quat(1),quat(0),1)
                 @test_throws DomainError slerp(quat(0),quat(1),0)
-            end
-
-            @testset "Deprecated warning" begin
-                @test_deprecated linpol(quat(1),quat(1),0)
             end
 
             @testset "Normalizing input quaternions" begin

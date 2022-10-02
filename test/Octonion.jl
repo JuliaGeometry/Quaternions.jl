@@ -77,6 +77,12 @@ using Test
             Octonion(1, 0, 0, 0, 0, 0, 0, 0, true) # test that .norm field does not affect equality
     end
 
+    @testset "deprecated warning" begin
+        @test_deprecated Octonion(1, 2, 3, 4, 5, 6, 7, 8)
+        @test_deprecated Octonion{Int}(1, 2, 3, 4, 5, 6, 7, 8, false)
+        @test_deprecated Octonion{Float64}(1, 2, 3, 4, 5, 6, 7, 8, false)
+    end
+
     @testset "convert" begin
         @test convert(Octonion{Float64}, 1) === Octonion(1.0)
         @test convert(Octonion{Float64}, Complex(1, 2)) ===
