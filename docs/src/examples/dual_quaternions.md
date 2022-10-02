@@ -63,13 +63,7 @@ function tangent(d::DualQuaternion)
     )
 end
 
-function Base.conj(d::DualQuaternion, type::Int)
-    type == 1 && return conj(d)
-    type == 2 && return dualquat(primal(d), -tangent(d))
-    de = tangent(d)
-    type == 3 && return dualquat(conj(primal(d)), quat(-de.s, imag_part(de)...))
-    throw(ArgumentError("type=$type is not recognized. type must be in {1,2,3}."))
-end
+dualconj(d::DualQuaternion) = dualquat(conj(primal(d)), quat(-de.s, imag_part(de)...))
 
 rotation_part(d::DualQuaternion) = primal(d)
 
@@ -84,7 +78,7 @@ end
 
 function transform(d::DualQuaternion, p::AbstractVector)
     dp = dualquat(true, purequat(p))
-    dpnew = d * dp * conj(d, 3)
+    dpnew = d * dp * dualconj(d)
     pnew_parts = imag_part(tangent(dpnew))
     pnew = similar(p, eltype(pnew_parts))
     pnew .= pnew_parts
