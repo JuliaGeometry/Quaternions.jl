@@ -63,7 +63,10 @@ function tangent(d::DualQuaternion)
     )
 end
 
-dualconj(d::DualQuaternion) = dualquat(conj(primal(d)), quat(-de.s, imag_part(de)...))
+function dualconj(d::DualQuaternion)
+    de = tangent(d)
+    return dualquat(conj(primal(d)), quat(-real(de), imag_part(de)...))
+end
 
 rotation_part(d::DualQuaternion) = primal(d)
 
