@@ -121,7 +121,7 @@ Here's how we use dual quaternions to transform a point:
 p = randn(3)
 ```
 
-```@example
+```@example dualquat
 transform(x, p)
 ```
 
