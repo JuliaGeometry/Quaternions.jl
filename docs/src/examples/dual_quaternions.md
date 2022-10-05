@@ -156,14 +156,14 @@ Conveniently, we can do this using the exact same `slerp` implementation.
 y = sign(randdualquat())
 ```
 
-```@example dualquat
+```@repl dualquat
 slerp(x, y, 0) ≈ x
 ```
 
-```@example dualquat
+```@repl dualquat
 slerp(x, y, 1) ≈ y
 ```
 
-```@example dualquat
+```@repl dualquat
 slerp(x, y, 0.3)
 ```
