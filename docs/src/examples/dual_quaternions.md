@@ -155,10 +155,6 @@ For unit quaternions, spherical linear interpolation with [`slerp`](@ref) can be
 Similarly, we can interpolate between unit dual quaternions to plan motion between two rigid poses.
 Conveniently, we can do this using the exact same `slerp` implementation.
 
-```@example dualquat
-y = sign(randdualquat())
-```
-
 ```@repl dualquat
 slerp(x, y, 0) ≈ x
 ```
