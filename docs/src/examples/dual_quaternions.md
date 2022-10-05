@@ -28,7 +28,7 @@ Without any special glue code, we can construct a dual quaternion by composing `
 First let's load the packages:
 
 ```@example dualquat
-using ForwardDiff, Quaternions, Random
+using Quaternions, ForwardDiff, Random
 ```
 
 Then we'll create some utility types/functions:
@@ -107,24 +107,24 @@ nothing  # hide
 ## Example: transforming a point
 
 Now we'll create a dual quaternion.
-```@example dualquat
+```@repl dualquat
 x = sign(randdualquat())
 ```
 
 `sign(q) == q / abs(q)` both normalizes the primal part of the dual quaternion and makes the tangent part perpendicular to it.
 
-```@example dualquat
+```@repl dualquat
 abs(primal(x)) ≈ 1
 isapprox(real(primal(x)' * tangent(x)), 0; atol=1e-10)
 ```
 
 Here's how we use dual quaternions to transform a point:
 
-```@example dualquat
+```@repl dualquat
 p = randn(3)
 ```
 
-```@example dualquat
+```@repl dualquat
 transform(x, p)
 ```
 
@@ -134,6 +134,18 @@ We can check that this gives the same result as transforming with an affine tran
 transform(x, p) ≈ (transformationmatrix(x) * vcat(p, 1))[1:3]
 ```
 
+## Example: homomorphism from dual quaternions to matrices
+
+```@repl dualquat
+y = sign(randdualquat())
+```
+
+```@repl dualquat
+X = transformationmatrix(x)
+Y = transformationmatrix(y)
+XY = transformationmatrix(x*y)
+X*Y ≈ XY
+```
 ## Example: motion planning
 
 For unit quaternions, spherical linear interpolation with [`slerp`](@ref) can be used to interpolate between two rotations with unit quaternions, which can be used to plan motion between two orientations.
