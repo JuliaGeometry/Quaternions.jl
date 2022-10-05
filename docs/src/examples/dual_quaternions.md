@@ -128,9 +128,16 @@ p = randn(3)
 transform(x, p)
 ```
 
+## Example: homomorphism from unit dual quaternions to the transformation matrices
 
+Each unit dual quaternion can be mapped to an affine transformation matrix ``T``.
+``T`` can be used to transform a vector ``p`` like this:
 
-## Example: homomorphism from dual quaternions to matrices
+```math
+T \begin{pmatrix} p \\ 1\end{pmatrix} = \begin{pmatrix} R & t \\ 0^\mathrm{T} & 1\end{pmatrix} \begin{pmatrix} p \\ 1\end{pmatrix} = \begin{pmatrix} Rp + t \\ 1\end{pmatrix},
+```
+where ``R`` is a rotation matrix, and ``t`` is a translation vector.
+Our helper function `transformationmatrix` maps from a unit dual quaternion to such an affine matrix.
 
 ```@repl dualquat
 y = sign(randdualquat())
