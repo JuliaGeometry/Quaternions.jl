@@ -106,7 +106,7 @@ nothing  # hide
 
 ## Example: transforming a point
 
-Now we'll create a dual quaternion.
+Now we'll create a unit dual quaternion.
 ```@repl dualquat
 x = sign(randdualquat())
 ```
