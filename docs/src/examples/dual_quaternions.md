@@ -128,11 +128,7 @@ p = randn(3)
 transform(x, p)
 ```
 
-We can check that this gives the same result as transforming with an affine transformation matrix:
 
-```@example dualquat
-transform(x, p) ≈ (transformationmatrix(x) * vcat(p, 1))[1:3]
-```
 
 ## Example: homomorphism from dual quaternions to matrices
 
@@ -146,6 +142,13 @@ Y = transformationmatrix(y)
 XY = transformationmatrix(x*y)
 X*Y ≈ XY
 ```
+
+We can check that our transformation using the unit dual quaternion gives the same result as transforming with an affine transformation matrix:
+
+```@repl dualquat
+transform(x, p) ≈ (X * vcat(p, 1))[1:3]
+```
+
 ## Example: motion planning
 
 For unit quaternions, spherical linear interpolation with [`slerp`](@ref) can be used to interpolate between two rotations with unit quaternions, which can be used to plan motion between two orientations.
