@@ -21,7 +21,7 @@ Without any special glue code, we can construct a dual quaternion by composing `
 
 !!! note
     Previously this package contained a specialized `DualQuaternion` type.
-    This was removed in v0.6.0 because offered nothing extra over composing [ForwardDiff](https://github.com/JuliaDiff/ForwardDiff.jl) and Quaternions.
+    This was removed in v0.6.0 because it offered nothing extra over composing [ForwardDiff](https://github.com/JuliaDiff/ForwardDiff.jl) and Quaternions.
 
 ## Utility functions
 
