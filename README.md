@@ -30,8 +30,6 @@ Implemented functions are:
     log2
     log10
     log1p
-    cis
-    cispi
     sin
     cos
     tan
