@@ -7,57 +7,7 @@ A Julia implementation of quaternions.
 [![codecov](https://codecov.io/gh/JuliaGeometry/Quaternions.jl/branch/master/graph/badge.svg?token=dJBiR91dCD)](https://codecov.io/gh/JuliaGeometry/Quaternions.jl)
 
 [Quaternions](http://en.wikipedia.org/wiki/Quaternion) are best known for their suitability
-as representations of 3D rotational orientation. They can also be viewed as an extension of complex numbers.
+as representations of 3D rotational orientation.
+They can also be viewed as an extension of complex numbers.
 
-Implemented functions are:
-
-    +-*/^
-    real
-    imag_part  (tuple)
-    conj
-    abs
-    abs2
-    normalize
-    normalizea  (return normalized quaternion and absolute value as a pair)
-    angleaxis  (taken as an orientation, return the angle and axis (3 vector) as a tuple)
-    angle
-    axis
-    sqrt
-    exp
-    exp2
-    exp10
-    expm1
-    log2
-    log10
-    log1p
-    sin
-    cos
-    tan
-    asin
-    acos
-    atan
-    sinh
-    cosh
-    tanh
-    asinh
-    acosh
-    atanh
-    csc
-    sec
-    cot
-    acsc
-    asec
-    acot
-    csch
-    sech
-    coth
-    acsch
-    asech
-    acoth
-    sinpi
-    cospi
-    sincos
-    sincospi
-    slerp
-    rand
-    randn
+In JuliaGeometry organization, there is also [Octonions.jl](https://github.com/JuliaGeometry/Octonions.jl).
