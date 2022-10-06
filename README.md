@@ -10,4 +10,4 @@ A Julia implementation of quaternions.
 as representations of 3D rotational orientation.
 They can also be viewed as an extension of complex numbers.
 
-In JuliaGeometry organization, there is also [Octonions.jl](https://github.com/JuliaGeometry/Octonions.jl).
+In JuliaGeometry organization, there is also [Octonions.jl](https://github.com/JuliaGeometry/Octonions.jl) package.
