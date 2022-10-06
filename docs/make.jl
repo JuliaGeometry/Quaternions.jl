@@ -14,6 +14,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Examples" => ["examples/dual_quaternions.md"],
     ],
 )
 

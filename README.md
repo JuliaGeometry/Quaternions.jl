@@ -1,5 +1,5 @@
 # Quaternions.jl
-A Julia module with quaternion, octonion and dual-quaternion functionality
+A Julia implementation of quaternions.
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaGeometry.github.io/Quaternions.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaGeometry.github.io/Quaternions.jl/dev)
@@ -62,5 +62,5 @@ Implemented functions are:
     rand
     randn
 
-Currently, this package supports `DualQuaternion` and `Octonion` types, but these will be removed in the next breaking release.
-See https://github.com/JuliaGeometry/Quaternions.jl/issues/90 and https://github.com/JuliaGeometry/Quaternions.jl/pull/92 for more information.
+Currently, this package supports the `Octonion` type, but this will be removed in the next breaking release.
+See https://github.com/JuliaGeometry/Quaternions.jl/issues/90 for more information.
