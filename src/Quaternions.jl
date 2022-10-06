@@ -18,7 +18,6 @@ module Quaternions
     QuaternionF32,
     QuaternionF64
   export quat
-  export octo
   export imag_part
   export angleaxis
   export angle
