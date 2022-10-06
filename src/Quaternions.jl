@@ -26,7 +26,6 @@ module Quaternions
   export normalizea
   export quatrand
   export nquatrand
-  export octorand
   export qrotation
   export rotationmatrix
   export slerp
