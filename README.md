@@ -61,6 +61,3 @@ Implemented functions are:
     slerp
     rand
     randn
-
-Currently, this package supports the `Octonion` type, but this will be removed in the next breaking release.
-See https://github.com/JuliaGeometry/Quaternions.jl/issues/90 for more information.

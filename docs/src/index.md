@@ -1,6 +1,6 @@
 # Quaternions.jl
 
-A Julia package implementing [quaternions](https://en.wikipedia.org/wiki/Quaternion) and [octonions](https://en.wikipedia.org/wiki/Octonion).
+A Julia package implementing [quaternions](https://en.wikipedia.org/wiki/Quaternion).
 
 !!! note "Documentation"
     The documentation is still work in progress.

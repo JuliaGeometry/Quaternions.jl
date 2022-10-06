@@ -10,21 +10,14 @@ module Quaternions
   using LinearAlgebra: cross, dot
   using Random
 
-  Base.@irrational INV_SQRT_EIGHT 0.3535533905932737622004 sqrt(big(0.125))
 
   include("Quaternion.jl")
-  include("Octonion.jl")
 
   export Quaternion,
     QuaternionF16,
     QuaternionF32,
-    QuaternionF64,
-    Octonion,
-    OctonionF16,
-    OctonionF32,
-    OctonionF64
+    QuaternionF64
   export quat
-  export octo
   export imag_part
   export angleaxis
   export angle
@@ -33,7 +26,6 @@ module Quaternions
   export normalizea
   export quatrand
   export nquatrand
-  export octorand
   export qrotation
   export rotationmatrix
   export slerp
