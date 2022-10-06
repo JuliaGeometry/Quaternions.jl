@@ -10,7 +10,6 @@ module Quaternions
   using LinearAlgebra: cross, dot
   using Random
 
-  Base.@irrational INV_SQRT_EIGHT 0.3535533905932737622004 sqrt(big(0.125))
 
   include("Quaternion.jl")
 
