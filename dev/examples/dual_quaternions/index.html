@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Dual quaternions · Quaternions.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://JuliaGeometry.github.io/Quaternions.jl/examples/dual_quaternions/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.svg" alt="Quaternions.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Quaternions.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Examples</span><ul><li class="is-active"><a class="tocitem" href>Dual quaternions</a><ul class="internal"><li><a class="tocitem" href="#Introduction"><span>Introduction</span></a></li><li><a class="tocitem" href="#Utility-functions"><span>Utility functions</span></a></li><li><a class="tocitem" href="#Example:-transforming-a-point"><span>Example: transforming a point</span></a></li><li><a class="tocitem" href="#Example:-homomorphism-from-unit-dual-quaternions-to-the-transformation-matrices"><span>Example: homomorphism from unit dual quaternions to the transformation matrices</span></a></li><li><a class="tocitem" href="#Example:-motion-planning"><span>Example: motion planning</span></a></li></ul></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Dual quaternions</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Dual quaternions</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaGeometry/Quaternions.jl/blob/master/docs/src/examples/dual_quaternions.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Dual-quaternions"><a class="docs-heading-anchor" href="#Dual-quaternions">Dual quaternions</a><a id="Dual-quaternions-1"></a><a class="docs-heading-anchor-permalink" href="#Dual-quaternions" title="Permalink"></a></h1><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>The <a href="https://en.wikipedia.org/wiki/Dual_quaternion">dual quaternions</a> are an example of &quot;biquaternions.&quot; They can be represented equivalently either as a <a href="https://en.wikipedia.org/wiki/Dual_number">dual number</a> where both both the &quot;primal&quot; and &quot;tangent&quot; part are quaternions</p><p class="math-container">\[d = q_0 + q_e \epsilon = (s_0 + a_0 i + b_0 j + c_0 k) + (s_e + a_e i + b_e j + c_e k) \epsilon\]</p><p>or as a quaternion where the scalar part and three imaginary parts are all dual numbers</p><p class="math-container">\[d = s + ai + bj + ck = (s_0 + s_e \epsilon) + (a_0 + a_e \epsilon) i + (b_0 + b_e \epsilon) j + (c_0 + c_e \epsilon) k.\]</p><p>Like unit quaternions can compactly representation rotations in 3D space, dual quaternions can compactly represent rigid transformations (rotation with translation).</p><p>Without any special glue code, we can construct a dual quaternion by composing <code>ForwardDiff.Dual</code> and <a href="examples/@ref"><code>Quaternion</code></a>; this uses the second representation described above:</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Previously this package contained a specialized <code>DualQuaternion</code> type. This was removed in v0.6.0 because it offered nothing extra over composing <a href="https://github.com/JuliaDiff/ForwardDiff.jl">ForwardDiff</a> and Quaternions.</p></div></div><h2 id="Utility-functions"><a class="docs-heading-anchor" href="#Utility-functions">Utility functions</a><a id="Utility-functions-1"></a><a class="docs-heading-anchor-permalink" href="#Utility-functions" title="Permalink"></a></h2><p>First let&#39;s load the packages:</p><pre><code class="language-julia hljs">using Quaternions, ForwardDiff, Random</code></pre><p>Then we&#39;ll create some utility types/functions:</p><pre><code class="language-julia hljs">const DualQuaternion{T} = Quaternion{ForwardDiff.Dual{Nothing,T,1}}
+
+purequat(p::AbstractVector) = quat(false, @views(p[begin:begin+2])...)
+
+dual(x::Real, v::Real) = ForwardDiff.Dual(x, v)
+
+function dualquat(_q0::Union{Real,Quaternion}, _qe::Union{Real,Quaternion})
+    q0 = quat(_q0)
+    qe = quat(_qe)
+    Quaternion(
+        dual(real(q0), real(qe)),
+        dual.(imag_part(q0), imag_part(qe))...,
+    )
+end
+
+function primal(d::DualQuaternion)
+    return Quaternion(
+        ForwardDiff.value(real(d)),
+        ForwardDiff.value.(imag_part(d))...,
+    )
+end
+
+function tangent(d::DualQuaternion)
+    return Quaternion(
+        ForwardDiff.partials(real(d), 1),
+        ForwardDiff.partials.(imag_part(d), 1)...,
+    )
+end
+
+function dualconj(d::DualQuaternion)
+    de = tangent(d)
+    return dualquat(conj(primal(d)), quat(-real(de), imag_part(de)...))
+end
+
+rotation_part(d::DualQuaternion) = primal(d)
+
+translation_part(d::DualQuaternion) = dualquat(true, conj(rotation_part(d)) * tangent(d))
+
+# first=true returns the translation performed before the rotation: R(p+t)
+# first=false returns the translation performed after the rotation: R(p)+t
+function translation(d::DualQuaternion; first::Bool=true)
+    v = first ? primal(d)&#39; * tangent(d) : tangent(d) * primal(d)&#39;
+    return collect(2 .* imag_part(v))
+end
+
+function transform(d::DualQuaternion, p::AbstractVector)
+    dp = dualquat(true, purequat(p))
+    dpnew = d * dp * dualconj(d)
+    pnew_parts = imag_part(tangent(dpnew))
+    pnew = similar(p, eltype(pnew_parts))
+    pnew .= pnew_parts
+    return pnew
+end
+
+function transformationmatrix(d::DualQuaternion)
+    R = rotationmatrix(rotation_part(d))
+    t = translation(d; first=false)
+    T = similar(R, 4, 4)
+    T[1:3, 1:3] .= R
+    T[1:3, 4] .= t
+    T[4, 1:3] .= 0
+    T[4, 4] = 1
+    return T
+end
+
+randdualquat(rng::AbstractRNG,T=Float64) = dualquat(rand(rng, Quaternion{T}), rand(rng, Quaternion{T}))
+randdualquat(T=Float64) = randdualquat(Random.GLOBAL_RNG,T)</code></pre><h2 id="Example:-transforming-a-point"><a class="docs-heading-anchor" href="#Example:-transforming-a-point">Example: transforming a point</a><a id="Example:-transforming-a-point-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-transforming-a-point" title="Permalink"></a></h2><p>Now we&#39;ll create a unit dual quaternion.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; x = sign(randdualquat())</code><code class="nohighlight hljs ansi" style="display:block;">Quaternion{ForwardDiff.Dual{Nothing, Float64, 1}}(Dual{Nothing}(0.001794136261025567,0.6144412680566426), Dual{Nothing}(0.21686132317697898,0.4688582821581446), Dual{Nothing}(0.6364758032588776,0.038912264069001834), Dual{Nothing}(0.7401800452936927,-0.17231798418710714), false)</code></pre><p><code>sign(q) == q / abs(q)</code> both normalizes the primal part of the dual quaternion and makes the tangent part perpendicular to it.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; abs(primal(x)) ≈ 1</code><code class="nohighlight hljs ansi" style="display:block;">true</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; isapprox(real(primal(x)&#39; * tangent(x)), 0; atol=1e-10)</code><code class="nohighlight hljs ansi" style="display:block;">true</code></pre><p>Here&#39;s how we use dual quaternions to transform a point:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; p = randn(3)</code><code class="nohighlight hljs ansi" style="display:block;">3-element Vector{Float64}:
+ -1.3056171938292276
+ -2.9873485836441143
+ -0.3346517804813956</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; transform(x, p)</code><code class="nohighlight hljs ansi" style="display:block;">3-element Vector{Float64}:
+ -0.2838994801213649
+ -0.12516765248408168
+ -4.755417402925739</code></pre><h2 id="Example:-homomorphism-from-unit-dual-quaternions-to-the-transformation-matrices"><a class="docs-heading-anchor" href="#Example:-homomorphism-from-unit-dual-quaternions-to-the-transformation-matrices">Example: homomorphism from unit dual quaternions to the transformation matrices</a><a id="Example:-homomorphism-from-unit-dual-quaternions-to-the-transformation-matrices-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-homomorphism-from-unit-dual-quaternions-to-the-transformation-matrices" title="Permalink"></a></h2><p>Each unit dual quaternion can be mapped to an affine transformation matrix <span>$T$</span>. <span>$T$</span> can be used to transform a vector <span>$p$</span> like this:</p><p class="math-container">\[T \begin{pmatrix} p \\ 1\end{pmatrix} = \begin{pmatrix} R &amp; t \\ 0^\mathrm{T} &amp; 1\end{pmatrix} \begin{pmatrix} p \\ 1\end{pmatrix} = \begin{pmatrix} Rp + t \\ 1\end{pmatrix},\]</p><p>where <span>$R$</span> is a rotation matrix, and <span>$t$</span> is a translation vector. Our helper function <code>transformationmatrix</code> maps from a unit dual quaternion to such an affine matrix.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; y = sign(randdualquat())</code><code class="nohighlight hljs ansi" style="display:block;">Quaternion{ForwardDiff.Dual{Nothing, Float64, 1}}(Dual{Nothing}(0.5998124232121091,0.40876754865797355), Dual{Nothing}(0.3977100578555732,-0.1255924748087085), Dual{Nothing}(0.6699834894865296,-0.28318567950106677), Dual{Nothing}(0.1821370106716026,-0.030223037720780756), false)</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; X = transformationmatrix(x)</code><code class="nohighlight hljs ansi" style="display:block;">4×4 Matrix{Float64}:
+ -0.905936   0.273398  0.323317   -0.541771
+  0.27871   -0.189791  0.941435   -0.0131971
+  0.318749   0.942992  0.0957394  -1.49017
+  0.0        0.0       0.0         1.0</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Y = transformationmatrix(y)</code><code class="nohighlight hljs ansi" style="display:block;">4×4 Matrix{Float64}:
+  0.0358965  0.314422   0.948604  -0.413146
+  0.751414   0.617306  -0.233045  -0.909162
+ -0.658853   0.72116   -0.214102  -0.242122
+  0.0        0.0        0.0        1.0</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; XY = transformationmatrix(x*y)</code><code class="nohighlight hljs ansi" style="display:block;">4×4 Matrix{Float64}:
+ -0.040103  0.117087  -0.992312   -0.494332
+ -0.752875  0.6494     0.107052   -0.183736
+  0.656941  0.751379   0.0621089  -2.50237
+  0.0       0.0        0.0         1.0</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; X*Y ≈ XY</code><code class="nohighlight hljs ansi" style="display:block;">true</code></pre><p>We can check that our transformation using the unit dual quaternion gives the same result as transforming with an affine transformation matrix:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; transform(x, p) ≈ (X * vcat(p, 1))[1:3]</code><code class="nohighlight hljs ansi" style="display:block;">true</code></pre><h2 id="Example:-motion-planning"><a class="docs-heading-anchor" href="#Example:-motion-planning">Example: motion planning</a><a id="Example:-motion-planning-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-motion-planning" title="Permalink"></a></h2><p>For unit quaternions, spherical linear interpolation with <a href="examples/@ref"><code>slerp</code></a> can be used to interpolate between two rotations with unit quaternions, which can be used to plan motion between two orientations. Similarly, we can interpolate between unit dual quaternions to plan motion between two rigid poses. Conveniently, we can do this using the exact same <code>slerp</code> implementation.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; slerp(x, y, 0) ≈ x</code><code class="nohighlight hljs ansi" style="display:block;">true</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; slerp(x, y, 1) ≈ y</code><code class="nohighlight hljs ansi" style="display:block;">true</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; slerp(x, y, 0.3)</code><code class="nohighlight hljs ansi" style="display:block;">Quaternion{ForwardDiff.Dual{Nothing, Float64, 1}}(Dual{Nothing}(0.20356924251526534,0.5735729940596941), Dual{Nothing}(0.2962673012572133,0.28174172685519383), Dual{Nothing}(0.7018716132609644,-0.12467787296737225), Dual{Nothing}(0.6149483622272524,-0.18330778335444656), true)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Thursday 6 October 2022 06:11">Thursday 6 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
