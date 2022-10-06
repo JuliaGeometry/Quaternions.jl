@@ -89,7 +89,6 @@ julia> imag_part(Quaternion(1,2,3,4))
 ```
 """
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
-@deprecate imag(q::Quaternion) collect(imag_part(q)) false
 
 (/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 (*)(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
@@ -222,35 +221,8 @@ end
 _isexpfun(::Union{typeof(exp),typeof(exp2),typeof(exp10)}) = true
 _isexpfun(::Any) = false
 
-"""
-    cis(q::Quaternion)
-
-Return ``\\exp(u * q)``, where ``u`` is the normalized imaginary part of `q`.
-
-Let ``q = s + a u``, where ``s`` is the real part, ``u`` is a pure unit quaternion,
-and ``a \\ge 0`` is the magnitude of the imaginary part of ``q``.
-
-!!! Note
-    This is the extension of `cis(z)` for complex `z` to the quaternions and is not
-    equivalent to `exp(im * q)`. As a result, `cis(Quaternion(z)) ≠ cis(z)` when
-    `imag(z) < 0`.
-"""
-cis(q::Quaternion)
-
-if VERSION ≥ v"1.6"
-    """
-        cispi(q::Quaternion)
-
-    Compute `cis(π * q)` more accurately.
-
-    !!! Note
-        This is not equivalent to `exp(π*im*q)`. See [cis(::Quaternion)](@ref) for details.
-    """
-    Base.cispi(q::Quaternion) = extend_analytic(cispi, q)
-end
-
 for f in (
-    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p, :cis,
+    :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
     :sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
     :csc, :sec, :cot, :acsc, :asec, :acot, :csch, :sech, :coth, :acsch, :asech, :acoth,
     :sinpi, :cospi,
@@ -417,8 +389,6 @@ function slerp(qa::Quaternion{Ta}, qb::Quaternion{Tb}, t::T) where {Ta, Tb, T}
     S = promote_type(Ta,Tb,T)
     return slerp(Quaternion{S}(qa),Quaternion{S}(qb),S(t))
 end
-
-Base.@deprecate linpol(p::Quaternion, q::Quaternion, t::Real) slerp(p, q, t)
 
 function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     isreal(a) && return sylvester(real(a), b, c)
