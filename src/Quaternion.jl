@@ -30,9 +30,9 @@ Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) =
 Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
 Quaternion(a::AbstractVector) = Quaternion(0, a[1], a[2], a[3])
 
-promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
-promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
-promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
@@ -52,7 +52,7 @@ julia> real(Quaternion{Int})
 Int64
 ```
 """
-real(::Type{Quaternion{T}}) where {T} = T
+Base.real(::Type{Quaternion{T}}) where {T} = T
 
 """
     real(q::Quaternion)
@@ -72,7 +72,7 @@ julia> real([quat(5,6,7,8), 9])
  9
 ```
 """
-real(q::Quaternion) = q.s
+Base.real(q::Quaternion) = q.s
 
 """
     imag_part(q::Quaternion{T})
@@ -90,9 +90,9 @@ julia> imag_part(Quaternion(1,2,3,4))
 """
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
 
-(/)(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
-(*)(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
-(*)(x::Real, q::Quaternion) = q * x
+Base.:/(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
+Base.:*(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
+Base.:*(x::Real, q::Quaternion) = q * x
 
 """
     conj(q::Quaternion)
@@ -105,20 +105,20 @@ julia> conj(Quaternion(1,2,3,4))
 Quaternion{Int64}(1, -2, -3, -4, false)
 ```
 """
-conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
-abs(q::Quaternion) = sqrt(abs2(q))
-float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
+Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
+Base.abs(q::Quaternion) = sqrt(abs2(q))
+Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
-abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
-inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
+Base.abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
+Base.inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
 
-isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
-isfinite(q::Quaternion) = q.norm | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
-iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
-isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
-isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
+Base.isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+Base.isfinite(q::Quaternion) = q.norm | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
+Base.iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
+Base.isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
 
-function normalize(q::Quaternion)
+function LinearAlgebra.normalize(q::Quaternion)
     if (q.norm)
         return q
     end
@@ -145,15 +145,15 @@ function normalizeq(q::Quaternion)
     end
 end
 
-(-)(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, q.norm)
+Base.:-(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, q.norm)
 
-(+)(q::Quaternion, w::Quaternion) =
+Base.:+(q::Quaternion, w::Quaternion) =
     Quaternion(q.s + w.s, q.v1 + w.v1, q.v2 + w.v2, q.v3 + w.v3)
 
-(-)(q::Quaternion, w::Quaternion) =
+Base.:-(q::Quaternion, w::Quaternion) =
     Quaternion(q.s - w.s, q.v1 - w.v1, q.v2 - w.v2, q.v3 - w.v3)
 
-function (*)(q::Quaternion, w::Quaternion)
+function Base.:*(q::Quaternion, w::Quaternion)
     s  = (q.s * w.s - q.v2 * w.v2) - (q.v1 * w.v1 + q.v3 * w.v3)
     v1 = (q.s * w.v1 + q.v1 * w.s) + (q.v2 * w.v3 - q.v3 * w.v2)
     v2 = (q.s * w.v2 + q.v2 * w.s) + (q.v3 * w.v1 - q.v1 * w.v3)
@@ -161,13 +161,13 @@ function (*)(q::Quaternion, w::Quaternion)
     return Quaternion(s, v1, v2, v3, q.norm & w.norm)
 end
 
-(/)(q::Quaternion, w::Quaternion) = q * inv(w)
+Base.:/(q::Quaternion, w::Quaternion) = q * inv(w)
 
-(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
+Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
+Base.angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
 
 function axis(q::Quaternion)
     q = normalize(q)
@@ -255,7 +255,7 @@ for f in (@static(VERSION ≥ v"1.6" ? (:sincos, :sincospi) : (:sincos,)))
     end
 end
 
-function log(q::Quaternion)
+function Base.log(q::Quaternion)
     a = abs(q)
     M = abs_imag(q)
     theta = atan(M, q.s)
@@ -263,16 +263,16 @@ function log(q::Quaternion)
     return Quaternion(log(a), q.v1 * scale, q.v2 * scale, q.v3 * scale)
 end
 
-(^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
+Base.:^(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
 quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
 nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
-function rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
+function Base.rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
     Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
 end
 
-function randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
+function Base.randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
     Quaternion{T}(
         randn(rng, T) * 1//2,
         randn(rng, T) * 1//2,
@@ -390,7 +390,7 @@ function slerp(qa::Quaternion{Ta}, qb::Quaternion{Tb}, t::T) where {Ta, Tb, T}
     return slerp(Quaternion{S}(qa),Quaternion{S}(qb),S(t))
 end
 
-function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+function LinearAlgebra.sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     isreal(a) && return sylvester(real(a), b, c)
     isreal(b) && return sylvester(a, real(b), c)
     abs2a = abs2(a)
@@ -406,21 +406,21 @@ function sylvester(a::Quaternion{T}, b::Quaternion{T}, c::Quaternion{T}) where {
     end
     return x
 end
-sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a, b, c)...)
-sylvester(a::Quaternion, b::Quaternion, c::Real) = sylvester(promote(a, b, c)...)
+LinearAlgebra.sylvester(a::Quaternion, b::Quaternion, c::Quaternion) = sylvester(promote(a, b, c)...)
+LinearAlgebra.sylvester(a::Quaternion, b::Quaternion, c::Real) = sylvester(promote(a, b, c)...)
 # if either a or b commute with x, use a simpler expression
-sylvester(a::Real, b::Real, c::Quaternion) = c / -(a + b)
-sylvester(a::Real, b::Quaternion, c::Quaternion) = c / -(a + b)
-sylvester(a::Quaternion, b::Real, c::Quaternion) = -(a + b) \ c
-sylvester(a::Real, b::Quaternion, c::Real) = -c / (a + b)
-sylvester(a::Quaternion, b::Real, c::Real) = (a + b) \ -c
+LinearAlgebra.sylvester(a::Real, b::Real, c::Quaternion) = c / -(a + b)
+LinearAlgebra.sylvester(a::Real, b::Quaternion, c::Quaternion) = c / -(a + b)
+LinearAlgebra.sylvester(a::Quaternion, b::Real, c::Quaternion) = -(a + b) \ c
+LinearAlgebra.sylvester(a::Real, b::Quaternion, c::Real) = -c / (a + b)
+LinearAlgebra.sylvester(a::Quaternion, b::Real, c::Real) = (a + b) \ -c
 
-function lyap(a::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
+function LinearAlgebra.lyap(a::Quaternion{T}, c::Quaternion{T}) where {T<:Real}
     # if a commutes with c, use a simpler expression
     (isreal(a) || isreal(c)) && return c / -2real(a)
     return (c + a \ c * a) / -4real(a)
 end
-lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
+LinearAlgebra.lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
 # if a commutes with c, use a simpler expression
-lyap(a::Real, c::Quaternion) = c / -2a
-lyap(a::Quaternion, c::Real) = c / -2real(a)
+LinearAlgebra.lyap(a::Real, c::Quaternion) = c / -2a
+LinearAlgebra.lyap(a::Quaternion, c::Real) = c / -2real(a)
