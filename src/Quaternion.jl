@@ -34,6 +34,22 @@ Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
+"""
+    quat(r, [i, j, k])
+
+Convert real numbers or arrays to quaternion. `i, j, k` defaults to zero.
+
+# Examples
+```jldoctest
+julia> quat(7)
+Quaternion{Int64}(7, 0, 0, 0, false)
+
+julia> quat([1, 2, 3])  # The output will be changed in the next breaking release for consistency. (#94)
+Quaternion{Int64}(0, 1, 2, 3, false)
+```
+"""
+quat
+
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
