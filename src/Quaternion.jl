@@ -65,11 +65,6 @@ See also: [`imag_part`](@ref), [`quat`](@ref), [`isreal`](@ref).
 ```jldoctest
 julia> real(quat(1,2,3,4))
 1
-
-julia> real([quat(5,6,7,8), 9])
-2-element Vector{Int64}:
- 5
- 9
 ```
 """
 Base.real(q::Quaternion) = q.s
