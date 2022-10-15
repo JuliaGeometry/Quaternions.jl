@@ -75,6 +75,21 @@ julia> real([quat(5,6,7,8), 9])
 Base.real(q::Quaternion) = q.s
 
 """
+    real(A::AbstractArray{<:Quaternion})
+    
+Return an array containing the real part of each quaternion in `A`.
+
+# Examples
+```jldoctest
+julia> real([quat(5,6,7,8), 9])
+2-element Vector{Int64}:
+ 5
+ 9
+```
+"""
+Base.real(::AbstractArray{<:Quaternion})
+
+"""
     imag_part(q::Quaternion{T})
 
 Return the imaginary part of the quaternion `q` with type `Tuple{T,T,T}`.
