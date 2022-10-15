@@ -40,7 +40,7 @@ quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
 """
-    real(T::Type)
+    real(T::Type{<:Quaternion})
 
 Return the type that represents the real part of a value of type `T`.
 e.g: for `T == Quaternion{R}`, returns `R`.
