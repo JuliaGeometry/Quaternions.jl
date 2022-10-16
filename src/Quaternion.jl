@@ -44,7 +44,7 @@ Convert real numbers or arrays to quaternion. `i, j, k` defaults to zero.
 julia> quat(7)
 Quaternion{Int64}(7, 0, 0, 0, false)
 
-julia> quat([1, 2, 3])  # The output will be changed in the next breaking release for consistency. (#94)
+julia> quat([1, 2, 3])  # This output will be changed in the next breaking release for consistency. (#94)
 Quaternion{Int64}(0, 1, 2, 3, false)
 ```
 """
