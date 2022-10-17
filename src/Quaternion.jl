@@ -78,7 +78,7 @@ Base.real(::Type{Quaternion{T}}) where {T} = T
 
 Return the real part of the quaternion `q`.
 
-See also: [`imag_part`](@ref), [`quat`](@ref), [`isreal`](@ref).
+See also: [`imag_part`](@ref), [`quat`](@ref)
 
 # Examples
 ```jldoctest
