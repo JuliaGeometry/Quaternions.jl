@@ -106,7 +106,8 @@ Base.real(::AbstractArray{<:Quaternion})
 """
     imag_part(q::Quaternion{T}) -> NTuple{3, T}
 
-Return the imaginary part of the quaternion `q` with type `Tuple{T,T,T}`.
+Return the imaginary part of the quaternion `q`.
+
 Note that this function is different from `Base.imag` which returns `Real`.
 
 See also: [`real`](@ref), [`conj`](@ref).
