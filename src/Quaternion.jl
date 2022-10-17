@@ -104,7 +104,7 @@ julia> real([quat(5,6,7,8), 9])
 Base.real(::AbstractArray{<:Quaternion})
 
 """
-    imag_part(q::Quaternion{T})
+    imag_part(q::Quaternion{T}) -> NTuple{3, T}
 
 Return the imaginary part of the quaternion `q` with type `Tuple{T,T,T}`.
 Note that this function is different from `Base.imag` which returns `Real`.
