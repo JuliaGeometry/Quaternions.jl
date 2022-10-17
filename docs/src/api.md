@@ -1,4 +1,4 @@
-# APIs
+# API
 
 ```@docs
 Quaternion
