@@ -28,7 +28,10 @@ Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
 Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
 Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
-Quaternion(a::AbstractVector) = Quaternion(0, a[1], a[2], a[3])
+function Quaternion(a::AbstractVector)
+    Base.depwarn("`Quaternion(::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use Quaternion(0, a[1], a[2], a[3]) instead.", :Quaternion)
+    Quaternion(0, a[1], a[2], a[3])
+end
 
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
