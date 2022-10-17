@@ -1,3 +1,13 @@
+"""
+    Quaternion{T<:Real} <: Number
+
+Quaternion number type with real and imaginary parts of type `T`.
+
+`QuaternionF16`, `QuaternionF32`, and `QuaternionF64` are aliases for
+`Quaternion{Float16}`, `Quaternion{Float32}`, and `Quaternion{Float64}`, respectively.
+
+See also: [`quat`](@ref), [`real`](@ref), [`imag_part`](@ref).
+"""
 struct Quaternion{T<:Real} <: Number
     s::T
     v1::T
@@ -18,25 +28,116 @@ Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
 Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
 Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
-Quaternion(a::AbstractVector) = Quaternion(0, a[1], a[2], a[3])
+function Quaternion(a::AbstractVector)
+    Base.depwarn("`Quaternion(::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use Quaternion(0, a[1], a[2], a[3]) instead.", :Quaternion)
+    Quaternion(0, a[1], a[2], a[3])
+end
 
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+
+"""
+    quat(r, [i, j, k])
+
+Convert real numbers or arrays to quaternion. `i, j, k` defaults to zero.
+
+# Examples
+```jldoctest
+julia> quat(7)
+Quaternion{Int64}(7, 0, 0, 0, false)
+
+julia> quat(1.0, 2, 3, 4)
+QuaternionF64(1.0, 2.0, 3.0, 4.0, false)
+
+julia> quat([1, 2, 3])  # This output will be changed in the next breaking release for consistency. (#94)
+Quaternion{Int64}(0, 1, 2, 3, false)
+```
+"""
+quat
 
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
+"""
+    real(T::Type{<:Quaternion})
+
+Return the type that represents the real part of a value of type `T`.
+e.g: for `T == Quaternion{R}`, returns `R`.
+Equivalent to `typeof(real(zero(T)))`.
+
+# Examples
+```jldoctest
+julia> real(Quaternion{Int})
+Int64
+```
+"""
 Base.real(::Type{Quaternion{T}}) where {T} = T
+
+"""
+    real(q::Quaternion)
+
+Return the real part of the quaternion `q`.
+
+See also: [`imag_part`](@ref), [`quat`](@ref)
+
+# Examples
+```jldoctest
+julia> real(quat(1,2,3,4))
+1
+```
+"""
 Base.real(q::Quaternion) = q.s
+
+"""
+    real(A::AbstractArray{<:Quaternion})
+    
+Return an array containing the real part of each quaternion in `A`.
+
+# Examples
+```jldoctest
+julia> real([quat(5,6,7,8), 9])
+2-element Vector{Int64}:
+ 5
+ 9
+```
+"""
+Base.real(::AbstractArray{<:Quaternion})
+
+"""
+    imag_part(q::Quaternion{T}) -> NTuple{3, T}
+
+Return the imaginary part of the quaternion `q`.
+
+Note that this function is different from `Base.imag`, which returns `Real` for complex numbers.
+
+See also: [`real`](@ref), [`conj`](@ref).
+
+# Examples
+```jldoctest
+julia> imag_part(Quaternion(1,2,3,4))
+(2, 3, 4)
+```
+"""
 imag_part(q::Quaternion) = (q.v1, q.v2, q.v3)
 
 Base.:/(q::Quaternion, x::Real) = Quaternion(q.s / x, q.v1 / x, q.v2 / x, q.v3 / x)
 Base.:*(q::Quaternion, x::Real) = Quaternion(q.s * x, q.v1 * x, q.v2 * x, q.v3 * x)
 Base.:*(x::Real, q::Quaternion) = q * x
 
+"""
+    conj(q::Quaternion)
+
+Compute the quaternion conjugate of a quaternion `q`.
+
+# Examples
+```jldoctest
+julia> conj(Quaternion(1,2,3,4))
+Quaternion{Int64}(1, -2, -3, -4, false)
+```
+"""
 Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
 Base.abs(q::Quaternion) = sqrt(abs2(q))
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
@@ -127,9 +228,9 @@ is the extension of `f` to the quaternions, where ``z = a + s i`` is a complex a
 
 See Theorem 5 of [^Sudbery1970] for details.
 
-[^Sudbery1970]
+[^Sudbery1970]:
     Sudbery (1979). Quaternionic analysis. Mathematical Proceedings of the Cambridge
-    Philosophical Society,85, pp 199­225
+    Philosophical Society,85, pp 199225
     doi:[10.1017/S030500410005563](https://doi.org/10.1017/S0305004100055638)
 """
 function extend_analytic(f, q::Quaternion)
@@ -284,6 +385,29 @@ function rotationmatrix_normalized(q::Quaternion)
         xz - sy      yz + sx  1 - (xx + yy)]
 end
 
+"""
+    slerp(qa::Quaternion, qb::Quaternion, t::Real)
+
+Spherical linear interpolation (Slerp) between the inputs `qa` and `qb`.
+Since the input is normalized inside the function, the absolute value of the return value will be 1.
+
+# Examples
+```jldoctest
+julia> using Quaternions
+
+julia> qa = Quaternion(1,0,0,0)
+Quaternion{Int64}(1, 0, 0, 0, false)
+
+julia> qb = Quaternion(0,1,0,0)
+Quaternion{Int64}(0, 1, 0, 0, false)
+
+julia> slerp(qa, qb, 0.6)
+QuaternionF64(0.5877852522924731, 0.8090169943749475, 0.0, 0.0, true)
+
+julia> ans ≈ Quaternion(cospi(0.3), sinpi(0.3), 0, 0)
+true
+```
+"""
 @inline function slerp(qa0::Quaternion{T}, qb0::Quaternion{T}, t::T) where T<:Real
     # http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
     iszero(qa0) && throw(DomainError(qa0, "The input quaternion must be non-zero."))

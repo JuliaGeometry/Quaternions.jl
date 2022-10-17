@@ -111,6 +111,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test quat(1, 2, 3, 4, true).norm == true # respect the .norm input (even if wrong)
         @test quat(1, [2, 3, 4]) === Quaternion(1, 2, 3, 4)
         @test quat([2, 3, 4]) === Quaternion(0, 2, 3, 4)
+        @test_deprecated quat([2, 3, 4])
     end
 
     @testset "random generation" begin
