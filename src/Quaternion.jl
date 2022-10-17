@@ -108,7 +108,7 @@ Base.real(::AbstractArray{<:Quaternion})
 
 Return the imaginary part of the quaternion `q`.
 
-Note that this function is different from `Base.imag` which returns `Real`.
+Note that this function is different from `Base.imag`, which returns `Real` for complex numbers.
 
 See also: [`real`](@ref), [`conj`](@ref).
 
