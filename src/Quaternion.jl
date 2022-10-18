@@ -13,7 +13,6 @@ struct Quaternion{T<:Real} <: Number
     v1::T
     v2::T
     v3::T
-    norm::Bool
 end
 
 const QuaternionF16 = Quaternion{Float16}
@@ -22,11 +21,10 @@ const QuaternionF64 = Quaternion{Float64}
 
 Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 Quaternion{T}(x::Complex) where {T<:Real} = Quaternion(convert(Complex{T}, x))
-Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
-Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
-    Quaternion(promote(s, v1, v2, v3)..., n)
-Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
-Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
+Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3)
+Quaternion(s::Real, v1::Real, v2::Real, v3::Real) = Quaternion(promote(s, v1, v2, v3)...)
+Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x))
+Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re))
 Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
 function Quaternion(a::AbstractVector)
     Base.depwarn("`Quaternion(::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use Quaternion(0, a[1], a[2], a[3]) instead.", :Quaternion)
@@ -45,13 +43,13 @@ Convert real numbers or arrays to quaternion. `i, j, k` defaults to zero.
 # Examples
 ```jldoctest
 julia> quat(7)
-Quaternion{Int64}(7, 0, 0, 0, false)
+Quaternion{Int64}(7, 0, 0, 0)
 
 julia> quat(1.0, 2, 3, 4)
-QuaternionF64(1.0, 2.0, 3.0, 4.0, false)
+QuaternionF64(1.0, 2.0, 3.0, 4.0)
 
 julia> quat([1, 2, 3])  # This output will be changed in the next breaking release for consistency. (#94)
-Quaternion{Int64}(0, 1, 2, 3, false)
+Quaternion{Int64}(0, 1, 2, 3)
 ```
 """
 quat
@@ -135,50 +133,41 @@ Compute the quaternion conjugate of a quaternion `q`.
 # Examples
 ```jldoctest
 julia> conj(Quaternion(1,2,3,4))
-Quaternion{Int64}(1, -2, -3, -4, false)
+Quaternion{Int64}(1, -2, -3, -4)
 ```
 """
-Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
+Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
 Base.abs(q::Quaternion) = sqrt(abs2(q))
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
 Base.abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
-Base.inv(q::Quaternion) = q.norm ? conj(q) : conj(q) / abs2(q)
+Base.inv(q::Quaternion) = conj(q) / abs2(q)
 
 Base.isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
-Base.isfinite(q::Quaternion) = q.norm | (isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3))
-Base.iszero(q::Quaternion) = ~q.norm & iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
+Base.isfinite(q::Quaternion) = isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3)
+Base.iszero(q::Quaternion) = iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
 Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
-Base.isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
+Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 
-function LinearAlgebra.normalize(q::Quaternion)
-    if (q.norm)
-        return q
-    end
-    q = q / abs(q)
-    Quaternion(q.s, q.v1, q.v2, q.v3, true)
-end
+LinearAlgebra.normalize(q::Quaternion) = sign(q)
 
 function normalizea(q::Quaternion)
-    if (q.norm)
-        return (q, one(q.s))
-    end
     a = abs(q)
     q = q / a
-    (Quaternion(q.s, q.v1, q.v2, q.v3, true), a)
+    (Quaternion(q.s, q.v1, q.v2, q.v3), a)
 end
 
 function normalizeq(q::Quaternion)
     a = abs(q)
     if a > 0
         q = q / a
-        Quaternion(q.s, q.v1, q.v2, q.v3, true)
+        Quaternion(q.s, q.v1, q.v2, q.v3)
     else
-        Quaternion(0.0, 1.0, 0.0, 0.0, true)
+        Quaternion(0.0, 1.0, 0.0, 0.0)
     end
 end
 
-Base.:-(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3, q.norm)
+Base.:-(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3)
 
 Base.:+(q::Quaternion, w::Quaternion) =
     Quaternion(q.s + w.s, q.v1 + w.v1, q.v2 + w.v2, q.v3 + w.v3)
@@ -191,12 +180,12 @@ function Base.:*(q::Quaternion, w::Quaternion)
     v1 = (q.s * w.v1 + q.v1 * w.s) + (q.v2 * w.v3 - q.v3 * w.v2)
     v2 = (q.s * w.v2 + q.v2 * w.s) + (q.v3 * w.v1 - q.v1 * w.v3)
     v3 = (q.s * w.v3 + q.v3 * w.s) + (q.v1 * w.v2 - q.v2 * w.v1)
-    return Quaternion(s, v1, v2, v3, q.norm & w.norm)
+    return Quaternion(s, v1, v2, v3)
 end
 
 Base.:/(q::Quaternion, w::Quaternion) = q * inv(w)
 
-Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3) # ignore .norm field
+Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
@@ -240,19 +229,15 @@ function extend_analytic(f, q::Quaternion)
     w = f(z)
     wr, wi = reim(w)
     scale = wi / a
-    norm = _isexpfun(f) && iszero(s)
     if a > 0
-        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3, norm)
+        return Quaternion(wr, scale * q.v1, scale * q.v2, scale * q.v3)
     else
         # q == real(q), so f(real(q)) may be real or complex, i.e. wi may be nonzero.
         # we choose to embed complex numbers in the quaternions by identifying the first
         # imaginary quaternion basis with the complex imaginary basis.
-        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale), norm)
+        return Quaternion(wr, oftype(scale, wi), zero(scale), zero(scale))
     end
 end
-
-_isexpfun(::Union{typeof(exp),typeof(exp2),typeof(exp10)}) = true
-_isexpfun(::Any) = false
 
 for f in (
     :sqrt, :exp, :exp2, :exp10, :expm1, :log2, :log10, :log1p,
@@ -302,7 +287,7 @@ quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), ra
 nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
 
 function Base.rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
-    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T), false)
+    Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T))
 end
 
 function Base.randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
@@ -311,7 +296,6 @@ function Base.randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractF
         randn(rng, T) * 1//2,
         randn(rng, T) * 1//2,
         randn(rng, T) * 1//2,
-        false,
     )
 end
 
@@ -328,7 +312,7 @@ function qrotation(axis::AbstractVector{T}, theta) where {T <: Real}
     end
     s,c = sincos(theta / 2)
     scaleby = s / normaxis
-    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3], true)
+    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3])
 end
 
 # Variant of the above where norm(rotvec) encodes theta
@@ -339,7 +323,7 @@ function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
     theta = norm(rotvec)
     s,c = sincos(theta / 2)
     scaleby = s / (iszero(theta) ? one(theta) : theta)
-    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3], true)
+    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3])
 end
 
 function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
@@ -363,9 +347,9 @@ function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
         a,b,c = (dcm[2,1]-dcm[1,2])/4d, (dcm[1,3]+dcm[3,1])/4d, (dcm[3,2]+dcm[2,3])/4d
     end
     if a > 0
-        return Quaternion(a,b,c,d,true)
+        return Quaternion(a,b,c,d)
     else
-        return Quaternion(-a,-b,-c,-d,true)
+        return Quaternion(-a,-b,-c,-d)
     end
 end
 
@@ -396,13 +380,13 @@ Since the input is normalized inside the function, the absolute value of the ret
 julia> using Quaternions
 
 julia> qa = Quaternion(1,0,0,0)
-Quaternion{Int64}(1, 0, 0, 0, false)
+Quaternion{Int64}(1, 0, 0, 0)
 
 julia> qb = Quaternion(0,1,0,0)
-Quaternion{Int64}(0, 1, 0, 0, false)
+Quaternion{Int64}(0, 1, 0, 0)
 
 julia> slerp(qa, qb, 0.6)
-QuaternionF64(0.5877852522924731, 0.8090169943749475, 0.0, 0.0, true)
+QuaternionF64(0.5877852522924731, 0.8090169943749475, 0.0, 0.0)
 
 julia> ans ≈ Quaternion(cospi(0.3), sinpi(0.3), 0, 0)
 true
@@ -437,7 +421,6 @@ true
         qa.v1 * ratio_a + qb.v1 * ratio_b,
         qa.v2 * ratio_a + qb.v2 * ratio_b,
         qa.v3 * ratio_a + qb.v3 * ratio_b,
-        true
     )
 end
 
