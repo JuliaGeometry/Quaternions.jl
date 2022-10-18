@@ -149,6 +149,14 @@ Base.iszero(q::Quaternion) = iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & isz
 Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
 Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 
+# included strictly for documentation; the base implementation is sufficient
+"""
+    sign(q::Quaternion) -> Quaternion
+
+Return zero if `q==0` and `q/|q|` otherwise
+"""
+sign(::Quaternion)
+
 function sign_abs(q::Quaternion)
     a = abs(q)
     qnew = q / a
