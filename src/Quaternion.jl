@@ -157,6 +157,11 @@ Return zero if `q==0` and `q/|q|` otherwise
 """
 sign(::Quaternion)
 
+"""
+    sign_abs(q::Quaternion) -> (Quaternion, Real)
+
+Return a tuple equal to `(sign(q), abs(q))`.
+"""
 function sign_abs(q::Quaternion)
     a = abs(q)
     qnew = q / a
