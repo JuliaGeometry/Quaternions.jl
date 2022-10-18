@@ -462,7 +462,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test q ≈ a * qnorm
             @test all(sign_abs(qnorm) .≈ (qnorm, one(real(q))))
         end
-        @test_broken @inferred(sign_abs(Quaternion(1, 2, 3, 4)))
+        @inferred(sign_abs(Quaternion(1, 2, 3, 4)))
     end
 
     @testset "Quaternions.normalizeq" begin

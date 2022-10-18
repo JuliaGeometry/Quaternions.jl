@@ -151,8 +151,9 @@ Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 
 function sign_abs(q::Quaternion)
     a = abs(q)
-    q = q / a
-    (Quaternion(q.s, q.v1, q.v2, q.v3), a)
+    qnew = q / a
+    iszero(a) && return (zero(qnew), a)
+    return (qnew, a)
 end
 
 Base.@deprecate normalizea(q::Quaternion) sign_abs(q)
