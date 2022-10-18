@@ -16,10 +16,10 @@ module Quaternions
   export angleaxis
   export angle
   export axis
-  export normalizea
   export quatrand
   export nquatrand
   export qrotation
   export rotationmatrix
+  export sign_abs
   export slerp
 end

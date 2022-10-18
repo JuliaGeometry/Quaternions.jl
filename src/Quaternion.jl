@@ -149,11 +149,13 @@ Base.iszero(q::Quaternion) = iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & isz
 Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
 Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 
-function normalizea(q::Quaternion)
+function sign_abs(q::Quaternion)
     a = abs(q)
     q = q / a
     (Quaternion(q.s, q.v1, q.v2, q.v3), a)
 end
+
+Base.@deprecate normalizea(q::Quaternion) sign_abs(q)
 
 function normalizeq(q::Quaternion)
     a = abs(q)

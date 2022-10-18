@@ -452,17 +452,17 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test_broken @inferred(sign(Quaternion(1, 2, 3, 4)))
     end
 
-    @testset "normalizea" begin
+    @testset "sign_abs" begin
         for _ in 1:100
             q = quatrand()
-            qnorm, a = @inferred normalizea(q)
+            qnorm, a = @inferred sign_abs(q)
             @test abs(qnorm) ≈ 1
             @test a isa Real
             @test a ≈ abs(q)
             @test q ≈ a * qnorm
-            @test all(normalizea(qnorm) .≈ (qnorm, one(real(q))))
+            @test all(sign_abs(qnorm) .≈ (qnorm, one(real(q))))
         end
-        @test_broken @inferred(normalizea(Quaternion(1, 2, 3, 4)))
+        @test_broken @inferred(sign_abs(Quaternion(1, 2, 3, 4)))
     end
 
     @testset "Quaternions.normalizeq" begin
