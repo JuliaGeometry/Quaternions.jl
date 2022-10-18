@@ -158,7 +158,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "basic" begin
         q = randn(QuaternionF64)
-        qnorm = normalize(q)
+        qnorm = sign(q)
         @test real(q) === q.s
         @test_throws MethodError imag(q)
         @test imag_part(q) === (q.v1, q.v2, q.v3)
@@ -441,15 +441,15 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
-    @testset "normalize" begin
+    @testset "sign" begin
         for _ in 1:100
             q = quatrand()
-            qnorm = @inferred normalize(q)
+            qnorm = @inferred sign(q)
             @test abs(qnorm) ≈ 1
             @test q ≈ abs(q) * qnorm
-            @test normalize(qnorm) ≈ qnorm
+            @test sign(qnorm) ≈ qnorm
         end
-        @test_broken @inferred(normalize(Quaternion(1, 2, 3, 4)))
+        @test_broken @inferred(sign(Quaternion(1, 2, 3, 4)))
     end
 
     @testset "normalizea" begin
@@ -468,7 +468,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     @testset "Quaternions.normalizeq" begin
         for _ in 1:100
             q = quatrand()
-            @test Quaternions.normalizeq(q) ≈ normalize(q)
+            @test Quaternions.normalizeq(q) ≈ sign(q)
         end
         @test Quaternions.normalizeq(zero(QuaternionF64)) == im
         @test_broken @inferred(Quaternions.normalizeq(Quaternion(1, 2, 3, 4)))

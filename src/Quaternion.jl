@@ -149,8 +149,6 @@ Base.iszero(q::Quaternion) = iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & isz
 Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
 Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 
-LinearAlgebra.normalize(q::Quaternion) = sign(q)
-
 function normalizea(q::Quaternion)
     a = abs(q)
     q = q / a
@@ -192,7 +190,7 @@ angleaxis(q::Quaternion) = angle(q), axis(q)
 Base.angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
 
 function axis(q::Quaternion)
-    q = normalize(q)
+    q = sign(q)
     s = sin(angle(q) / 2)
     abs(s) > 0 ?
         [q.v1, q.v2, q.v3] / s :
@@ -284,7 +282,7 @@ end
 Base.:^(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
 quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
-nquatrand(rng = Random.GLOBAL_RNG) = normalize(quatrand(rng))
+nquatrand(rng = Random.GLOBAL_RNG) = sign(quatrand(rng))
 
 function Base.rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
     Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T))
@@ -358,7 +356,7 @@ function qrotation(dcm::AbstractMatrix{T}, qa::Quaternion) where {T<:Real}
     abs(q-qa) < abs(q+qa) ? q : -q
 end
 
-rotationmatrix(q::Quaternion) = rotationmatrix_normalized(normalize(q))
+rotationmatrix(q::Quaternion) = rotationmatrix_normalized(sign(q))
 
 function rotationmatrix_normalized(q::Quaternion)
     sx, sy, sz = 2q.s * q.v1, 2q.s * q.v2, 2q.s * q.v3

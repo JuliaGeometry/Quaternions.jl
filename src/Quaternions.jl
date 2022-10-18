@@ -16,7 +16,6 @@ module Quaternions
   export angleaxis
   export angle
   export axis
-  export normalize
   export normalizea
   export quatrand
   export nquatrand
