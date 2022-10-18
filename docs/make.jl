@@ -20,5 +20,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/JuliaGeometry/Quaternions.jl",
+    repo="github.com/JuliaGeometry/Quaternions.jl", devbranch="main",
 )

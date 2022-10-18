@@ -6,7 +6,7 @@ A Julia package implementing [quaternions](https://en.wikipedia.org/wiki/Quatern
     The documentation is still work in progress.
     For more information, see also
     * [README in the repository](https://github.com/JuliaGeometry/Quaternions.jl)
-    * [Tests in the repository](https://github.com/JuliaGeometry/Quaternions.jl/tree/master/test)
+    * [Tests in the repository](https://github.com/JuliaGeometry/Quaternions.jl/tree/main/test)
     Feel free to [open pull requests](https://github.com/JuliaGeometry/Quaternions.jl/pulls) and improve this document!
 
 ## Installation
