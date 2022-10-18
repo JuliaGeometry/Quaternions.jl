@@ -166,16 +166,6 @@ end
 
 Base.@deprecate normalizea(q::Quaternion) sign_abs(q)
 
-function normalizeq(q::Quaternion)
-    a = abs(q)
-    if a > 0
-        q = q / a
-        Quaternion(q.s, q.v1, q.v2, q.v3)
-    else
-        Quaternion(0.0, 1.0, 0.0, 0.0)
-    end
-end
-
 Base.:-(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3)
 
 Base.:+(q::Quaternion, w::Quaternion) =
@@ -208,7 +198,12 @@ function axis(q::Quaternion)
         [1.0, 0.0, 0.0]
 end
 
-argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
+function argq(q::Quaternion)
+    a = abs(q)
+    T = typeof(one(real(q)) / one(a))
+    iszero(a) && return Quaternion{T}(0, 1, 0, 0)
+    return Quaternion{T}(0, q.v1 / a, q.v2 / a, q.v3 / a)
+end
 
 """
     extend_analytic(f, q::Quaternion)

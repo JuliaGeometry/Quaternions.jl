@@ -465,15 +465,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @inferred(sign_abs(Quaternion(1, 2, 3, 4)))
     end
 
-    @testset "Quaternions.normalizeq" begin
-        for _ in 1:100
-            q = quatrand()
-            @test Quaternions.normalizeq(q) ≈ sign(q)
-        end
-        @test Quaternions.normalizeq(zero(QuaternionF64)) == im
-        @test_broken @inferred(Quaternions.normalizeq(Quaternion(1, 2, 3, 4)))
-    end
-
     @testset "Quaternions.argq" begin
         for _ in 1:100
             q, q2 = randn(QuaternionF64, 2)
