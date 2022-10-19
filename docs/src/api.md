@@ -24,7 +24,6 @@ conj
 
 ```@docs
 sign
-sign_abs
 ```
 
 ```@docs

@@ -20,6 +20,5 @@ module Quaternions
   export nquatrand
   export qrotation
   export rotationmatrix
-  export sign_abs
   export slerp
 end
