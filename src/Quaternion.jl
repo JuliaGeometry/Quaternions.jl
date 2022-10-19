@@ -153,7 +153,7 @@ Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 """
     sign(q::Quaternion) -> Quaternion
 
-Return zero if `q==0` and `q/|q|` otherwise
+Return zero if `q==0` and `q/|q|` otherwise.
 """
 sign(::Quaternion)
 
