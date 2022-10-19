@@ -157,20 +157,6 @@ Return zero if `q==0` and `q/|q|` otherwise
 """
 sign(::Quaternion)
 
-"""
-    sign_abs(q::Quaternion) -> (Quaternion, Real)
-
-Return a tuple equal to `(sign(q), abs(q))`.
-"""
-function sign_abs(q::Quaternion)
-    a = abs(q)
-    qnew = q / a
-    iszero(a) && return (zero(qnew), a)
-    return (qnew, a)
-end
-
-Base.@deprecate normalizea(q::Quaternion) sign_abs(q)
-
 Base.:-(q::Quaternion) = Quaternion(-q.s, -q.v1, -q.v2, -q.v3)
 
 Base.:+(q::Quaternion, w::Quaternion) =
