@@ -200,9 +200,13 @@ Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-Base.angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
+function Base.angle(q::Quaternion)
+    Base.depwarn("`Base.angle(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :Base.angle)
+    2 * atan(abs_imag(q), real(q))
+end
 
 function axis(q::Quaternion)
+    Base.depwarn("`axis(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :axis)
     q = normalize(q)
     s = sin(angle(q) / 2)
     abs(s) > 0 ?
@@ -318,6 +322,7 @@ end
 ## Rotations
 
 function qrotation(axis::AbstractVector{T}, theta) where {T <: Real}
+    Base.depwarn("`qrotation(::AbstractVector)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     if length(axis) != 3
         error("Must be a 3-vector")
     end
@@ -333,6 +338,7 @@ end
 
 # Variant of the above where norm(rotvec) encodes theta
 function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
+    Base.depwarn("`qrotation(::AbstractVector)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     if length(rotvec) != 3
         error("Must be a 3-vector")
     end
@@ -343,6 +349,7 @@ function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
 end
 
 function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
+    Base.depwarn("`qrotation(::AbstractMatrix)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     # See https://arxiv.org/pdf/math/0701759.pdf
     a2 = 1 + dcm[1,1] + dcm[2,2] + dcm[3,3]
     b2 = 1 + dcm[1,1] - dcm[2,2] - dcm[3,3]
@@ -370,6 +377,7 @@ function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
 end
 
 function qrotation(dcm::AbstractMatrix{T}, qa::Quaternion) where {T<:Real}
+    Base.depwarn("`qrotation(::AbstractMatrix, ::Quaternion)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     q = qrotation(dcm)
     abs(q-qa) < abs(q+qa) ? q : -q
 end
@@ -377,6 +385,7 @@ end
 rotationmatrix(q::Quaternion) = rotationmatrix_normalized(normalize(q))
 
 function rotationmatrix_normalized(q::Quaternion)
+    Base.depwarn("`rotationmatrix_normalized(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :rotationmatrix_normalized)
     sx, sy, sz = 2q.s * q.v1, 2q.s * q.v2, 2q.s * q.v3
     xx, xy, xz = 2q.v1^2, 2q.v1 * q.v2, 2q.v1 * q.v3
     yy, yz, zz = 2q.v2^2, 2q.v2 * q.v3, 2q.v3^2
