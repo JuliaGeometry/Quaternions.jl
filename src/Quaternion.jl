@@ -21,12 +21,18 @@ const QuaternionF32 = Quaternion{Float32}
 const QuaternionF64 = Quaternion{Float64}
 
 Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
-Quaternion{T}(x::Complex) where {T<:Real} = Quaternion(convert(Complex{T}, x))
+function Quaternion{T}(x::Complex) where {T<:Real}
+    Base.depwarn("`Complex`-`Quaternion` compatibility is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+    Quaternion(convert(Complex{T}, x))
+end
 Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
     Quaternion(promote(s, v1, v2, v3)..., n)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
-Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
+function Quaternion(z::Complex)
+    Base.depwarn("`Complex`-`Quaternion` compatibility is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+    Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
+end
 function Quaternion(s::Real, a::AbstractVector)
     Base.depwarn("`Quaternion(s::Real, a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(s, a[1], a[2], a[3])` instead.", :Quaternion)
     Quaternion(s, a[1], a[2], a[3])
@@ -37,7 +43,10 @@ function Quaternion(a::AbstractVector)
 end
 
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
-Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+function Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real}
+    Base.depwarn("`Complex`-`Quaternion` compatibility is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+    Quaternion{promote_type(T, S)}
+end
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
 """
