@@ -207,7 +207,7 @@ Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
 function Base.angle(q::Quaternion)
-    Base.depwarn("`Base.angle(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :Base.angle)
+    Base.depwarn("`Base.angle(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :angle)
     2 * atan(abs_imag(q), real(q))
 end
 
