@@ -214,7 +214,10 @@ function axis(q::Quaternion)
         [1.0, 0.0, 0.0]
 end
 
-argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
+function argq(q::Quaternion)
+    Base.depwarn("`argq(q::Quaternion)` is deprecated. Use `quat(0, imag_part(q)...)` instead.", :argq)
+    normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
+end
 
 """
     extend_analytic(f, q::Quaternion)
