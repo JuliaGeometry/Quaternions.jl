@@ -189,13 +189,6 @@ function axis(q::Quaternion)
         [1.0, 0.0, 0.0]
 end
 
-function argq(q::Quaternion)
-    a = abs(q)
-    T = typeof(one(real(q)) / one(a))
-    iszero(a) && return Quaternion{T}(0, 1, 0, 0)
-    return Quaternion{T}(0, q.v1 / a, q.v2 / a, q.v3 / a)
-end
-
 """
     extend_analytic(f, q::Quaternion)
 

@@ -452,15 +452,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @inferred(sign(Quaternion(1, 2, 3, 4)))
     end
 
-    @testset "Quaternions.argq" begin
-        for _ in 1:100
-            q, q2 = randn(QuaternionF64, 2)
-            @test q2 * Quaternions.argq(q) * inv(q2) ≈ Quaternions.argq(q2 * q * inv(q2))
-            v = Quaternion(0, randn(3)...)
-            @test Quaternions.argq(v) * norm(v) ≈ v
-        end
-    end
-
     @testset "rotations" begin
         @testset "qrotation" begin
             @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
