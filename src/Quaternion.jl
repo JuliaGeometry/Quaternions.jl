@@ -152,6 +152,7 @@ Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q
 Base.isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
 
 function LinearAlgebra.normalize(q::Quaternion)
+    Base.depwarn("`LinearAlgebra.normalize(q::Quaternion)` is deprecated. Please use `sign(q)` instead.", :normalize)
     if (q.norm)
         return q
     end
@@ -160,6 +161,7 @@ function LinearAlgebra.normalize(q::Quaternion)
 end
 
 function normalizea(q::Quaternion)
+    Base.depwarn("`normalizea(q::Quaternion)` is deprecated. Please use `sign(q), abs(q)` instead.", :normalizea)
     if (q.norm)
         return (q, one(q.s))
     end
@@ -169,6 +171,7 @@ function normalizea(q::Quaternion)
 end
 
 function normalizeq(q::Quaternion)
+    Base.depwarn("`normalizeq(q::Quaternion)` is deprecated. Please use `sign(q)` instead.", :normalizea)
     a = abs(q)
     if a > 0
         q = q / a
