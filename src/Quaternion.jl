@@ -21,21 +21,44 @@ const QuaternionF32 = Quaternion{Float32}
 const QuaternionF64 = Quaternion{Float64}
 
 Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
-Quaternion{T}(x::Complex) where {T<:Real} = Quaternion(convert(Complex{T}, x))
+function Quaternion{T}(x::Complex) where {T<:Real}
+    Base.depwarn("`Complex`-`Quaternion` compatibility is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+    Quaternion(convert(Complex{T}, x))
+end
 Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3, q.norm)
-Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false) =
+function Quaternion(s::Real, v1::Real, v2::Real, v3::Real, n::Bool = false)
+    Base.depwarn("The `norm` field is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
     Quaternion(promote(s, v1, v2, v3)..., n)
+end
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x), abs(x) == one(x))
-Quaternion(z::Complex) = Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
-Quaternion(s::Real, a::AbstractVector) = Quaternion(s, a[1], a[2], a[3])
+function Quaternion(z::Complex)
+    Base.depwarn("`Complex`-`Quaternion` compatibility is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+    Quaternion(z.re, z.im, zero(z.re), zero(z.re), abs(z) == one(z.re))
+end
+function Quaternion(s::Real, a::AbstractVector)
+    Base.depwarn("`Quaternion(s::Real, a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(s, a[1], a[2], a[3])` instead.", :Quaternion)
+    Quaternion(s, a[1], a[2], a[3])
+end
 function Quaternion(a::AbstractVector)
-    Base.depwarn("`Quaternion(::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use Quaternion(0, a[1], a[2], a[3]) instead.", :Quaternion)
+    Base.depwarn("`Quaternion(a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(0, a[1], a[2], a[3])` instead.", :Quaternion)
     Quaternion(0, a[1], a[2], a[3])
 end
 
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
-Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+function Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <: Real, S <: Real}
+    Base.depwarn("`Complex`-`Quaternion` compatibility is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+    Quaternion{promote_type(T, S)}
+end
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
+
+function Base.getproperty(q::Quaternion, s::Symbol)
+    if s === :norm
+        Base.depwarn("The `norm` field is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
+        getfield(q,:norm)
+    else
+        getfield(q,s)
+    end
+end
 
 """
     quat(r, [i, j, k])
@@ -152,6 +175,7 @@ Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q
 Base.isinf(q::Quaternion) = ~q.norm & (isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
 
 function LinearAlgebra.normalize(q::Quaternion)
+    Base.depwarn("`LinearAlgebra.normalize(q::Quaternion)` is deprecated. Please use `sign(q)` instead.", :normalize)
     if (q.norm)
         return q
     end
@@ -160,6 +184,7 @@ function LinearAlgebra.normalize(q::Quaternion)
 end
 
 function normalizea(q::Quaternion)
+    Base.depwarn("`normalizea(q::Quaternion)` is deprecated. Please use `sign(q), abs(q)` instead.", :normalizea)
     if (q.norm)
         return (q, one(q.s))
     end
@@ -169,6 +194,7 @@ function normalizea(q::Quaternion)
 end
 
 function normalizeq(q::Quaternion)
+    Base.depwarn("`normalizeq(q::Quaternion)` is deprecated. Please use `sign(q)` instead.", :normalizea)
     a = abs(q)
     if a > 0
         q = q / a
@@ -200,9 +226,13 @@ Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-Base.angle(q::Quaternion) = 2 * atan(abs_imag(q), real(q))
+function Base.angle(q::Quaternion)
+    Base.depwarn("`Base.angle(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :angle)
+    2 * atan(abs_imag(q), real(q))
+end
 
 function axis(q::Quaternion)
+    Base.depwarn("`axis(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :axis)
     q = normalize(q)
     s = sin(angle(q) / 2)
     abs(s) > 0 ?
@@ -210,7 +240,10 @@ function axis(q::Quaternion)
         [1.0, 0.0, 0.0]
 end
 
-argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
+function argq(q::Quaternion)
+    Base.depwarn("`argq(q::Quaternion)` is deprecated. Use `quat(0, imag_part(q)...)` instead.", :argq)
+    normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
+end
 
 """
     extend_analytic(f, q::Quaternion)
@@ -318,6 +351,7 @@ end
 ## Rotations
 
 function qrotation(axis::AbstractVector{T}, theta) where {T <: Real}
+    Base.depwarn("`qrotation(::AbstractVector)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     if length(axis) != 3
         error("Must be a 3-vector")
     end
@@ -333,6 +367,7 @@ end
 
 # Variant of the above where norm(rotvec) encodes theta
 function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
+    Base.depwarn("`qrotation(::AbstractVector)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     if length(rotvec) != 3
         error("Must be a 3-vector")
     end
@@ -343,6 +378,7 @@ function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
 end
 
 function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
+    Base.depwarn("`qrotation(::AbstractMatrix)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     # See https://arxiv.org/pdf/math/0701759.pdf
     a2 = 1 + dcm[1,1] + dcm[2,2] + dcm[3,3]
     b2 = 1 + dcm[1,1] - dcm[2,2] - dcm[3,3]
@@ -370,6 +406,7 @@ function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
 end
 
 function qrotation(dcm::AbstractMatrix{T}, qa::Quaternion) where {T<:Real}
+    Base.depwarn("`qrotation(::AbstractMatrix, ::Quaternion)` is deprecated. Please consider using Rotations package instead.", :qrotation)
     q = qrotation(dcm)
     abs(q-qa) < abs(q+qa) ? q : -q
 end
@@ -377,6 +414,7 @@ end
 rotationmatrix(q::Quaternion) = rotationmatrix_normalized(normalize(q))
 
 function rotationmatrix_normalized(q::Quaternion)
+    Base.depwarn("`rotationmatrix_normalized(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :rotationmatrix_normalized)
     sx, sy, sz = 2q.s * q.v1, 2q.s * q.v2, 2q.s * q.v3
     xx, xy, xz = 2q.v1^2, 2q.v1 * q.v2, 2q.v1 * q.v3
     yy, yz, zz = 2q.v2^2, 2q.v2 * q.v3, 2q.v3^2
