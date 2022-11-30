@@ -168,11 +168,11 @@ Return zero if `q==0` and ``q/|q|`` otherwise.
 
 # Examples
 ```jldoctest
-julia> sign(Quaternion(4,0,0,0))
+julia> sign(Quaternion(4, 0, 0, 0))
 QuaternionF64(1.0, 0.0, 0.0, 0.0)
 
-julia> sign(Quaternion(1,1,0,0))
-QuaternionF64(0.7071067811865475, 0.7071067811865475, 0.0, 0.0)
+julia> sign(Quaternion(1, 0, 1, 0))
+QuaternionF64(0.7071067811865475, 0.0, 0.7071067811865475, 0.0)
 ```
 """
 sign(::Quaternion)
