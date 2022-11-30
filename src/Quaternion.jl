@@ -67,7 +67,6 @@ Quaternion{Int64}(0, 1, 2, 3)
 quat
 
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
-quat(p, v1, v2, v3, n) = Quaternion(p, v1, v2, v3, n)
 quat(x) = Quaternion(x)
 quat(s, a) = Quaternion(s, a)
 
@@ -103,7 +102,7 @@ Base.real(q::Quaternion) = q.s
 
 """
     real(A::AbstractArray{<:Quaternion})
-    
+
 Return an array containing the real part of each quaternion in `A`.
 
 # Examples
