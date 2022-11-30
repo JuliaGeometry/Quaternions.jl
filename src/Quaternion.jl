@@ -174,7 +174,15 @@ Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
 """
     sign(q::Quaternion) -> Quaternion
 
-Return zero if `q==0` and `q/|q|` otherwise.
+Return zero if `q==0` and ``q/|q|`` otherwise.
+
+# Examples
+```jldoctest
+julia> sign(Quaternion(4,0,0,0))
+QuaternionF64(1.0, 0.0, 0.0, 0.0)
+
+julia> sign(Quaternion(1,1,0,0))
+QuaternionF64(0.7071067811865475, 0.7071067811865475, 0.0, 0.0)
 """
 sign(::Quaternion)
 
