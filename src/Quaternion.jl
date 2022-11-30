@@ -47,15 +47,6 @@ function Base.promote_rule(::Type{Quaternion{T}}, ::Type{Complex{S}}) where {T <
 end
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
-function Base.getproperty(q::Quaternion, s::Symbol)
-    if s === :norm
-        Base.depwarn("The `norm` field is deprecated and will be removed in the next breaking release (v0.7.0).", :Quaternion)
-        getfield(q,:norm)
-    else
-        getfield(q,s)
-    end
-end
-
 """
     quat(r, [i, j, k])
 
