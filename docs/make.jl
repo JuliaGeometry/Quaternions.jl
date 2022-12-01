@@ -15,7 +15,10 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "APIs" => "api.md",
-        "Examples" => ["examples/dual_quaternions.md"],
+        "Examples" => [
+            "examples/rotations.md",
+            "examples/dual_quaternions.md"
+        ],
     ],
 )
 
