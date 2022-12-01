@@ -452,101 +452,23 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @inferred(sign(Quaternion(1, 2, 3, 4)))
     end
 
-    @testset "rotations" begin
-        @testset "qrotation" begin
-            @test qrotation([0, 0, 0], 1.0) == Quaternion(1.0) # a zero axis should act like zero rotation
-            @test qrotation([1, 0, 0], 0.0) == Quaternion(1.0)
-            @test qrotation([0, 0, 0]) == Quaternion(1.0)
-            qx = qrotation(view([1, 0, 0], :), pi / 4)
-            @test qx * qx ≈ qrotation([1, 0, 0], pi / 2)
-            @test qx^2 ≈ qrotation([1, 0, 0], pi / 2)
-
-            # Regression test for
-            # https://github.com/JuliaGeometry/Quaternions.jl/issues/8#issuecomment-610640094
-            # this used to throw an error
-            @testset "qrotation can handle arbitrary reals" begin
-                @test qrotation([1, 0, 0], MyReal(1.5)) == qrotation([1, 0, 0], 1.5)
-            end
+    @testset "slerp" begin
+        function qrotation(axis, theta)
+            s, c = sincos(theta / 2)
+            axis = normalize(axis)
+            return Quaternion(c, s*axis[1], s*axis[2], s*axis[3])
         end
-
-        @testset "rotationmatrix" begin
-            theta = pi / 8
-            qx = qrotation([1, 0, 0], theta)
-            c = cos(theta)
-            s = sin(theta)
-            Rx = [1 0 0; 0 c -s; 0 s c]
-            @test rotationmatrix(qx) ≈ Rx
-            theta = pi / 6
-            qy = qrotation([0, 1, 0], theta)
-            c = cos(theta)
-            s = sin(theta)
-            Ry = [c 0 s; 0 1 0; -s 0 c]
-            @test rotationmatrix(qy) ≈ Ry
-            theta = 4pi / 3
-            qz = qrotation([0, 0, 1], theta)
-            c = cos(theta)
-            s = sin(theta)
-            Rz = [c -s 0; s c 0; 0 0 1]
-            @test rotationmatrix(qz) ≈ Rz
-
-            @test rotationmatrix(qx * qy * qz) ≈ Rx * Ry * Rz
-            @test rotationmatrix(qy * qx * qz) ≈ Ry * Rx * Rz
-            @test rotationmatrix(qz * qx * qy) ≈ Rz * Rx * Ry
-
-            for _ in 1:100
-                q1 = nquatrand()
-                q2 = qrotation(rotationmatrix(q1), q1)
-                q3 = qrotation(rotationmatrix(q1))
-                @test q1 ≈ q2
-                @test q2 === q3 || q2 === -q3
-                @test real(q3) ≥ 0
-                @test abs(q2) ≈ 1
-                @test abs(q3) ≈ 1
-            end
-        end
-
-        @testset "angle/axis/angleaxis" begin
-            @test_throws ErrorException qrotation([0, 1], 0.1)
-            @test_throws ErrorException qrotation([0, 1, 0, 0], 0.1)
-            @test_throws ErrorException qrotation([0, 1])
-            @test_throws ErrorException qrotation([0, 1, 0, 0])
-            @test angle(qrotation([1, 0, 0], 0)) ≈ 0
-            @test angle(qrotation([0, 1, 0], pi / 4)) ≈ pi / 4
-            @test angle(qrotation([0, 0, 1], pi / 2)) ≈ pi / 2
-
-            @testset "numerical stability of angle" begin
-                ax = randn(3)
-                for θ in [1e-9, π - 1e-9]
-                    q = qrotation(ax, θ)
-                    @test angle(q) ≈ θ
-                end
-            end
-
-            @testset "qrotation and angleaxis inverse" begin
+        @testset "q1=1" begin
+            a = quat(1, 0, 0, 0.0)
+            b = quat(0, 0, 0, 1.0)
+            @test slerp(a, b, 0.0) ≈ a
+            @test slerp(a, b, 1.0) ≈ b
+            @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
+            @test abs(slerp(a, b, 0.0)) ≈ 1
+            @test abs(slerp(a, b, 1.0)) ≈ 1
+            @test abs(slerp(a, b, 0.5)) ≈ 1
+            @testset "scale $scale" for scale in (1, 1e-5, 1e-10)
                 for _ in 1:100
-                    ax = randn(3)
-                    ax = ax / norm(ax)
-                    Θ = π * rand()
-                    q = qrotation(ax, Θ)
-                    @test angle(q) ≈ Θ
-                    @test axis(q) ≈ ax
-                    @test angleaxis(q)[1] ≈ Θ
-                    @test angleaxis(q)[2] ≈ ax
-                end
-            end
-        end
-
-        @testset "slerp" begin
-            @testset "q1=1" begin
-                a = quat(1, 0, 0, 0.0)
-                b = quat(0, 0, 0, 1.0)
-                @test slerp(a, b, 0.0) ≈ a
-                @test slerp(a, b, 1.0) ≈ b
-                @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
-                @test abs(slerp(a, b, 0.0)) ≈ 1
-                @test abs(slerp(a, b, 1.0)) ≈ 1
-                @test abs(slerp(a, b, 0.5)) ≈ 1
-                for _ in 1:100, scale in (1, 1e-5, 1e-10)
                     q1 = quat(1, 0, 0, 0.0)
                     θ = rand() * π * scale
                     ax = randn(3)
@@ -563,36 +485,36 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                     @test slerp(q1, qsmall, 0.5) ≈ sign((q1 + qsmall) / 2)
                 end
             end
+        end
 
-            @testset "conjugate invariance" begin
-                for _ in 1:100
-                    q, q1, q2 = randn(QuaternionF64, 3)
-                    ⊗(s, t) = s * t * inv(s)
-                    t = rand()
-                    @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
-                end
+        @testset "conjugate invariance" begin
+            for _ in 1:100
+                q, q1, q2 = randn(QuaternionF64, 3)
+                ⊗(s, t) = s * t * inv(s)
+                t = rand()
+                @test q ⊗ slerp(q1, q2, t) ≈ slerp(q ⊗ q1, q ⊗ q2, t)
             end
+        end
 
-            @testset "type promotion" begin
-                @test slerp(quat(1),quat(1),1) isa Quaternion{Float64}
-                @test slerp(quat(1),quat(1),big(1)) isa Quaternion{BigFloat}
-                @test slerp(quat(1),quat(1),Float32(1)) isa Quaternion{Float32}
-                @test slerp(quat(1),quat(Float32(1)),Float32(1)) isa Quaternion{Float32}
-                @test slerp(quat(Float64(1)),quat(Float32(1)),Float32(1)) isa Quaternion{Float64}
-            end
+        @testset "type promotion" begin
+            @test slerp(quat(1),quat(1),1) isa Quaternion{Float64}
+            @test slerp(quat(1),quat(1),big(1)) isa Quaternion{BigFloat}
+            @test slerp(quat(1),quat(1),Float32(1)) isa Quaternion{Float32}
+            @test slerp(quat(1),quat(Float32(1)),Float32(1)) isa Quaternion{Float32}
+            @test slerp(quat(Float64(1)),quat(Float32(1)),Float32(1)) isa Quaternion{Float64}
+        end
 
-            @testset "DomainError" begin
-                @test_throws DomainError slerp(quat(1),quat(0),1)
-                @test_throws DomainError slerp(quat(0),quat(1),0)
-            end
+        @testset "DomainError" begin
+            @test_throws DomainError slerp(quat(1),quat(0),1)
+            @test_throws DomainError slerp(quat(0),quat(1),0)
+        end
 
-            @testset "Normalizing input quaternions" begin
-                for _ in 1:100
-                    q1 = randn(QuaternionF64)
-                    q2 = randn(QuaternionF64)
-                    t = rand()
-                    @test slerp(sign(q1),sign(q2),t) ≈ slerp(q1,q2,t)
-                end
+        @testset "Normalizing input quaternions" begin
+            for _ in 1:100
+                q1 = randn(QuaternionF64)
+                q2 = randn(QuaternionF64)
+                t = rand()
+                @test slerp(sign(q1),sign(q2),t) ≈ slerp(q1,q2,t)
             end
         end
     end
