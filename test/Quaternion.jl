@@ -18,23 +18,19 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     @testset "Constructors" begin
         @testset "from coefficients" begin
             cs = [(1, 2.0, 3.0f0, 4//1), (1//1, 2.0f0, 3.0f0, 4)]
-            @testset for coef in cs, T in (Float32, Float64, Int), norm in (true, false)
-                q = @inferred Quaternion{T}(coef..., norm)
+            @testset for coef in cs, T in (Float32, Float64, Int)
+                q = @inferred Quaternion{T}(coef...)
                 @test q isa Quaternion{T}
-                @test q.norm === norm
-                @test q === Quaternion{T}(convert.(T, coef)..., norm)
-                q2 = @inferred Quaternion(convert.(T, coef)..., norm)
-                @test Quaternion(convert.(T, coef)..., norm) === q
-                if !norm
-                    @test Quaternion(convert.(T, coef)...) === q
-                end
+                @test q === Quaternion{T}(convert.(T, coef)...)
+                q2 = @inferred Quaternion(convert.(T, coef)...)
+                @test Quaternion(convert.(T, coef)...) === q
             end
         end
         @testset "from real" begin
             @testset for x in (-1//1, 1.0, 2.0), T in (Float32, Float64, Int, Rational{Int})
                 coef = T.((x, 0, 0, 0))
-                @test @inferred(Quaternion{T}(x)) === Quaternion{T}(coef..., isone(abs(x)))
-                @test @inferred(Quaternion(T(x))) === Quaternion{T}(coef..., isone(abs(x)))
+                @test @inferred(Quaternion{T}(x)) === Quaternion{T}(coef...)
+                @test @inferred(Quaternion(T(x))) === Quaternion{T}(coef...)
             end
         end
         @testset "from complex" begin
@@ -43,17 +39,16 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
                 coef = T.((reim(z)..., 0, 0))
                 z2 = Complex{T}(z)
-                norm = isone(abs(z))
-                @test Quaternion{T}(z) === Quaternion{T}(coef..., norm)
-                @test @inferred(Quaternion(z2)) === Quaternion{T}(coef..., norm)
+                @test Quaternion{T}(z) === Quaternion{T}(coef...)
+                @test @inferred(Quaternion(z2)) === Quaternion{T}(coef...)
             end
         end
         @testset "from quaternion" begin
-            @testset for q in (Quaternion(1, 2, 3, 4), QuaternionF64(0, 1, 0, 0, true)),
+            @testset for q in (Quaternion(1, 2, 3, 4), QuaternionF64(0, 1, 0, 0)),
                 T in (Float32, Float64)
 
                 coef = T.((q.s, q.v1, q.v2, q.v3))
-                @test @inferred(Quaternion{T}(q)) === Quaternion{T}(coef..., q.norm)
+                @test @inferred(Quaternion{T}(q)) === Quaternion{T}(coef...)
                 @test @inferred(Quaternion(q)) === q
             end
         end
@@ -71,9 +66,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 5, 3, 4)
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 5, 4)
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 3, 5)
-        x = randn(4)
-        # test that .norm field does not affect equality
-        @test Quaternion(1, 2, 3, 4, false) == Quaternion(1, 2, 3, 4, true)
     end
 
     @testset "convert" begin
@@ -83,8 +75,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             Quaternion(1.0, 2.0, 3.0, 4.0)
         @test convert(Quaternion{Float64}, Quaternion(1.0, 2.0, 3.0, 4.0)) ===
             Quaternion(1.0, 2.0, 3.0, 4.0)
-        @test convert(Quaternion{Float64}, Quaternion(0, 1, 0, 0, true)) ===
-            Quaternion(0.0, 1.0, 0.0, 0.0, true)
+        @test convert(Quaternion{Float64}, Quaternion(0, 1, 0, 0)) ===
+            Quaternion(0.0, 1.0, 0.0, 0.0)
     end
 
     @testset "promote" begin
@@ -102,13 +94,9 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
     end
 
     @testset "shorthands" begin
-        @test quat(1) === Quaternion(1) # checking the .norm field in particular
-        @test quat(1, 0, 0, 0) === Quaternion(1, 0, 0, 0) # checking the .norm field in particular
+        @test quat(1) === Quaternion(1)
         @test quat(1, 2, 3, 4) === Quaternion(1, 2, 3, 4)
-        @test quat(Quaternion(1, 0, 0, 0)) === Quaternion(1, 0, 0, 0) # checking the .norm field in particular
         @test quat(Quaternion(1, 2, 3, 4)) === Quaternion(1, 2, 3, 4)
-        @test quat(1, 0, 0, 0, false).norm == false # respect the .norm input (even if wrong)
-        @test quat(1, 2, 3, 4, true).norm == true # respect the .norm input (even if wrong)
         @test quat(1, [2, 3, 4]) === Quaternion(1, 2, 3, 4)
         @test quat([2, 3, 4]) === Quaternion(0, 2, 3, 4)
         @test_deprecated quat([2, 3, 4])
@@ -119,29 +107,24 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             rng = Random.MersenneTwister(42)
             q1 = quatrand(rng)
             @test q1 isa Quaternion
-            @test !q1.norm
 
             q2 = quatrand()
             @test q2 isa Quaternion
-            @test !q2.norm
         end
 
         @testset "nquatrand" begin
             rng = Random.MersenneTwister(42)
             q1 = nquatrand(rng)
             @test q1 isa Quaternion
-            @test q1.norm
 
             q2 = nquatrand()
             @test q2 isa Quaternion
-            @test q2.norm
         end
 
         @testset "rand($H)" for H in (QuaternionF32, QuaternionF64)
             rng = Random.MersenneTwister(42)
             q = rand(rng, H)
             @test q isa H
-            @test !q.norm
 
             qs = rand(rng, H, 1000)
             @test eltype(qs) === H
@@ -159,7 +142,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             rng = Random.MersenneTwister(42)
             q = randn(rng, H)
             @test q isa H
-            @test !q.norm
 
             qs = randn(rng, H, 10000)
             @test eltype(qs) === H
@@ -176,12 +158,12 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
     @testset "basic" begin
         q = randn(QuaternionF64)
-        qnorm = normalize(q)
+        qnorm = sign(q)
         @test real(q) === q.s
         @test_throws MethodError imag(q)
         @test imag_part(q) === (q.v1, q.v2, q.v3)
-        @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3, q.norm)
-        @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3, true)
+        @test conj(q) === Quaternion(q.s, -q.v1, -q.v2, -q.v3)
+        @test conj(qnorm) === Quaternion(qnorm.s, -qnorm.v1, -qnorm.v2, -qnorm.v3)
         @test conj(conj(q)) === q
         @test conj(conj(qnorm)) === qnorm
         @test float(Quaternion(1, 2, 3, 4)) === float(Quaternion(1.0, 2.0, 3.0, 4.0))
@@ -222,7 +204,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         @test !iszero(Quaternion(0.0, 1.0, 0.0, 0.0))
         @test !iszero(Quaternion(0.0, 0.0, 1.0, 0.0))
         @test !iszero(Quaternion(0.0, 0.0, 0.0, 1.0))
-        @test !iszero(Quaternion(0.0, 0.0, 0.0, 0.0, true))
     end
 
     @testset "isone" begin
@@ -241,7 +222,7 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test !isfinite(Quaternion(0.0, value, 0.0, 0.0))
             @test !isfinite(Quaternion(0.0, 0.0, value, 0.0))
             @test !isfinite(Quaternion(0.0, 0.0, 0.0, value))
-            @test isfinite(Quaternion(fill(value, 4)..., true))
+            @test !isfinite(Quaternion(fill(value, 4)...))
         end
     end
 
@@ -253,7 +234,6 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             @test isinf(Quaternion(0.0, inf, 0.0, 0.0))
             @test isinf(Quaternion(0.0, 0.0, inf, 0.0))
             @test isinf(Quaternion(0.0, 0.0, 0.0, inf))
-            @test !isinf(Quaternion(inf, inf, inf, inf, true))
         end
     end
 
@@ -419,11 +399,11 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
             end
 
             @testset "exp" begin
-                @test exp(Quaternion(0, 0, 0, 0)) === Quaternion(1.0, 0.0, 0.0, 0.0, true)
-                @test exp(Quaternion(2, 0, 0, 0)) === Quaternion(exp(2), 0, 0, 0, false)
-                @test exp(Quaternion(0, 2, 0, 0)) === Quaternion(cos(2), sin(2), 0, 0, true)
-                @test exp(Quaternion(0, 0, 2, 0)) === Quaternion(cos(2), 0, sin(2), 0, true)
-                @test exp(Quaternion(0, 0, 0, 2)) === Quaternion(cos(2), 0, 0, sin(2), true)
+                @test exp(Quaternion(0, 0, 0, 0)) === Quaternion(1.0, 0.0, 0.0, 0.0)
+                @test exp(Quaternion(2, 0, 0, 0)) === Quaternion(exp(2), 0, 0, 0)
+                @test exp(Quaternion(0, 2, 0, 0)) === Quaternion(cos(2), sin(2), 0, 0)
+                @test exp(Quaternion(0, 0, 2, 0)) === Quaternion(cos(2), 0, sin(2), 0)
+                @test exp(Quaternion(0, 0, 0, 2)) === Quaternion(cos(2), 0, 0, sin(2))
 
                 @test norm(exp(Quaternion(0, 0, 0, 0))) ≈ 1
                 @test norm(exp(Quaternion(2, 0, 0, 0))) ≠ 1
@@ -432,15 +412,15 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test norm(exp(Quaternion(0, 0, 0, 2))) ≈ 1
 
                 @test exp(Quaternion(0.0, 0.0, 0.0, 0.0)) ===
-                    Quaternion(1.0, 0.0, 0.0, 0.0, true)
+                    Quaternion(1.0, 0.0, 0.0, 0.0)
                 @test exp(Quaternion(2.0, 0.0, 0.0, 0.0)) ===
-                    Quaternion(exp(2), 0, 0, 0, false)
+                    Quaternion(exp(2), 0, 0, 0)
                 @test exp(Quaternion(0.0, 2.0, 0.0, 0.0)) ===
-                    Quaternion(cos(2), sin(2), 0, 0, true)
+                    Quaternion(cos(2), sin(2), 0, 0)
                 @test exp(Quaternion(0.0, 0.0, 2.0, 0.0)) ===
-                    Quaternion(cos(2), 0, sin(2), 0, true)
+                    Quaternion(cos(2), 0, sin(2), 0)
                 @test exp(Quaternion(0.0, 0.0, 0.0, 2.0)) ===
-                    Quaternion(cos(2), 0, 0, sin(2), true)
+                    Quaternion(cos(2), 0, 0, sin(2))
 
                 @test norm(exp(Quaternion(0.0, 0.0, 0.0, 0.0))) ≈ 1
                 @test norm(exp(Quaternion(2.0, 0.0, 0.0, 0.0))) ≠ 1
@@ -461,48 +441,15 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
         end
     end
 
-    @testset "normalize" begin
+    @testset "sign" begin
         for _ in 1:100
             q = quatrand()
-            qnorm = @inferred normalize(q)
+            qnorm = @inferred sign(q)
             @test abs(qnorm) ≈ 1
-            @test qnorm.norm
             @test q ≈ abs(q) * qnorm
-            @test normalize(qnorm) === qnorm
+            @test sign(qnorm) ≈ qnorm
         end
-        @test_broken @inferred(normalize(Quaternion(1, 2, 3, 4)))
-    end
-
-    @testset "normalizea" begin
-        for _ in 1:100
-            q = quatrand()
-            qnorm, a = @inferred normalizea(q)
-            @test abs(qnorm) ≈ 1
-            @test qnorm.norm
-            @test a isa Real
-            @test a ≈ abs(q)
-            @test q ≈ a * qnorm
-            @test normalizea(qnorm) === (qnorm, one(real(q)))
-        end
-        @test_broken @inferred(normalizea(Quaternion(1, 2, 3, 4)))
-    end
-
-    @testset "Quaternions.normalizeq" begin
-        for _ in 1:100
-            q = quatrand()
-            @test Quaternions.normalizeq(q) === normalize(q)
-        end
-        @test Quaternions.normalizeq(zero(QuaternionF64)) == im
-        @test_broken @inferred(Quaternions.normalizeq(Quaternion(1, 2, 3, 4)))
-    end
-
-    @testset "Quaternions.argq" begin
-        for _ in 1:100
-            q, q2 = randn(QuaternionF64, 2)
-            @test q2 * Quaternions.argq(q) * inv(q2) ≈ Quaternions.argq(q2 * q * inv(q2))
-            v = Quaternion(0, randn(3)...)
-            @test Quaternions.argq(v) * norm(v) ≈ v
-        end
+        @inferred(sign(Quaternion(1, 2, 3, 4)))
     end
 
     @testset "rotations" begin
@@ -553,9 +500,8 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
                 @test q1 ≈ q2
                 @test q2 === q3 || q2 === -q3
                 @test real(q3) ≥ 0
-                @test q1.norm
-                @test q2.norm
-                @test q3.norm
+                @test abs(q2) ≈ 1
+                @test abs(q3) ≈ 1
             end
         end
 
@@ -592,14 +538,14 @@ Base.:(/)(a::MyReal, b::Real) = a.val / b
 
         @testset "slerp" begin
             @testset "q1=1" begin
-                a = quat(1, 0, 0, 0.0, true)
-                b = quat(0, 0, 0, 1.0, true)
+                a = quat(1, 0, 0, 0.0)
+                b = quat(0, 0, 0, 1.0)
                 @test slerp(a, b, 0.0) ≈ a
                 @test slerp(a, b, 1.0) ≈ b
                 @test slerp(a, b, 0.5) ≈ qrotation([0, 0, 1], deg2rad(90))
-                @test slerp(a, b, 0.0).norm
-                @test slerp(a, b, 1.0).norm
-                @test slerp(a, b, 0.5).norm
+                @test abs(slerp(a, b, 0.0)) ≈ 1
+                @test abs(slerp(a, b, 1.0)) ≈ 1
+                @test abs(slerp(a, b, 0.5)) ≈ 1
                 for _ in 1:100, scale in (1, 1e-5, 1e-10)
                     q1 = quat(1, 0, 0, 0.0)
                     θ = rand() * π * scale

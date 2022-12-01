@@ -23,6 +23,10 @@ conj
 ```
 
 ```@docs
+sign
+```
+
+```@docs
 slerp
 ```
 
