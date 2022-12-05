@@ -18,7 +18,7 @@ Rotations with quaternions have the following properties:
 * The negative of a unit quaternion represents the same rotation.
 * The conjugate of a unit quaternion represents the inverse rotation.
     * The quaternion has unit length, so conjugate and multiplicative inverse is the same.
-* The set of unit quaternion ``\left\{w + ix + jy + kz \in \mathbb{H} \ | \ x, y, z \in \mathbb{R} \right\} \simeq S^3`` is isomorphic to ``SU(2)``.
+* The set of unit quaternion ``\left\{w + ix + jy + kz \in \mathbb{H} \ | \ x, y, z \in \mathbb{R} \right\} = U(1,\mathbb{H}) \simeq S^3`` is isomorphic to ``SU(2)``.
     * These groups are homomorphic to ``SO(3)``.
     * These groups are double covering of ``SO(3)``.
 
