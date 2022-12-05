@@ -13,7 +13,7 @@ A 3D rotation can be represented by a [unit quaternion (versor)](https://en.wiki
 For example, a 90° rotation around the ``y``-axis is ``q = \frac{1}{\sqrt{2}} + 0i + \frac{1}{\sqrt{2}} j + 0k``.
 Rotations with quaternions have the following properties:
 
-* An additive inverse of a unit quaternion represents the same rotation.
+* The negative of a unit quaternion represents the same rotation.
 * A unit quaternion is more efficient for representing a rotation than a rotation matrix.
     * High computation accuracy
     * High computation performance, both in time and memory
