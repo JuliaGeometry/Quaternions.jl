@@ -13,11 +13,10 @@ A 3D rotation can be represented by a [unit quaternion (versor)](https://en.wiki
 For example, a 90° rotation around the ``y``-axis is ``q = \frac{1}{\sqrt{2}} + 0i + \frac{1}{\sqrt{2}} j + 0k``.
 Rotations with quaternions have the following properties:
 
+* A unit quaternion (4 real numbers) is more efficient for representing a rotation than a rotation matrix (9 real numbers).
+    * This results in higher computational performance in terms of time, memory usage, and accuracy.
 * The negative of a unit quaternion represents the same rotation.
-* A unit quaternion is more efficient for representing a rotation than a rotation matrix.
-    * High computation accuracy
-    * High computation performance, both in time and memory
-* A conjugate of a unit quaternion represents the inverse rotation.
+* The conjugate of a unit quaternion represents the inverse rotation.
     * The quaternion has unit length, so conjugate and multiplicative inverse is the same.
 * The set of unit quaternion ``\left\{w + ix + jy + kz \in \mathbb{H} \ | \ x, y, z \in \mathbb{R} \right\} \simeq S^3`` is isomorphic to ``SU(2)``.
     * These groups are homomorphic to ``SO(3)``.
