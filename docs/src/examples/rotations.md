@@ -47,24 +47,24 @@ q3 = -q2  # additive inverse quaternion represents the same rotation
 ```
 
 ## Rotate a vector with a quaternion
-A vector ``v = (v_x, v_y, v_z)`` can be rotated by a unit quaternion ``q``.
-The rotated vector ``v' = (v_x', v_y', v_z')`` can be obtained as
+A vector ``u = (u_x, u_y, u_z)`` can be rotated by a unit quaternion ``q``.
+The rotated vector ``v = (v_x, v_y, v_z)`` can be obtained as
 ```math
 \begin{aligned}
-q_v &= iv_x + jv_y + kv_z \\
-q_v' &= q q_v \bar{q} = 0 + iv_x + jv_y + kv_z \\
-v' &= (v_x', v_y', v_z').
+q_u &= iu_x + ju_y + ku_z \\
+q_v &= q q_u \bar{q} = 0 + iu_x + ju_y + ku_z \\
+v &= (v_x, v_y, v_z).
 \end{aligned}
 ```
 
 ```@example rotation
-function rotate_vector(q::Quaternion, vector)
-    if length(vector) != 3
+function rotate_vector(q::Quaternion, u)
+    if length(u) != 3
         error("Must be a 3-vector")
     end
-    q_v = Quaternion(0, vector[1], vector[2], vector[3])
-    q_v′ = q*q_v*conj(q)
-    return [imag_part(q_v′)...]
+    q_u = Quaternion(0, u[1], u[2], u[3])
+    q_v = q*q_v*conj(q)
+    return [imag_part(q_v)...]
 end
 nothing  # hide
 ```
