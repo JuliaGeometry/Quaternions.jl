@@ -10,7 +10,7 @@ using LinearAlgebra
 
 ## Basics
 A 3D rotation can be represented by a [unit quaternion (versor)](https://en.wikipedia.org/wiki/Versor).
-For example, 90° rotation around y-axis is ``q = 1/\sqrt{2} + 0i + j/\sqrt{2} + 0k``.
+For example, a 90° rotation around the ``y``-axis is ``q = \frac{1}{\sqrt{2}} + 0i + \frac{1}{\sqrt{2}} j + 0k``.
 Rotations with quaternions have the following properties:
 
 * An additive inverse of a unit quaternion represents the same rotation.
