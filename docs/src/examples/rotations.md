@@ -14,7 +14,7 @@ For example, a 90° rotation around the ``y``-axis is ``q = \frac{1}{\sqrt{2}} +
 Rotations with quaternions have the following properties:
 
 * An additive inverse of a unit quaternion represents the same rotation.
-* Unit quaternion is more efficient to represent rotation than rotation matrix.
+* A unit quaternion is more efficient for representing a rotation than a rotation matrix.
     * High computation accuracy
     * High computation performance, both in time and memory
 * A conjugate of a unit quaternion represents the inverse rotation.
