@@ -52,7 +52,7 @@ The rotated vector ``v = (v_x, v_y, v_z)`` can be obtained as
 ```math
 \begin{aligned}
 q_u &= iu_x + ju_y + ku_z \\
-q_v &= q q_u \bar{q} = 0 + iu_x + ju_y + ku_z \\
+q_v &= q q_u \bar{q} = 0 + iv_x + jv_y + kv_z \\
 v &= (v_x, v_y, v_z).
 \end{aligned}
 ```
