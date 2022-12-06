@@ -63,7 +63,7 @@ function rotate_vector(q::Quaternion, u)
         error("Must be a 3-vector")
     end
     q_u = Quaternion(0, u[1], u[2], u[3])
-    q_v = q*q_v*conj(q)
+    q_v = q*q_u*conj(q)
     return [imag_part(q_v)...]
 end
 nothing  # hide
