@@ -29,7 +29,7 @@ q = \cos(\theta/2) + \sin(\theta/2)(iv_x + jv_y + kv_z).
 ```
 
 ```@example rotation
-function quat_from_axisangle(axis, theta)
+function quat_from_axisangle(axis::AbstractVector, theta::Real)
     if length(axis) != 3
         error("Must be a 3-vector")
     end
@@ -58,7 +58,7 @@ v &= (v_x, v_y, v_z).
 ```
 
 ```@example rotation
-function rotate_vector(q::Quaternion, u)
+function rotate_vector(q::Quaternion, u::AbstractVector)
     if length(u) != 3
         error("Must be a 3-vector")
     end
