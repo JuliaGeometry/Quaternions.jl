@@ -19,8 +19,8 @@ Rotations with quaternions have the following properties:
 * The conjugate of a unit quaternion represents the inverse rotation.
     * The quaternion has unit length, so conjugate and multiplicative inverse is the same.
 * The set of unit quaternion ``\left\{w + ix + jy + kz \in \mathbb{H} \ | \ x, y, z \in \mathbb{R} \right\} = U(1,\mathbb{H}) \simeq S^3`` forms a group, and the group is homomorphic to the following groups.
-    * ``SU(2) = \Set{R \in \mathcal{M}(2,\mathbb{C}) | R R^{*} = I}`` is isomorphic to ``U(1,\mathbb{H})``.
-    * ``SO(3) = \Set{R \in \mathcal{M}(3,\mathbb{R}) | R R^\top = I}`` is homomorphic to ``U(1,\mathbb{H})``, and the mapping ``U(1,\mathbb{H}) \to SO(3)`` is double covering.
+    * ``SU(2) = \{R \in \mathcal{M}(2,\mathbb{C}) \ | \ R R^{*} = I\}`` is isomorphic to ``U(1,\mathbb{H})``.
+    * ``SO(3) = \{R \in \mathcal{M}(3,\mathbb{R}) \ | \ R R^\top = I\}`` is homomorphic to ``U(1,\mathbb{H})``, and the mapping ``U(1,\mathbb{H}) \to SO(3)`` is double covering.
 
 ## Rotation around a vector
 A ``\theta`` rotation around a unit vector ``v = (v_x, v_y, v_z)`` can be obtained as
