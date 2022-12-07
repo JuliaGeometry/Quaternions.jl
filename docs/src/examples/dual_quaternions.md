@@ -88,8 +88,18 @@ function transform(d::DualQuaternion, p::AbstractVector)
     return pnew
 end
 
+function rotmatrix_from_quat(q::Quaternion)
+    sx, sy, sz = 2q.s * q.v1, 2q.s * q.v2, 2q.s * q.v3
+    xx, xy, xz = 2q.v1^2, 2q.v1 * q.v2, 2q.v1 * q.v3
+    yy, yz, zz = 2q.v2^2, 2q.v2 * q.v3, 2q.v3^2
+    r = [1 - (yy + zz)     xy - sz     xz + sy;
+            xy + sz   1 - (xx + zz)    yz - sx;
+            xz - sy      yz + sx  1 - (xx + yy)]
+    return r
+end
+
 function transformationmatrix(d::DualQuaternion)
-    R = rotationmatrix(rotation_part(d))
+    R = rotmatrix_from_quat(rotation_part(d))
     t = translation(d; first=false)
     T = similar(R, 4, 4)
     T[1:3, 1:3] .= R

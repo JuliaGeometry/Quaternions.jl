@@ -13,12 +13,7 @@ module Quaternions
     QuaternionF64
   export quat
   export imag_part
-  export angleaxis
-  export angle
-  export axis
   export quatrand
   export nquatrand
-  export qrotation
-  export rotationmatrix
   export slerp
 end
