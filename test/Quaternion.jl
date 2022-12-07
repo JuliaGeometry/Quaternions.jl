@@ -85,6 +85,7 @@ end
         @test quat(1, 2, 3, 4) === Quaternion(1, 2, 3, 4)
         @test quat(Quaternion(1, 2, 3, 4)) === Quaternion(1, 2, 3, 4)
         @test quat([2, 3, 4]) == Quaternion{Int}[2, 3, 4]
+        @test_throws ErrorException quat(Real[1,2,3])
     end
 
     @testset "random generation" begin
