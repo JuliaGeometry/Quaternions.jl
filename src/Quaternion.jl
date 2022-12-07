@@ -23,14 +23,6 @@ Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real) = Quaternion(promote(s, v1, v2, v3)...)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x))
-function Quaternion(s::Real, a::AbstractVector)
-    Base.depwarn("`Quaternion(s::Real, a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(s, a[1], a[2], a[3])` instead.", :Quaternion)
-    Quaternion(s, a[1], a[2], a[3])
-end
-function Quaternion(a::AbstractVector)
-    Base.depwarn("`Quaternion(a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(0, a[1], a[2], a[3])` instead.", :Quaternion)
-    Quaternion(0, a[1], a[2], a[3])
-end
 
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
@@ -48,15 +40,23 @@ Quaternion{Int64}(7, 0, 0, 0)
 julia> quat(1.0, 2, 3, 4)
 QuaternionF64(1.0, 2.0, 3.0, 4.0)
 
-julia> quat([1, 2, 3])  # This output will be changed in the next breaking release for consistency. (#94)
-Quaternion{Int64}(0, 1, 2, 3)
+julia> quat([1, 2, 3])
+3-element Vector{Quaternion{Int64}}:
+ Quaternion{Int64}(1, 0, 0, 0)
+ Quaternion{Int64}(2, 0, 0, 0)
+ Quaternion{Int64}(3, 0, 0, 0)
 ```
 """
 quat
 
 quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
 quat(x) = Quaternion(x)
-quat(s, a) = Quaternion(s, a)
+function quat(A::AbstractArray{T}) where T
+    if !isconcretetype(T)
+        error("`quat` not defined on abstractly-typed arrays; please convert to a more specific type")
+    end
+    convert(AbstractArray{typeof(quat(zero(T)))}, A)
+end
 
 """
     real(T::Type{<:Quaternion})

@@ -49,12 +49,6 @@ end
                 @test @inferred(Quaternion(q)) === q
             end
         end
-        @testset "from vector" begin
-            s = randn()
-            v = randn(3)
-            @test @inferred(Quaternion(s, v)) === Quaternion(s, v...)
-            @test @inferred(Quaternion(v)) === Quaternion(0, v)
-        end
     end
 
     @testset "==" begin
@@ -90,9 +84,8 @@ end
         @test quat(1) === Quaternion(1)
         @test quat(1, 2, 3, 4) === Quaternion(1, 2, 3, 4)
         @test quat(Quaternion(1, 2, 3, 4)) === Quaternion(1, 2, 3, 4)
-        @test quat(1, [2, 3, 4]) === Quaternion(1, 2, 3, 4)
-        @test quat([2, 3, 4]) === Quaternion(0, 2, 3, 4)
-        @test_deprecated quat([2, 3, 4])
+        @test quat([2, 3, 4]) == Quaternion{Int}[2, 3, 4]
+        @test_throws ErrorException quat(Real[1,2,3])
     end
 
     @testset "random generation" begin
