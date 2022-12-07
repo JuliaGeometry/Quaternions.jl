@@ -187,20 +187,6 @@ Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2
 
 angleaxis(q::Quaternion) = angle(q), axis(q)
 
-function Base.angle(q::Quaternion)
-    Base.depwarn("`Base.angle(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :angle)
-    2 * atan(abs_imag(q), real(q))
-end
-
-function axis(q::Quaternion)
-    Base.depwarn("`axis(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :axis)
-    q = sign(q)
-    s = sin(angle(q) / 2)
-    abs(s) > 0 ?
-        [q.v1, q.v2, q.v3] / s :
-        [1.0, 0.0, 0.0]
-end
-
 """
     extend_analytic(f, q::Quaternion)
 
@@ -297,81 +283,6 @@ function Base.randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractF
         randn(rng, T) * 1//2,
         randn(rng, T) * 1//2,
     )
-end
-
-## Rotations
-
-function qrotation(axis::AbstractVector{T}, theta) where {T <: Real}
-    Base.depwarn("`qrotation(::AbstractVector)` is deprecated. Please consider using Rotations package instead.", :qrotation)
-    if length(axis) != 3
-        error("Must be a 3-vector")
-    end
-    normaxis = norm(axis)
-    if iszero(normaxis)
-        normaxis = oneunit(normaxis)
-        theta = zero(theta)
-    end
-    s,c = sincos(theta / 2)
-    scaleby = s / normaxis
-    Quaternion(c, scaleby * axis[1], scaleby * axis[2], scaleby * axis[3])
-end
-
-# Variant of the above where norm(rotvec) encodes theta
-function qrotation(rotvec::AbstractVector{T}) where {T <: Real}
-    Base.depwarn("`qrotation(::AbstractVector)` is deprecated. Please consider using Rotations package instead.", :qrotation)
-    if length(rotvec) != 3
-        error("Must be a 3-vector")
-    end
-    theta = norm(rotvec)
-    s,c = sincos(theta / 2)
-    scaleby = s / (iszero(theta) ? one(theta) : theta)
-    Quaternion(c, scaleby * rotvec[1], scaleby * rotvec[2], scaleby * rotvec[3])
-end
-
-function qrotation(dcm::AbstractMatrix{T}) where {T<:Real}
-    Base.depwarn("`qrotation(::AbstractMatrix)` is deprecated. Please consider using Rotations package instead.", :qrotation)
-    # See https://arxiv.org/pdf/math/0701759.pdf
-    a2 = 1 + dcm[1,1] + dcm[2,2] + dcm[3,3]
-    b2 = 1 + dcm[1,1] - dcm[2,2] - dcm[3,3]
-    c2 = 1 - dcm[1,1] + dcm[2,2] - dcm[3,3]
-    d2 = 1 - dcm[1,1] - dcm[2,2] + dcm[3,3]
-
-    if a2 ≥ max(b2, c2, d2)
-        a = sqrt(a2)/2
-        b,c,d = (dcm[3,2]-dcm[2,3])/4a, (dcm[1,3]-dcm[3,1])/4a, (dcm[2,1]-dcm[1,2])/4a
-    elseif b2 ≥ max(c2, d2)
-        b = sqrt(b2)/2
-        a,c,d = (dcm[3,2]-dcm[2,3])/4b, (dcm[2,1]+dcm[1,2])/4b, (dcm[1,3]+dcm[3,1])/4b
-    elseif c2 ≥ d2
-        c = sqrt(c2)/2
-        a,b,d = (dcm[1,3]-dcm[3,1])/4c, (dcm[2,1]+dcm[1,2])/4c, (dcm[3,2]+dcm[2,3])/4c
-    else
-        d = sqrt(d2)/2
-        a,b,c = (dcm[2,1]-dcm[1,2])/4d, (dcm[1,3]+dcm[3,1])/4d, (dcm[3,2]+dcm[2,3])/4d
-    end
-    if a > 0
-        return Quaternion(a,b,c,d)
-    else
-        return Quaternion(-a,-b,-c,-d)
-    end
-end
-
-function qrotation(dcm::AbstractMatrix{T}, qa::Quaternion) where {T<:Real}
-    Base.depwarn("`qrotation(::AbstractMatrix, ::Quaternion)` is deprecated. Please consider using Rotations package instead.", :qrotation)
-    q = qrotation(dcm)
-    abs(q-qa) < abs(q+qa) ? q : -q
-end
-
-rotationmatrix(q::Quaternion) = rotationmatrix_normalized(sign(q))
-
-function rotationmatrix_normalized(q::Quaternion)
-    Base.depwarn("`rotationmatrix_normalized(::Quaternion)` is deprecated. Please consider using Rotations package instead.", :rotationmatrix_normalized)
-    sx, sy, sz = 2q.s * q.v1, 2q.s * q.v2, 2q.s * q.v3
-    xx, xy, xz = 2q.v1^2, 2q.v1 * q.v2, 2q.v1 * q.v3
-    yy, yz, zz = 2q.v2^2, 2q.v2 * q.v3, 2q.v3^2
-    [1 - (yy + zz)     xy - sz     xz + sy;
-        xy + sz   1 - (xx + zz)    yz - sx;
-        xz - sy      yz + sx  1 - (xx + yy)]
 end
 
 """
