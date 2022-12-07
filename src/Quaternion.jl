@@ -23,14 +23,6 @@ Quaternion{T}(x::Real) where {T<:Real} = Quaternion(convert(T, x))
 Quaternion{T}(q::Quaternion) where {T<:Real} = Quaternion{T}(q.s, q.v1, q.v2, q.v3)
 Quaternion(s::Real, v1::Real, v2::Real, v3::Real) = Quaternion(promote(s, v1, v2, v3)...)
 Quaternion(x::Real) = Quaternion(x, zero(x), zero(x), zero(x))
-function Quaternion(s::Real, a::AbstractVector)
-    Base.depwarn("`Quaternion(s::Real, a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(s, a[1], a[2], a[3])` instead.", :Quaternion)
-    Quaternion(s, a[1], a[2], a[3])
-end
-function Quaternion(a::AbstractVector)
-    Base.depwarn("`Quaternion(a::AbstractVector)` is deprecated and will be removed in the next breaking release (v0.7.0). Please use `Quaternion(0, a[1], a[2], a[3])` instead.", :Quaternion)
-    Quaternion(0, a[1], a[2], a[3])
-end
 
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
