@@ -40,8 +40,11 @@ Quaternion{Int64}(7, 0, 0, 0)
 julia> quat(1.0, 2, 3, 4)
 QuaternionF64(1.0, 2.0, 3.0, 4.0)
 
-julia> quat([1, 2, 3])  # This output will be changed in the next breaking release for consistency. (#94)
-Quaternion{Int64}(0, 1, 2, 3)
+julia> quat([1, 2, 3])
+3-element Vector{Quaternion{Int64}}:
+ Quaternion{Int64}(1, 0, 0, 0)
+ Quaternion{Int64}(2, 0, 0, 0)
+ Quaternion{Int64}(3, 0, 0, 0)
 ```
 """
 quat
