@@ -259,12 +259,19 @@ for f in (@static(VERSION ≥ v"1.6" ? (:sincos, :sincospi) : (:sincos,)))
     end
 end
 
+# this implementation is roughly 2x as fast as extend_analytic(log, q)
 function Base.log(q::Quaternion)
-    a = abs(q)
-    M = abs_imag(q)
-    theta = atan(M, q.s)
-    scale = theta / ifelse(iszero(M), oneunit(M), M)
-    return Quaternion(log(a), q.v1 * scale, q.v2 * scale, q.v3 * scale)
+    a = abs_imag(q)
+    theta = atan(a, q.s)
+    scale = theta / a
+    if a > 0
+        return Quaternion(log(abs(q)), scale * q.v1, scale * q.v2, scale * q.v3)
+    else
+        # q == real(q), so f(real(q)) may be real or complex.
+        # we choose to embed complex numbers in the quaternions by identifying the first
+        # imaginary quaternion basis with the complex imaginary basis.
+        return Quaternion(log(abs(q.s)), oftype(scale, theta), zero(scale), zero(scale))
+    end
 end
 
 Base.:^(q::Quaternion, w::Quaternion) = exp(w * log(q))
