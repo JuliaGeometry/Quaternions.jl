@@ -379,10 +379,10 @@ end
             @testset "log" begin
                 @test log(zero(QuaternionF64)) === Quaternion(-Inf, 0, 0, 0)
                 @test log(one(QuaternionF64)) === Quaternion(0.0, 0, 0, 0)
-                @test log(-one(QuaternionF64)) == Quaternion(0.0, π, 0, 0)
+                @test log(-one(QuaternionF64)) ≈ Quaternion(0.0, π, 0, 0)
                 x = rand()
-                @test log(quat(x)) == quat(log(x))
-                @test log(quat(-x)) == Quaternion(reim(log(complex(-x)))..., 0, 0)
+                @test log(quat(x)) ≈ quat(log(x))
+                @test log(quat(-x)) ≈ Quaternion(reim(log(complex(-x)))..., 0, 0)
             end
 
             @testset "exp" begin
