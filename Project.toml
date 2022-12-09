@@ -9,6 +9,7 @@ RealDot = "c1ae055f-0cd5-4b69-90a6-9a35b1a98df9"
 
 [compat]
 Aqua = "0.5"
+RealDot = "0.1"
 julia = "1"
 
 [extras]
