@@ -386,3 +386,6 @@ LinearAlgebra.lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
 # if a commutes with c, use a simpler expression
 LinearAlgebra.lyap(a::Real, c::Quaternion) = c / -2a
 LinearAlgebra.lyap(a::Quaternion, c::Real) = c / -2real(a)
+
+## RealDot
+@inline RealDot.realdot(p::Quaternion, q::Quaternion) = muladd(p.s, q.s, dot(imag_part(p), imag_part(q)))
