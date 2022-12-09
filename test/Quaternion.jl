@@ -571,4 +571,13 @@ end
             @test_throws DivideError lyap(null, null)
         end
     end
+
+    @testset "RealDot with $T" for T in (Float32, Float64)
+        for _ in 1:10
+            q1 = randn(Quaternion{T})
+            q2 = randn(Quaternion{T})
+            @test real(dot(q1,q2)) ≈ realdot(q1,q2)
+            @test realdot(q1,q2) isa T
+        end
+    end
 end
