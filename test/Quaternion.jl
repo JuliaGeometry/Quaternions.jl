@@ -153,7 +153,7 @@ end
         @test conj(conj(q)) === q
         @test conj(conj(qnorm)) === qnorm
         @test float(Quaternion(1, 2, 3, 4)) === float(Quaternion(1.0, 2.0, 3.0, 4.0))
-        @test Quaternions.abs_imag(q) == abs(Quaternion(0, q.v1, q.v2, q.v3))
+        @test Quaternions.abs_imag(q) ≈ abs(Quaternion(0, q.v1, q.v2, q.v3))
     end
 
     @testset "algebraic properties" begin
