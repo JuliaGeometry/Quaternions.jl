@@ -156,6 +156,14 @@ end
         @test Quaternions.abs_imag(q) ≈ abs(Quaternion(0, q.v1, q.v2, q.v3))
     end
 
+    @testset "abs/abs_imag don't over/underflow" begin
+        for x in [1e-300, 1e-300]
+            q = quat(x, x, x, x)
+            @test Quaternions.abs_imag(q) == sqrt(3) * x
+            @test abs(q) == 2x broken=(VERSION < v"1.9-alpha1")
+        end
+    end
+
     @testset "algebraic properties" begin
         for _ in 1:100, T in (Float32, Float64, Int32, Int64)
             if T <: Integer
