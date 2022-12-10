@@ -186,8 +186,6 @@ Base.:/(q::Quaternion, w::Quaternion) = q * inv(w)
 
 Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
 
-angleaxis(q::Quaternion) = angle(q), axis(q)
-
 """
     extend_analytic(f, q::Quaternion)
 
