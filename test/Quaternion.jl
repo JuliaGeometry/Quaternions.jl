@@ -576,7 +576,7 @@ end
         for _ in 1:10
             q1 = randn(Quaternion{T})
             q2 = randn(Quaternion{T})
-            @test real(dot(q1,q2)) ≈ realdot(q1,q2)
+            @test real(dot(q1,q2)) ≈ @inferred(realdot(q1,q2))
             @test realdot(q1,q2) isa T
         end
     end
