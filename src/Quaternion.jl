@@ -136,9 +136,15 @@ Quaternion{Int64}(1, -2, -3, -4)
 ```
 """
 Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
-Base.abs(q::Quaternion) = sqrt(abs2(q))
+@static if VERSION < v"1.9-alpha1"
+    # hypot very slow for more than 3 arguments for older Julia versions
+    # https://github.com/JuliaLang/julia/issues/44336
+    Base.abs(q::Quaternion) = sqrt(abs2(q))
+else
+    Base.abs(q::Quaternion) = hypot(real(q), imag_part(q)...)
+end
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
-abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
+abs_imag(q::Quaternion) = hypot(imag_part(q)...)
 Base.abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
 Base.inv(q::Quaternion) = conj(q) / abs2(q)
 
