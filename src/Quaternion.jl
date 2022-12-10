@@ -147,6 +147,7 @@ Base.isfinite(q::Quaternion) = isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) &
 Base.iszero(q::Quaternion) = iszero(real(q)) & iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
 Base.isnan(q::Quaternion) = isnan(real(q)) | isnan(q.v1) | isnan(q.v2) | isnan(q.v3)
 Base.isinf(q::Quaternion) = isinf(q.s) | isinf(q.v1) | isinf(q.v2) | isinf(q.v3)
+Base.isinteger(q::Quaternion) = isinteger(real(q)) & isreal(q)
 
 # included strictly for documentation; the base implementation is sufficient
 """
@@ -386,3 +387,59 @@ LinearAlgebra.lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
 # if a commutes with c, use a simpler expression
 LinearAlgebra.lyap(a::Real, c::Quaternion) = c / -2a
 LinearAlgebra.lyap(a::Quaternion, c::Real) = c / -2real(a)
+
+Base.widen(::Type{Quaternion{T}}) where {T} = Quaternion{widen(T)}
+
+Base.flipsign(x::Quaternion, y::Real) = ifelse(signbit(y), -x, x)
+
+function Base.read(io::IO, ::Type{Quaternion{T}}) where T<:Real
+    return Quaternion{T}(ntuple(_ -> read(io, T), Val(4))...)
+end
+Base.write(io::IO, q::Quaternion) = write(io, real(q), imag_part(q)...)
+
+Base.big(::Type{Quaternion{T}}) where {T<:Real} = Quaternion{big(T)}
+Base.big(z::Quaternion{T}) where {T<:Real} = Quaternion{big(T)}(z)
+
+"""
+    round(q::Quaternion[, RoundingModeReal, [RoundingModeImaginary]]; kwargs...)
+    round(q::Quaternion, RoundingModeReal,
+          RoundingModeImaginary1, RoundingModeImaginary2, RoundingModeImaginary3; kwargs...)
+
+Return the nearest integral value of the same type as the quaternion-valued `q` to `q`,
+breaking ties using the specified `RoundingMode`s.
+
+The first `RoundingMode` is used for rounding the real part while the second is used
+for rounding the imaginary parts. Alternatively, a `RoundingMode` may be provided for each
+part.
+
+The `kwargs` are the same as those for `round(::Real[, RoundingMode]; kwargs...)`.
+
+# Example
+```jldoctest
+julia> round(quat(3.14, 4.5, 8.3, -2.8))
+QuaternionF64(3.0, 4.0, 8.0, -3.0)
+```
+"""
+function Base.round(
+    q::Quaternion,
+    rs::RoundingMode=RoundNearest,
+    rv::RoundingMode=rs;
+    kwargs...,
+)
+    return round(q, rs, rv, rv, rv; kwargs...)
+end
+function Base.round(
+    q::Quaternion,
+    rs::RoundingMode,
+    rv1::RoundingMode,
+    rv2::RoundingMode,
+    rv3::RoundingMode;
+    kwargs...,
+)
+    return Quaternion(
+        round(real(q), rs; kwargs...),
+        round(q.v1, rv1; kwargs...),
+        round(q.v2, rv2; kwargs...),
+        round(q.v3, rv3; kwargs...),
+    )
+end
