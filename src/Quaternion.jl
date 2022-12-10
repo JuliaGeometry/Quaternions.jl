@@ -198,7 +198,7 @@ and ``a \\ge 0`` is the magnitude of the imaginary part of ``q``,
 ```math
 f(q) = \\Re(f(z)) + \\Im(f(z)) u,
 ```
-is the extension of `f` to the quaternions, where ``z = a + s i`` is a complex analog to
+is the extension of `f` to the quaternions, where ``z = s + a i`` is a complex analog to
 ``q``.
 
 See Theorem 5 of [^Sudbery1970] for details.
