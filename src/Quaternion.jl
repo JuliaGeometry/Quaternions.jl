@@ -321,7 +321,7 @@ true
     iszero(qb0) && throw(DomainError(qb0, "The input quaternion must be non-zero."))
     qa = qa0 / abs(qa0)
     qb = qb0 / abs(qb0)
-    coshalftheta = realdot(qa, qb)
+    coshalftheta = RealDot.realdot(qa, qb)
 
     if coshalftheta < 0
         qb = -qb
