@@ -624,9 +624,8 @@ end
         @test round(q, RoundUp; digits=1) == q
         @test round(q, RoundUp, RoundToZero) == quat(2.0, 2.0, -3.0, 2.0)
         @test round(q, RoundUp, RoundToZero; digits=1) == q
-        @test round(q, RoundUp, RoundDown, RoundNearestTiesAway, RoundToZero) ==
-            quat(2.0, 2.0, -4.0, 2.0)
-        @test round(q, RoundUp, RoundDown, RoundNearestTiesAway, RoundToZero; digits=1) ==
-            q
+        rmodes = (RoundUp, RoundDown, RoundNearestTiesAway, RoundToZero)
+        @test round(q, rmodes...) == quat(2.0, 2.0, -4.0, 2.0)
+        @test round(q, rmodes...; digits=1) == q
     end
 end
