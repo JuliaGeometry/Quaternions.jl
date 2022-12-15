@@ -577,6 +577,7 @@ end
             q1 = randn(Quaternion{T})
             q2 = randn(Quaternion{T})
             @test real(dot(q1,q2)) == @inferred(realdot(q1,q2))
+            @test realdot(q1,q2) == realdot(q2,q1)
             @test realdot(q1,q2) isa T
         end
     end
