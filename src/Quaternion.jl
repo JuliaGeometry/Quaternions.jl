@@ -139,7 +139,7 @@ Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
 Base.abs(q::Quaternion) = sqrt(abs2(q))
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
-Base.abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
+Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
 Base.inv(q::Quaternion) = conj(q) / abs2(q)
 
 Base.isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
