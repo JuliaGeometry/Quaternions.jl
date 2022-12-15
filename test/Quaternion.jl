@@ -576,8 +576,13 @@ end
         for _ in 1:10
             q1 = randn(Quaternion{T})
             q2 = randn(Quaternion{T})
+            # Check real∘dot is equal to realdot.
             @test real(dot(q1,q2)) == @inferred(realdot(q1,q2))
+            # Check realdot is commutative.
             @test realdot(q1,q2) == realdot(q2,q1)
+            # Check real∘dot is also commutative just in case.
+            @test real(dot(q1,q2)) == real(dot(q2,q1))
+            # Check the return type of realdot is correct.
             @test realdot(q1,q2) isa T
         end
     end
