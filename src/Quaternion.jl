@@ -388,4 +388,4 @@ LinearAlgebra.lyap(a::Real, c::Quaternion) = c / -2a
 LinearAlgebra.lyap(a::Quaternion, c::Real) = c / -2real(a)
 
 ## RealDot
-@inline RealDot.realdot(p::Quaternion, q::Quaternion) = muladd(p.s, q.s, dot(imag_part(p), imag_part(q)))
+@inline RealDot.realdot(p::Quaternion, q::Quaternion) = (p.s * q.s + p.v2 * q.v2) + (p.v1 * q.v1 + p.v3 * q.v3)
