@@ -19,6 +19,10 @@ imag_part
 ```
 
 ```@docs
+round(::Quaternion)
+```
+
+```@docs
 conj
 ```
 
