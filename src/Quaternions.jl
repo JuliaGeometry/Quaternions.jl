@@ -2,6 +2,7 @@ module Quaternions
 
 using Random
 using LinearAlgebra
+using RealDot
 
 include("Quaternion.jl")
 

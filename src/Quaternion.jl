@@ -139,7 +139,7 @@ Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
 Base.abs(q::Quaternion) = sqrt(abs2(q))
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = sqrt(q.v2 * q.v2 + (q.v1 * q.v1 + q.v3 * q.v3)) # ordered to match abs2
-Base.abs2(q::Quaternion) = (q.s * q.s + q.v2 * q.v2) + (q.v1 * q.v1 + q.v3 * q.v3)
+Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
 Base.inv(q::Quaternion) = conj(q) / abs2(q)
 
 Base.isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
@@ -320,7 +320,7 @@ true
     iszero(qb0) && throw(DomainError(qb0, "The input quaternion must be non-zero."))
     qa = qa0 / abs(qa0)
     qb = qb0 / abs(qb0)
-    coshalftheta = qa.s * qb.s + qa.v1 * qb.v1 + qa.v2 * qb.v2 + qa.v3 * qb.v3
+    coshalftheta = RealDot.realdot(qa, qb)
 
     if coshalftheta < 0
         qb = -qb
@@ -386,6 +386,9 @@ LinearAlgebra.lyap(a::Quaternion, c::Quaternion) = lyap(promote(a, c)...)
 LinearAlgebra.lyap(a::Real, c::Quaternion) = c / -2a
 LinearAlgebra.lyap(a::Quaternion, c::Real) = c / -2real(a)
 
+## RealDot
+# ordering chosen so that real(p'q) == real(q'p) == realdot(p, q) == realdot(q, p), i.e. exact equality
+@inline RealDot.realdot(p::Quaternion, q::Quaternion) = (p.s * q.s + p.v2 * q.v2) + (p.v1 * q.v1 + p.v3 * q.v3)
 Base.widen(::Type{Quaternion{T}}) where {T} = Quaternion{widen(T)}
 
 Base.flipsign(x::Quaternion, y::Real) = ifelse(signbit(y), -x, x)
