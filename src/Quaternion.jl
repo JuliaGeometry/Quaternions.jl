@@ -136,13 +136,7 @@ Quaternion{Int64}(1, -2, -3, -4)
 ```
 """
 Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
-@static if VERSION < v"1.9-alpha1"
-    # hypot very slow for more than 3 arguments for older Julia versions
-    # https://github.com/JuliaLang/julia/issues/44336
-    Base.abs(q::Quaternion) = sqrt(abs2(q))
-else
-    Base.abs(q::Quaternion) = hypot(real(q), imag_part(q)...)
-end
+Base.abs(q::Quaternion) = _hypot((real(q), imag_part(q)...))
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = hypot(imag_part(q)...)
 Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
@@ -449,4 +443,19 @@ function Base.round(
         round(q.v2, rv2; kwargs...),
         round(q.v3, rv3; kwargs...),
     )
+end
+
+if VERSION < v"1.9"  # backport code from julia#44357
+    function _hypot(x::NTuple{N,<:Number}) where {N}
+        maxabs = maximum(abs, x)
+        if isnan(maxabs) && any(isinf, x)
+            return typeof(maxabs)(Inf)
+        elseif (iszero(maxabs) || isinf(maxabs))
+            return maxabs
+        else
+            return maxabs * sqrt(sum(y -> abs2(y / maxabs), x))
+        end
+     end
+else
+    _hypot(x::NTuple{N,<:Number}) where {N} = hypot(x...)
 end
