@@ -160,11 +160,7 @@ end
         for x in [1e-300, 1e-300]
             q = quat(x, x, x, x)
             VERSION ≥ v"1.6" && @test Quaternions.abs_imag(q) == sqrt(3) * x
-            if VERSION < v"1.9-alpha1"
-                @test_broken abs(q) == 2x
-            else
-                @test abs(q) == 2x
-            end
+            @test abs(q) == 2x
         end
     end
 
