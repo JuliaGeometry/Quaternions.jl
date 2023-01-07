@@ -239,6 +239,14 @@ end
         @test isnan(Quaternion(1, 2, 3, NaN))
     end
 
+    @testset "isinteger" begin
+        @test isinteger(quat(3))
+        @test isinteger(quat(4.0))
+        @test !isinteger(quat(4.1))
+        @test !isinteger(quat(3, 1, 2, 3))
+        @test !isinteger(quat(4, 0, 1, 0))
+    end
+
     @testset "*" begin
         # verify basic correctness
         q1 = Quaternion(1,0,0,0)
@@ -582,5 +590,69 @@ end
             @test_throws DivideError sylvester(null, null, null)
             @test_throws DivideError lyap(null, null)
         end
+    end
+
+    @testset "RealDot with $T" for T in (Float32, Float64)
+        for _ in 1:10
+            q1 = randn(Quaternion{T})
+            q2 = randn(Quaternion{T})
+            # Check real∘dot is equal to realdot.
+            @test real(dot(q1,q2)) == @inferred(realdot(q1,q2))
+            # Check realdot is commutative.
+            @test realdot(q1,q2) == realdot(q2,q1)
+            # Check real∘dot is also commutative just in case.
+            @test real(dot(q1,q2)) == real(dot(q2,q1))
+            # Check the return type of realdot is correct.
+            @test realdot(q1,q2) isa T
+        end
+    end
+
+    @testset "widen" begin
+        @test widen(Quaternion{Int}) === Quaternion{Int128}
+        @test widen(QuaternionF32) === QuaternionF64
+        @test widen(QuaternionF64) === Quaternion{BigFloat}
+        @test widen(quat(1, 2, 3, 4)) === Quaternion{Int128}(1, 2, 3, 4)
+        q = rand(QuaternionF32)
+        @test widen(q) == convert(QuaternionF64, q)
+        q = rand(QuaternionF64)
+        @test widen(q) == convert(Quaternion{BigFloat}, q)
+    end
+
+    @testset "flipsign" begin
+        q = rand(QuaternionF64)
+        @test flipsign(q, 2) == q
+        @test flipsign(q, -3) == -q
+    end
+
+    @testset "read/write" begin
+        @testset "$T" for T in (Int16, Float32, Float64)
+            io = IOBuffer(; read=true, write=true)
+            q = rand(Quaternion{T})
+            write(io, q)
+            seek(io, 0)
+            q2 = read(io, Quaternion{T})
+            @test q == q2
+        end
+    end
+
+    @testset "big" begin
+        @test big(Quaternion{Int}) === Quaternion{BigInt}
+        @test big(QuaternionF64) === Quaternion{BigFloat}
+        @test big(quat(1, 2, 3, 4)) == Quaternion{BigInt}(1, 2, 3, 4)
+        q = rand(QuaternionF64)
+        @test big(q) == convert(Quaternion{BigFloat}, q)
+    end
+
+    @testset "round" begin
+        q = quat(1.1, 2.5, -3.5, 2.3)
+        @test round(q) == quat(1.0, 2.0, -4.0, 2.0)
+        @test round(q; digits=1) == q
+        @test round(q, RoundUp) == quat(2.0, 3.0, -3.0, 3.0)
+        @test round(q, RoundUp; digits=1) == q
+        @test round(q, RoundUp, RoundToZero) == quat(2.0, 2.0, -3.0, 2.0)
+        @test round(q, RoundUp, RoundToZero; digits=1) == q
+        rmodes = (RoundUp, RoundDown, RoundNearestTiesAway, RoundToZero)
+        @test round(q, rmodes...) == quat(2.0, 2.0, -4.0, 2.0)
+        @test round(q, rmodes...; digits=1) == q
     end
 end
