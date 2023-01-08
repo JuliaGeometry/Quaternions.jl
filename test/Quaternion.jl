@@ -59,6 +59,13 @@ end
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 3, 5)
     end
 
+    @testset "isequal" begin
+        @test isequal(Quaternion(1, 2, 3, 4), Quaternion(1.0, 2.0, 3.0, 4.0))
+        @test !isequal(Quaternion(1, 2, 3, 4), Quaternion(5, 2, 3, 4))
+        @test isequal(Quaternion(NaN, -0.0, Inf, -Inf), Quaternion(NaN, -0.0, Inf, -Inf))
+        @test !isequal(Quaternion(NaN, 0.0, Inf, -Inf), Quaternion(NaN, -0.0, Inf, -Inf))
+    end
+
     @testset "convert" begin
         @test convert(Quaternion{Float64}, 1) === Quaternion(1.0)
         @test convert(Quaternion{Float64}, Quaternion(1, 2, 3, 4)) ===
