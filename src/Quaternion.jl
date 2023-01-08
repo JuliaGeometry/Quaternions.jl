@@ -147,7 +147,16 @@ function Base.abs(q::Quaternion)
     end
 end
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
-abs_imag(q::Quaternion) = hypot(imag_part(q)...)
+function abs_imag(q::Quaternion)
+    a = max(abs(q.v1), abs(q.v2), abs(q.v3))
+    if isnan(a) && (isinf(q.v1) | isinf(q.v2) | isinf(q.v3))
+        return oftype(a, Inf)
+    elseif iszero(a) || isinf(a)
+        return a
+    else
+        return sqrt((q.v1 / a)^2 + (q.v2 / a)^2 + (q.v3 / a)^2) * a
+    end
+end
 Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
 Base.inv(q::Quaternion) = conj(q) / abs2(q)
 
