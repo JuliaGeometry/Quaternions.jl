@@ -157,11 +157,21 @@ end
     end
 
     @testset "abs/abs_imag don't over/underflow" begin
-        for x in [1e-300, 1e-300]
-            q = quat(x, x, x, x)
-            @test Quaternions.abs_imag(q) == sqrt(3) * x
-            @test abs(q) == 2x
+        for x in [1e-300, 1e300, -1e-300, -1e300]
+            @test abs(quat(x, 0, 0, 0)) == abs(x)
+            @test abs(quat(0, x, 0, 0)) == abs(x)
+            @test abs(quat(0, 0, x, 0)) == abs(x)
+            @test abs(quat(0, 0, 0, x)) == abs(x)
+            @test Quaternions.abs_imag(quat(0, x, 0, 0)) == abs(x)
+            @test Quaternions.abs_imag(quat(0, 0, x, 0)) == abs(x)
+            @test Quaternions.abs_imag(quat(0, 0, 0, x)) == abs(x)
         end
+        @test isnan(abs(quat(NaN, NaN, NaN, NaN)))
+        @test abs(quat(NaN, Inf, NaN, NaN)) == Inf
+        @test abs(quat(-Inf, NaN, NaN, NaN)) == Inf
+        @test abs(quat(0)) == 0
+        @test abs(quat(Inf)) == Inf
+        @test abs(quat(1, -Inf, 2, 3)) == Inf
     end
 
     @testset "algebraic properties" begin
