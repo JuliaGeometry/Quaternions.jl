@@ -159,7 +159,7 @@ end
     @testset "abs/abs_imag don't over/underflow" begin
         for x in [1e-300, 1e-300]
             q = quat(x, x, x, x)
-            VERSION ≥ v"1.6" && @test Quaternions.abs_imag(q) == sqrt(3) * x
+            @test Quaternions.abs_imag(q) == sqrt(3) * x
             @test abs(q) == 2x
         end
     end
