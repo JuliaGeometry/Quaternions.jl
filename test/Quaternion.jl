@@ -198,20 +198,8 @@ end
         @test inv(quat(0.0, 1e-300, 0.0, 0.0)) ≈ quat(0.0, -1e300, -0.0, -0.0)
         @test inv(quat(0.0, 0.0, 1e-300, 0.0)) ≈ quat(0.0, -0.0, -1e300, -0.0)
         @test inv(quat(0.0, 0.0, 0.0, 1e-300)) ≈ quat(0.0, -0.0, -0.0, -1e300)
-        q = quat(-Inf, 1, -2, 3)
-        invq = inv(q)
-        @test iszero(invq)
-        @test signbit(real(invq))
-        @test signbit(invq.v1)
-        @test !signbit(invq.v2)
-        @test signbit(invq.v3)
-        q = quat(1, -2, Inf, 3)
-        invq = inv(q)
-        @test iszero(invq)
-        @test !signbit(real(invq))
-        @test !signbit(invq.v1)
-        @test signbit(invq.v2)
-        @test signbit(invq.v3)
+        @test isequal(inv(quat(-Inf, 1, -2, 3)), quat(-0.0, -0.0, 0.0, -0.0))
+        @test isequal(inv(quat(1, -2, Inf, 3)), quat(0.0, 0.0, -0.0, -0.0))
     end
 
     @testset "isreal" begin
