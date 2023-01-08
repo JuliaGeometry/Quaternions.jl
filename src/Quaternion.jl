@@ -158,7 +158,13 @@ function abs_imag(q::Quaternion)
     end
 end
 Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
-Base.inv(q::Quaternion) = conj(q) / abs2(q)
+function Base.inv(q::Quaternion)
+    a = max(abs(q.s), abs(q.v1), abs(q.v2), abs(q.v3))
+    p = q / a
+    iq = conj(p) / (a * abs2(p))
+    isinf(a) && return zero(iq)
+    return iq
+end
 
 Base.isreal(q::Quaternion) = iszero(q.v1) & iszero(q.v2) & iszero(q.v3)
 Base.isfinite(q::Quaternion) = isfinite(q.s) & isfinite(q.v1) & isfinite(q.v2) & isfinite(q.v3)
@@ -200,7 +206,23 @@ function Base.:*(q::Quaternion, w::Quaternion)
     return Quaternion(s, v1, v2, v3)
 end
 
-Base.:/(q::Quaternion, w::Quaternion) = q * inv(w)
+function Base.:/(q::Quaternion{T}, w::Quaternion{T}) where T
+    # handle over/underflow while matching the behavior of /(a::Complex, b::Complex)
+    a = max(abs(w.s), abs(w.v1), abs(w.v2), abs(w.v3))
+    if isinf(w)
+        if isfinite(q)
+            return quat(
+                zero(T)*sign(q.s)*sign(w.s),
+                -zero(T)*sign(q.v1)*sign(w.v1),
+                -zero(T)*sign(q.v2)*sign(w.v2),
+                -zero(T)*sign(q.v3)*sign(w.v3),
+            )
+        end
+        return quat(T(NaN), T(NaN), T(NaN), T(NaN))
+    end
+    p = w / a
+    return (q * conj(p)) / RealDot.realdot(w, p)
+end
 
 Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
 
