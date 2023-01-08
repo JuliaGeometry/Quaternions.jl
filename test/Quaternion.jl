@@ -313,6 +313,32 @@ end
             @test q2 \ q ≈ inv(q2) * q
             @test q / x ≈ x \ q ≈ inv(x) * q
         end
+        @testset "no overflow/underflow" begin
+            @testset for x in [1e-300, 1e300, -1e-300, -1e300]
+                @test quat(x) / quat(x) == quat(1.0)
+                @test quat(x) / quat(0, x, 0, 0) == quat(0, -1.0, 0, 0)
+                @test quat(x) / quat(0, 0, x, 0) == quat(0, 0, -1.0, 0)
+                @test quat(x) / quat(0, 0, 0, x) == quat(0, 0, 0, -1.0)
+                @test quat(0, x, 0, 0) / quat(x, 0, 0, 0) == quat(0, 1.0, 0, 0)
+                @test quat(0, x, 0, 0) / quat(0, x, 0, 0) == quat(1.0, 0, 0, 0)
+                @test quat(0, x, 0, 0) / quat(0, 0, x, 0) == quat(0, 0, 0, -1.0)
+                @test quat(0, x, 0, 0) / quat(0, 0, 0, x) == quat(0, 0, 1.0, 0.0)
+            end
+            @testset for T in [Float32, Float64]
+                o = one(T)
+                z = zero(T)
+                inf = T(Inf)
+                nan = T(NaN)
+                @testset for s in [1, -1], t in [1, -1]
+                    @test isequal(quat(o) / quat(s*inf), quat(s*z, -z, -z, -z))
+                    @test isequal(quat(o) / quat(s*inf, t*o, z, t*z), quat(s*z, -t*z, -z, -t*z))
+                    @test isequal(quat(o) / quat(s*inf, t*nan, t*z, z), quat(s*z, nan, -t*z, -z))
+                    @test isequal(quat(o) / quat(s*inf, t*inf, t*z, z), quat(s*z, -t*z, -t*z, -z))
+                end
+                @test isequal(quat(inf) / quat(inf, 1, 2, 3), quat(nan, nan, nan, nan))
+                @test isequal(quat(inf) / quat(inf, 1, 2, -inf), quat(nan, nan, nan, nan))
+            end
+        end
     end
 
     @testset "^" begin
