@@ -179,6 +179,31 @@ end
         end
     end
 
+    @testset "inv does not under/overflow" begin
+        @test inv(quat(1e300, 0.0, 0.0, 0.0)) == quat(1e-300, -0.0, -0.0, -0.0)
+        @test inv(quat(0.0, 1e300, 0.0, 0.0)) == quat(0.0, -1e-300, -0.0, -0.0)
+        @test inv(quat(0.0, 0.0, 1e300, 0.0)) == quat(0.0, -0.0, -1e-300, -0.0)
+        @test inv(quat(0.0, 0.0, 0.0, 1e300)) == quat(0.0, -0.0, -0.0, -1e-300)
+        @test inv(quat(1e-300, 0.0, 0.0, 0.0)) ≈ quat(1e300, -0.0, -0.0, -0.0)
+        @test inv(quat(0.0, 1e-300, 0.0, 0.0)) ≈ quat(0.0, -1e300, -0.0, -0.0)
+        @test inv(quat(0.0, 0.0, 1e-300, 0.0)) ≈ quat(0.0, -0.0, -1e300, -0.0)
+        @test inv(quat(0.0, 0.0, 0.0, 1e-300)) ≈ quat(0.0, -0.0, -0.0, -1e300)
+        q = quat(-Inf, 1, -2, 3)
+        invq = inv(q)
+        @test iszero(invq)
+        @test signbit(real(invq))
+        @test signbit(invq.v1)
+        @test !signbit(invq.v2)
+        @test signbit(invq.v3)
+        q = quat(1, -2, Inf, 3)
+        invq = inv(q)
+        @test iszero(invq)
+        @test !signbit(real(invq))
+        @test !signbit(invq.v1)
+        @test signbit(invq.v2)
+        @test signbit(invq.v3)
+    end
+
     @testset "isreal" begin
         @test isreal(Quaternion(1, 0, 0, 0))
         @test !isreal(Quaternion(2, 1, 0, 0))
