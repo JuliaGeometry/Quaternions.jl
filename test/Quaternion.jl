@@ -176,9 +176,15 @@ end
         @test isnan(abs(quat(NaN, NaN, NaN, NaN)))
         @test abs(quat(NaN, Inf, NaN, NaN)) == Inf
         @test abs(quat(-Inf, NaN, NaN, NaN)) == Inf
-        @test abs(quat(0)) == 0
+        @test abs(quat(0.0)) == 0.0
         @test abs(quat(Inf)) == Inf
         @test abs(quat(1, -Inf, 2, 3)) == Inf
+        @test isnan(Quaternions.abs_imag(quat(0, NaN, NaN, NaN)))
+        @test Quaternions.abs_imag(quat(0, Inf, NaN, NaN)) == Inf
+        @test Quaternions.abs_imag(quat(0, NaN, -Inf, NaN)) == Inf
+        @test Quaternions.abs_imag(quat(0.0)) == 0.0
+        @test Quaternions.abs_imag(quat(0.0, 0.0, Inf, 0.0)) == Inf
+        @test Quaternions.abs_imag(quat(0, 1, -Inf, 2)) == Inf
     end
 
     @testset "algebraic properties" begin
