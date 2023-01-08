@@ -190,10 +190,10 @@ end
     end
 
     @testset "inv does not under/overflow" begin
-        @test inv(quat(1e300, 0.0, 0.0, 0.0)) == quat(1e-300, -0.0, -0.0, -0.0)
-        @test inv(quat(0.0, 1e300, 0.0, 0.0)) == quat(0.0, -1e-300, -0.0, -0.0)
-        @test inv(quat(0.0, 0.0, 1e300, 0.0)) == quat(0.0, -0.0, -1e-300, -0.0)
-        @test inv(quat(0.0, 0.0, 0.0, 1e300)) == quat(0.0, -0.0, -0.0, -1e-300)
+        @test isequal(inv(quat(1e300, 0.0, 0.0, 0.0)), quat(1e-300, -0.0, -0.0, -0.0))
+        @test isequal(inv(quat(0.0, 1e300, 0.0, 0.0)), quat(0.0, -1e-300, -0.0, -0.0))
+        @test isequal(inv(quat(0.0, 0.0, 1e300, 0.0)), quat(0.0, -0.0, -1e-300, -0.0))
+        @test isequal(inv(quat(0.0, 0.0, 0.0, 1e300)), quat(0.0, -0.0, -0.0, -1e-300))
         @test inv(quat(1e-300, 0.0, 0.0, 0.0)) ≈ quat(1e300, -0.0, -0.0, -0.0)
         @test inv(quat(0.0, 1e-300, 0.0, 0.0)) ≈ quat(0.0, -1e300, -0.0, -0.0)
         @test inv(quat(0.0, 0.0, 1e-300, 0.0)) ≈ quat(0.0, -0.0, -1e300, -0.0)
