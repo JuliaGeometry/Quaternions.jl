@@ -136,7 +136,16 @@ Quaternion{Int64}(1, -2, -3, -4)
 ```
 """
 Base.conj(q::Quaternion) = Quaternion(q.s, -q.v1, -q.v2, -q.v3)
-Base.abs(q::Quaternion) = _hypot((real(q), imag_part(q)...))
+function Base.abs(q::Quaternion)
+    a = max(abs(q.s), abs(q.v1), abs(q.v2), abs(q.v3))
+    if isnan(a) && isinf(q)
+        return typeof(a)(Inf)
+    elseif iszero(a) || isinf(a)
+        return a
+    else
+        return sqrt(abs2(q / a)) * a
+    end
+end
 Base.float(q::Quaternion{T}) where T = convert(Quaternion{float(T)}, q)
 abs_imag(q::Quaternion) = hypot(imag_part(q)...)
 Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
@@ -443,19 +452,4 @@ function Base.round(
         round(q.v2, rv2; kwargs...),
         round(q.v3, rv3; kwargs...),
     )
-end
-
-if VERSION < v"1.9"  # backport code from julia#44357
-    function _hypot(x::NTuple{N,<:Number}) where {N}
-        maxabs = maximum(abs, x)
-        if isnan(maxabs) && any(isinf, x)
-            return typeof(maxabs)(Inf)
-        elseif (iszero(maxabs) || isinf(maxabs))
-            return maxabs
-        else
-            return maxabs * sqrt(sum(y -> abs2(y / maxabs), x))
-        end
-     end
-else
-    _hypot(x::NTuple{N,<:Number}) where {N} = hypot(x...)
 end
