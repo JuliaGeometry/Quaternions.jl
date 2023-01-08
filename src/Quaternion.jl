@@ -159,10 +159,17 @@ function abs_imag(q::Quaternion)
 end
 Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
 function Base.inv(q::Quaternion)
+    if isinf(q)
+        return quat(
+            copysign(zero(q.s), q.s),
+            flipsign(-zero(q.v1), q.v1),
+            flipsign(-zero(q.v2), q.v2),
+            flipsign(-zero(q.v3), q.v3),
+        )
+    end
     a = max(abs(q.s), abs(q.v1), abs(q.v2), abs(q.v3))
     p = q / a
     iq = conj(p) / (a * abs2(p))
-    isinf(a) && return zero(iq)
     return iq
 end
 
