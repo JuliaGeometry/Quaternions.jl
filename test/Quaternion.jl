@@ -321,14 +321,14 @@ end
         end
         @testset "no overflow/underflow" begin
             @testset for x in [1e-300, 1e300, -1e-300, -1e300]
-                @test quat(x) / quat(x) == quat(1.0)
-                @test quat(x) / quat(0, x, 0, 0) == quat(0, -1.0, 0, 0)
-                @test quat(x) / quat(0, 0, x, 0) == quat(0, 0, -1.0, 0)
-                @test quat(x) / quat(0, 0, 0, x) == quat(0, 0, 0, -1.0)
-                @test quat(0, x, 0, 0) / quat(x, 0, 0, 0) == quat(0, 1.0, 0, 0)
-                @test quat(0, x, 0, 0) / quat(0, x, 0, 0) == quat(1.0, 0, 0, 0)
-                @test quat(0, x, 0, 0) / quat(0, 0, x, 0) == quat(0, 0, 0, -1.0)
-                @test quat(0, x, 0, 0) / quat(0, 0, 0, x) == quat(0, 0, 1.0, 0.0)
+                @test quat(x) / quat(x) == quat(1)
+                @test quat(x) / quat(0, x, 0, 0) == quat(0, -1, 0, 0)
+                @test quat(x) / quat(0, 0, x, 0) == quat(0, 0, -1, 0)
+                @test quat(x) / quat(0, 0, 0, x) == quat(0, 0, 0, -1)
+                @test quat(0, x, 0, 0) / quat(x, 0, 0, 0) == quat(0, 1, 0, 0)
+                @test quat(0, x, 0, 0) / quat(0, x, 0, 0) == quat(1, 0, 0, 0)
+                @test quat(0, x, 0, 0) / quat(0, 0, x, 0) == quat(0, 0, 0, -1)
+                @test quat(0, x, 0, 0) / quat(0, 0, 0, x) == quat(0, 0, 1, 0)
             end
             @testset for T in [Float32, Float64]
                 o = one(T)
