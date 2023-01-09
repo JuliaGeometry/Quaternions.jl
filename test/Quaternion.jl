@@ -203,14 +203,16 @@ end
     end
 
     @testset "inv does not under/overflow" begin
-        @test isequal(inv(quat(1e300, 0.0, 0.0, 0.0)), quat(1e-300, -0.0, -0.0, -0.0))
-        @test isequal(inv(quat(0.0, 1e300, 0.0, 0.0)), quat(0.0, -1e-300, -0.0, -0.0))
-        @test isequal(inv(quat(0.0, 0.0, 1e300, 0.0)), quat(0.0, -0.0, -1e-300, -0.0))
-        @test isequal(inv(quat(0.0, 0.0, 0.0, 1e300)), quat(0.0, -0.0, -0.0, -1e-300))
-        @test inv(quat(1e-300, 0.0, 0.0, 0.0)) ≈ quat(1e300, -0.0, -0.0, -0.0)
-        @test inv(quat(0.0, 1e-300, 0.0, 0.0)) ≈ quat(0.0, -1e300, -0.0, -0.0)
-        @test inv(quat(0.0, 0.0, 1e-300, 0.0)) ≈ quat(0.0, -0.0, -1e300, -0.0)
-        @test inv(quat(0.0, 0.0, 0.0, 1e-300)) ≈ quat(0.0, -0.0, -0.0, -1e300)
+        x = 1e300
+        y = inv(x)
+        @test isequal(inv(quat(x, 0.0, 0.0, 0.0)), quat(y, -0.0, -0.0, -0.0))
+        @test isequal(inv(quat(0.0, x, 0.0, 0.0)), quat(0.0, -y, -0.0, -0.0))
+        @test isequal(inv(quat(0.0, 0.0, x, 0.0)), quat(0.0, -0.0, -y, -0.0))
+        @test isequal(inv(quat(0.0, 0.0, 0.0, x)), quat(0.0, -0.0, -0.0, -y))
+        @test isequal(inv(quat(y, 0.0, 0.0, 0.0)), quat(x, -0.0, -0.0, -0.0))
+        @test isequal(inv(quat(0.0, y, 0.0, 0.0)), quat(0.0, -x, -0.0, -0.0))
+        @test isequal(inv(quat(0.0, 0.0, y, 0.0)), quat(0.0, -0.0, -x, -0.0))
+        @test isequal(inv(quat(0.0, 0.0, 0.0, y)), quat(0.0, -0.0, -0.0, -x))
         @test isequal(inv(quat(-Inf, 1, -2, 3)), quat(-0.0, -0.0, 0.0, -0.0))
         @test isequal(inv(quat(1, -2, Inf, 3)), quat(0.0, 0.0, -0.0, -0.0))
     end
