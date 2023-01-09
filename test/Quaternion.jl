@@ -203,7 +203,7 @@ end
     end
 
     @testset "inv does not under/overflow" begin
-        x = 1e300
+        x = 1e-300
         y = inv(x)
         @test isequal(inv(quat(x, 0.0, 0.0, 0.0)), quat(y, -0.0, -0.0, -0.0))
         @test isequal(inv(quat(0.0, x, 0.0, 0.0)), quat(0.0, -y, -0.0, -0.0))
