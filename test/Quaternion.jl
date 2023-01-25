@@ -97,6 +97,7 @@ end
 
     @testset "random generation" begin
         @testset "quatrand" begin
+            @test_deprecated quatrand()
             rng = Random.MersenneTwister(42)
             q1 = quatrand(rng)
             @test q1 isa Quaternion
@@ -106,6 +107,7 @@ end
         end
 
         @testset "nquatrand" begin
+            @test_deprecated nquatrand()
             rng = Random.MersenneTwister(42)
             q1 = nquatrand(rng)
             @test q1 isa Quaternion
