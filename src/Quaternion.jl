@@ -325,8 +325,8 @@ end
 
 Base.:^(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
-quatrand(rng = Random.GLOBAL_RNG)  = quat(randn(rng), randn(rng), randn(rng), randn(rng))
-nquatrand(rng = Random.GLOBAL_RNG) = sign(quatrand(rng))
+Base.@deprecate quatrand(rng::AbstractRNG=Random.GLOBAL_RNG) randn(rng, QuaternionF64) * 2
+Base.@deprecate nquatrand(rng = Random.GLOBAL_RNG) sign(randn(rng, QuaternionF64))
 
 function Base.rand(rng::AbstractRNG, ::Random.SamplerType{Quaternion{T}}) where {T<:Real}
     Quaternion{T}(rand(rng, T), rand(rng, T), rand(rng, T), rand(rng, T))
