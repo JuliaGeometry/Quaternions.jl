@@ -334,10 +334,10 @@ end
 
 function Base.randn(rng::AbstractRNG, ::Type{Quaternion{T}}) where {T<:AbstractFloat}
     Quaternion{T}(
-        randn(rng, T) * 1//2,
-        randn(rng, T) * 1//2,
-        randn(rng, T) * 1//2,
-        randn(rng, T) * 1//2,
+        randn(rng, T) / 2,
+        randn(rng, T) / 2,
+        randn(rng, T) / 2,
+        randn(rng, T) / 2,
     )
 end
 
