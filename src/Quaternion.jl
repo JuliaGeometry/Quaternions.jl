@@ -296,12 +296,13 @@ end
 
 function _complex_representation(A::Matrix{Quaternion{T}}) where {T}
     # convert a quatenion matrix to corresponding complex matrix
-    a = map(t->t.s, A)
-    b = map(t->t.v1, A)
-    c = map(t->t.v2, A)
-    d = map(t->t.v3, A)
-    
-    return [a+im*b c+im*d;-c+im*d a-im*b]
+    n = size(A, 1)
+    Ac = Matrix{Complex{T}}(undef, 2n, 2n)
+    Ac[1:n, 1:n] .= complex.(getfield.(A, :s), getfield.(A, :v1))
+    Ac[1:n, n+1:2n] .= complex.(getfield.(A, :v2), getfield.(A, :v3))
+    Ac[n+1:2n, 1:n] .= .- conj.(view(Ac, 1:n, n+1:2n))
+    Ac[n+1:2n, n+1:2n] .= conj.(view(Ac, 1:n, 1:n))
+    return Ac
 end
 
 function _quaternion_representation(A::Matrix{Complex{T}}) where {T}
