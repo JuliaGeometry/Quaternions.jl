@@ -4,4 +4,5 @@ ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Quaternions = "94ee1d12-ae83-5a48-8b1c-48b8ff168ae0"
 
 [compat]
+Documenter = "1"
 ForwardDiff = "0.10"
