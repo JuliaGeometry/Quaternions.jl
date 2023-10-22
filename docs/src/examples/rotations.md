@@ -103,7 +103,7 @@ If you need more performance, please consider using [Rotations.jl](https://githu
 ## Convert a rotation matrix to a quaternion
 A rotation matrix can be converted to a unit quaternion.
 The following implementation is based on [https://arxiv.org/pdf/math/0701759.pdf](https://arxiv.org/pdf/math/0701759.pdf).
-Note that the following mapping ``SO(3) \to SU(2)`` is not surjective.
+Note that the following mapping ``SO(3) \to U(1,\mathbb{H})`` is not surjective.
 
 ```@example rotation
 function quat_from_rotmatrix(dcm::AbstractMatrix{T}) where {T<:Real}
