@@ -54,7 +54,7 @@ quat(s::Real) = Quaternion(s)
 quat(s::Real, v1::Real, v2::Real, v3::Real) = Quaternion(s, v1, v2, v3)
 
 ## Array operations on quaternions ##
-complex(A::AbstractArray{<:Complex}) = A
+quat(A::AbstractArray{<:Quaternion}) = A
 function quat(A::AbstractArray{T}) where T
     if !isconcretetype(T)
         error("`quat` not defined on abstractly-typed arrays; please convert to a more specific type")
