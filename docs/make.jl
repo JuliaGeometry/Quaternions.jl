@@ -17,10 +17,12 @@ makedocs(;
         "Home" => "index.md",
         "APIs" => "api.md",
         "Examples" => [
+            "examples/basics.md",
             "examples/rotations.md",
             "examples/dual_quaternions.md"
         ],
     ],
+    warnonly=true
 )
 
 deploydocs(;
