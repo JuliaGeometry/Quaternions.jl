@@ -250,6 +250,9 @@ function Base.:/(q::Quaternion{T}, w::Quaternion{T}) where T
     return (q * conj(p)) / RealDot.realdot(w, p)
 end
 
+Base.://(x::Quaternion, y::Real) = quat(real(x)//y, imag_part(x).//y...)
+Base.://(x::Number, y::Quaternion) = x*conj(y)//abs2(y)
+
 Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
 function Base.isequal(q::Quaternion, w::Quaternion)
     isequal(q.s, w.s) & isequal(q.v1, w.v1) & isequal(q.v2, w.v2) & isequal(q.v3, w.v3)
