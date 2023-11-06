@@ -28,9 +28,9 @@ Base.promote_rule(::Type{Quaternion{T}}, ::Type{S}) where {T <: Real, S <: Real}
 Base.promote_rule(::Type{Quaternion{T}}, ::Type{Quaternion{S}}) where {T <: Real, S <: Real} = Quaternion{promote_type(T, S)}
 
 """
-    quat(r, [i, j, k])
+    quat(w, [x, y, z])
 
-Convert real numbers or arrays to quaternion. `i, j, k` defaults to zero.
+Convert real numbers or arrays to quaternion. `x, y, z` defaults to zero.
 
 # Examples
 ```jldoctest
@@ -47,15 +47,45 @@ julia> quat([1, 2, 3])
  Quaternion{Int64}(3, 0, 0, 0)
 ```
 """
-quat
+function quat end
 
-quat(p, v1, v2, v3) = Quaternion(p, v1, v2, v3)
-quat(x) = Quaternion(x)
+quat(q::Quaternion) = q
+quat(s::Real) = Quaternion(s)
+quat(s::Real, v1::Real, v2::Real, v3::Real) = Quaternion(s, v1, v2, v3)
+
+## Array operations on quaternions ##
+complex(A::AbstractArray{<:Complex}) = A
 function quat(A::AbstractArray{T}) where T
     if !isconcretetype(T)
         error("`quat` not defined on abstractly-typed arrays; please convert to a more specific type")
     end
     convert(AbstractArray{typeof(quat(zero(T)))}, A)
+end
+
+"""
+    quat(T::Type)
+
+Return an appropriate type which can represent a value of type `T` as a quaternion.
+Equivalent to `typeof(quat(zero(T)))`.
+
+# Examples
+```jldoctest
+julia> quat(Quaternion{Int})
+Quaternion{Int64}
+
+julia> quat(Int)
+Quaternion{Int64}
+```
+"""
+quat(::Type{T}) where {T<:Real} = Quaternion{T}
+quat(::Type{Quaternion{T}}) where {T<:Real} = Quaternion{T}
+
+quat(::Missing) = missing
+# Same definitioin as in Base: https://github.com/JuliaLang/julia/blob/v1.9.3/base/missing.jl#L111-L115
+quat(::Type{Missing}) = Missing
+function quat(::Type{Union{T, Missing}}) where T
+    T === Any && throw(MethodError(quat, (Any,)))  # To prevent StackOverflowError
+    Union{quat(T), Missing}
 end
 
 """
