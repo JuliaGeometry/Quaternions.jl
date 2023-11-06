@@ -27,6 +27,10 @@ conj
 ```
 
 ```@docs
+inv
+```
+
+```@docs
 sign
 ```
 
