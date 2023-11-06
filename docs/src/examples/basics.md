@@ -2,7 +2,7 @@
 
 ## Basic operations for quaternions
 Quaternions can be defined with [`Quaternion`](@ref) constructor or [`quat`](@ref) function.
-Note that the order of the arguments is ``w+ix+jy+kz``, not ``ix+jy+kz+w``.
+Note that the order of the arguments is ``w+xi+yj+zk``, not ``xi+yj+zk+w``.
 
 ```@repl intro
 using Quaternions
@@ -51,4 +51,24 @@ quat(Int)
 
 
 ## Compatibility with `Complex`
+There are no natural embedding ``\mathbb{C}\to\mathbb{H}``.
+Thus, `quat(w,x,0,0)` is not equal to `complex(w,x)`, i.e.
 
+```math
+\mathbb{C} \ni w+ix \ne w+ix+0j+0k \in \mathbb{H}.
+```
+
+```@setup complex
+using Quaternions
+```
+
+```@repl complex
+1 + complex(1,2)   # `Complex` is compatible with `Real`
+1 + quat(1,2,3,4)  # `Quaternion` is compatible with `Real`
+1 + complex(1,2) + quat(1,2,3,4)  # no compatibility
+complex(1,2) == quat(1,2,0,0)     # no compatibility
+complex(1) == quat(1)             # no compatibility
+complex(1) == 1 == quat(1)  # Both `quat(1)` and `complex(1)` are equal to `1`.
+```
+
+See [issue#62](https://github.com/JuliaGeometry/Quaternions.jl/issues/62) for more discussion.
