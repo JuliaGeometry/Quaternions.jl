@@ -1,6 +1,7 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+HalfIntegers = "f0d1745a-41c9-11e9-1dd9-e5d34d218721"
 Quaternions = "94ee1d12-ae83-5a48-8b1c-48b8ff168ae0"
 
 [compat]

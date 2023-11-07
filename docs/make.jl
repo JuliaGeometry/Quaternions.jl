@@ -1,5 +1,6 @@
 using Quaternions
 using Documenter
+using HalfIntegers
 
 DocMeta.setdocmeta!(Quaternions, :DocTestSetup, :(using Quaternions); recursive=true)
 
