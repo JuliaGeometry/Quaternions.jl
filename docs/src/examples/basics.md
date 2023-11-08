@@ -23,14 +23,22 @@ inv(q1)
 inv(q1) * q1
 ```
 
+The division is also not commutative.
+
+```@repl intro
+q1 / q2  # Same as `q1*inv(q2)` mathematically.
+q2 \ q1  # Same as `inv(q2)*q1` mathematically.
+```
+
 A conjugate of a quaternion can be calculated with [`Base.conj`](@ref).
 But `Base.imag(::Quaternion)` is not defined because it should return three real values which is not consistent with `imag(::Complex)` and `imag(::Real)`.
 Instead, [`imag_part`](@ref) function can be used to obtain the imaginary part of a quaternion.
 See [issue#61](https://github.com/JuliaGeometry/Quaternions.jl/issues/61) for more discussion.
+
 ```@repl intro
 conj(q1)
-imag_part(q1)
-imag(q1)
+imag(q1)  # Not supported.
+imag_part(q1)  # Use this instead.
 ```
 
 ## `Quaternion` vs `quat`
@@ -44,8 +52,8 @@ using Quaternions
 ```@repl Quaternion-quat
 Quaternion(1,2,3,4)
 quat(1,2,3,4)
-Quaternion(Int)  # Similar to `Complex(Int)`
-quat(Int)  # Similar to `complex(Int)`
+Quaternion(Int)  # Similar to `Complex(Int)`.
+quat(Int)  # Similar to `complex(Int)`.
 ```
 
 ## The type parameter `T` in `Quaternion{T}`
@@ -71,7 +79,7 @@ islipschitz(q1)
 islipschitz(q2)
 islipschitz(q1 + q2)
 islipschitz(q1 * q2)
-islipschitz(q1 / q2)  # division is not defined on L
+islipschitz(q1 / q2)  # Division is not defined on L.
 q1 * q2 == q2 * q1  # non-commucative
 ```
 
@@ -82,6 +90,8 @@ The set of Hurwitz quaternions is defined by
 ```math
 H = \left\{a+bi+cj+dk \in \mathbb{H} \mid a,b,c,d \in \mathbb{Z} \ \text{or} \ a,b,c,d \in \mathbb{Z} + \tfrac{1}{2}\right\}.
 ```
+
+Hurwitz quaternions can be implemented with [HalfIntegers.jl](https://github.com/sostock/HalfIntegers.jl) package.
 
 ```@repl LipschitzHurwitz
 using HalfIntegers
@@ -98,12 +108,12 @@ ishurwitz(q1 / q2)  # Division is not defined on H.
 q1 * q2 == q2 * q1  # non-commucative
 abs2(q1)  # Squared norm is always an integer.
 abs2(q2)  # Squared norm is always an integer.
-abs2(q3)  # Squared norm is not an integer because q3 is not Hurwitz quaternion.
+abs2(q3)  # Squared norm is not an integer because `q3` is not Hurwitz quaternion.
 ```
 
 ### Biquaternions
 If all coefficients of a quaternion are complex numbers, the quaternion is called [**Biquaternion**](https://en.wikipedia.org/wiki/Biquaternion).
-However, the type parameter `T` is restricted by `<:Real`, so biquaternions are not supported in this package.
+However, the type parameter `T` is restricted to `<:Real`, so biquaternions are not supported in this package.
 Note that `Base.Complex` has the same type parameter restriction, and [bicomplex numbers](https://en.wikipedia.org/wiki/Bicomplex_number) are not supported in Base.
 See [issue#79](https://github.com/JuliaGeometry/Quaternions.jl/issues/79) for more discussion.
 
