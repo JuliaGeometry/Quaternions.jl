@@ -244,7 +244,7 @@ end
 const hash_0_imags = hash.(0, h_imags)
 
 function Base.hash(z::Quaternion, h::UInt)
-    hash(real(z), h ⊻ ⊻(hash.(imag_part(z), h_imags)...) ⊻ ⊻(hash_0_imags...))
+    hash(real(z), h ⊻ xor(xor.(hash.(imag_part(z), h_imags), hash_0_imags)...))
 end
 
 """
