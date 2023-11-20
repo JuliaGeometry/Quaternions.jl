@@ -158,6 +158,25 @@ function abs_imag(q::Quaternion)
     end
 end
 Base.abs2(q::Quaternion) = RealDot.realdot(q,q)
+
+"""
+    inv(q::Quaternion)
+
+Return the multiplicative inverse of `q::Quaternion`, such that `q*inv(q)` or `inv(q)*q`
+yields `one(q)` (the multiplicative identity) up to roundoff errors.
+
+# Examples
+```jldoctest
+julia> inv(quat(1))
+QuaternionF64(1.0, -0.0, -0.0, -0.0)
+
+julia> inv(quat(1, 2, 0, 0))
+QuaternionF64(0.2, -0.4, -0.0, -0.0)
+
+julia> inv(quat(2//3))
+Quaternion{Rational{Int64}}(3//2, 0//1, 0//1, 0//1)
+```
+"""
 function Base.inv(q::Quaternion)
     if isinf(q)
         return quat(
@@ -230,6 +249,9 @@ function Base.:/(q::Quaternion{T}, w::Quaternion{T}) where T
     p = w / a
     return (q * conj(p)) / RealDot.realdot(w, p)
 end
+
+Base.://(x::Quaternion, y::Real) = quat(real(x)//y, imag_part(x).//y...)
+Base.://(x::Number, y::Quaternion) = x*conj(y)//abs2(y)
 
 Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
 function Base.isequal(q::Quaternion, w::Quaternion)

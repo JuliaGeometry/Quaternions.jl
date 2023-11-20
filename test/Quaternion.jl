@@ -351,6 +351,15 @@ end
         end
     end
 
+    @testset "//" begin
+        q = quat(1,2,3,4)
+        r = quat(1,2,3,4//1)
+        @test q // 1 === r
+        @test isone(q // q)
+        @test quat(1,-2,0,0) // quat(2,1,0,0) === quat(0,-1//1,0,0)
+        @test inv(r) === (1//1)/q
+    end
+
     @testset "^" begin
         @testset "^(::Quaternion, ::Real)" begin
             for _ in 1:100
