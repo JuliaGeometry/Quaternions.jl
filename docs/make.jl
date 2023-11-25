@@ -24,7 +24,6 @@ makedocs(;
             "examples/dual_quaternions.md"
         ],
     ],
-    warnonly=true
 )
 
 deploydocs(;
