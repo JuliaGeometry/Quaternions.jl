@@ -112,7 +112,7 @@ abs2(q3)  # Squared norm is not an integer because `q3` is not Hurwitz quaternio
 ```
 
 ### Biquaternions
-If all coefficients of a quaternion are complex numbers, the quaternion is called [**Biquaternion**](https://en.wikipedia.org/wiki/Biquaternion).
+If all coefficients of a quaternion are complex numbers, the quaternion is called a [**Biquaternion**](https://en.wikipedia.org/wiki/Biquaternion).
 However, the type parameter `T` is restricted to `<:Real`, so biquaternions are not supported in this package.
 Note that `Base.Complex` has the same type parameter restriction, and [bicomplex numbers](https://en.wikipedia.org/wiki/Bicomplex_number) are not supported in Base.
 See [issue#79](https://github.com/JuliaGeometry/Quaternions.jl/issues/79) for more discussion.
