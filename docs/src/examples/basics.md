@@ -1,7 +1,7 @@
 # Basics
 
 ## Basic operations for quaternions
-Quaternions can be defined with [`Quaternion`](@ref) constructor or [`quat`](@ref) function.
+Quaternions can be defined with the [`Quaternion`](@ref) constructor or [`quat`](@ref) function.
 Note that the order of the arguments is ``w+xi+yj+zk``, not ``xi+yj+zk+w``.
 
 ```@repl intro
