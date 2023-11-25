@@ -254,6 +254,11 @@ Base.://(x::Quaternion, y::Real) = quat(real(x)//y, imag_part(x).//y...)
 Base.://(x::Number, y::Quaternion) = x*conj(y)//abs2(y)
 
 Base.:(==)(q::Quaternion, w::Quaternion) = (q.s == w.s) & (q.v1 == w.v1) & (q.v2 == w.v2) & (q.v3 == w.v3)
+Base.:(==)(q::Quaternion, x::Real) = isreal(q) && real(q) == x
+Base.:(==)(x::Real, q::Quaternion) = isreal(q) && real(q) == x
+Base.:(==)(q::Quaternion, z::Complex) = isreal(q) && isreal(z) && real(q) == real(z)
+Base.:(==)(z::Complex, q::Quaternion) = isreal(q) && isreal(z) && real(q) == real(z)
+
 function Base.isequal(q::Quaternion, w::Quaternion)
     isequal(q.s, w.s) & isequal(q.v1, w.v1) & isequal(q.v2, w.v2) & isequal(q.v3, w.v3)
 end
