@@ -93,6 +93,18 @@ end
         @test quat(Quaternion(1, 2, 3, 4)) === Quaternion(1, 2, 3, 4)
         @test quat([2, 3, 4]) == Quaternion{Int}[2, 3, 4]
         @test_throws ErrorException quat(Real[1,2,3])
+        @test quat(Quaternion[1,2]) == Quaternion[1,2]
+
+        @test quat(Int) === Quaternion{Int}
+        @test quat(Float32) === Quaternion{Float32}
+        @test quat(Quaternion{Int}) === Quaternion{Int}
+        @test quat(Quaternion{Float32}) === Quaternion{Float32}
+
+        # Note that `quat(1,missing,0,0)` throws an error.
+        # This is the same behavior as `complex(1,missing)`.
+        @test quat(missing) === missing
+        @test quat(Missing) === Missing
+        @test quat(Union{Missing, Int}) === Union{Missing, Quaternion{Int}}
     end
 
     @testset "random generation" begin
