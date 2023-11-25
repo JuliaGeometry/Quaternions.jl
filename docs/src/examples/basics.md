@@ -80,7 +80,7 @@ islipschitz(q2)
 islipschitz(q1 + q2)
 islipschitz(q1 * q2)
 islipschitz(q1 / q2)  # Division is not defined on L.
-q1 * q2 == q2 * q1  # non-commucative
+q1 * q2 == q2 * q1  # non-commutative
 ```
 
 ### Hurwitz quaternions
