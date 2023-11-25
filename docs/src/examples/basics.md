@@ -32,7 +32,7 @@ q2 \ q1  # Same as `inv(q2)*q1` mathematically.
 
 A conjugate of a quaternion can be calculated with [`Base.conj`](@ref).
 But `Base.imag(::Quaternion)` is not defined because it should return three real values which is not consistent with `imag(::Complex)` and `imag(::Real)`.
-Instead, [`imag_part`](@ref) function can be used to obtain the imaginary part of a quaternion.
+Instead, the [`imag_part`](@ref) function can be used to obtain the imaginary part of a quaternion.
 See [issue#61](https://github.com/JuliaGeometry/Quaternions.jl/issues/61) for more discussion.
 
 ```@repl intro
