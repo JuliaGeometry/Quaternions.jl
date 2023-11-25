@@ -61,11 +61,18 @@ end
         @test Quaternion(1, 2, 3, 4) != 1
         @test Quaternion(1, 0, 0, 0) == 1
         @test Quaternion(1, 0, 0, 0) != 0
+        @test 1 != Quaternion(1, 2, 3, 4)
+        @test 1 == Quaternion(1, 0, 0, 0)
+        @test 0 != Quaternion(1, 0, 0, 0)
 
         @test Quaternion(1, 0, 0, 0) == Complex(1, 0)
         @test Quaternion(1, 0, 0, 0) != Complex(1, 1)
         @test Quaternion(1, 0, 0, 0) != Complex(0, 1)
         @test Quaternion(0, 1, 0, 0) != Complex(0, 1)
+        @test Complex(1, 0) == Quaternion(1, 0, 0, 0)
+        @test Complex(1, 1) != Quaternion(1, 0, 0, 0)
+        @test Complex(0, 1) != Quaternion(1, 0, 0, 0)
+        @test Complex(0, 1) != Quaternion(0, 1, 0, 0)
     end
 
     @testset "isequal" begin
