@@ -57,6 +57,15 @@ end
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 5, 3, 4)
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 5, 4)
         @test Quaternion(1, 2, 3, 4) != Quaternion(1, 2, 3, 5)
+
+        @test Quaternion(1, 2, 3, 4) != 1
+        @test Quaternion(1, 0, 0, 0) == 1
+        @test Quaternion(1, 0, 0, 0) != 0
+
+        @test Quaternion(1, 0, 0, 0) == Complex(1, 0)
+        @test Quaternion(1, 0, 0, 0) != Complex(1, 1)
+        @test Quaternion(1, 0, 0, 0) != Complex(0, 1)
+        @test Quaternion(0, 1, 0, 0) != Complex(0, 1)
     end
 
     @testset "isequal" begin
@@ -83,8 +92,6 @@ end
             (Quaternion(1.0, 2, 3, 4), Quaternion(2.0))
         @test promote(Quaternion(1.0f0), Quaternion(2.0)) ===
             (Quaternion(1.0), Quaternion(2.0))
-
-        @test Quaternion(1) == 1.0
     end
 
     @testset "shorthands" begin
