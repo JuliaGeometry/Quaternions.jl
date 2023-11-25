@@ -65,7 +65,7 @@ end
 """
     quat(T::Type)
 
-Return an appropriate type which can represent a value of type `T` as a quaternion.
+Return an appropriate type that can represent a value of type `T` as a quaternion.
 Equivalent to `typeof(quat(zero(T)))`.
 
 # Examples
