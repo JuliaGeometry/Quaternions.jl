@@ -118,7 +118,7 @@ Note that `Base.Complex` has the same type parameter restriction, and [bicomplex
 See [issue#79](https://github.com/JuliaGeometry/Quaternions.jl/issues/79) for more discussion.
 
 ## Compatibility with `Complex`
-There are no natural embedding ``\mathbb{C}\to\mathbb{H}``.
+There is no natural embedding ``\mathbb{C}\to\mathbb{H}``.
 Thus, `quat(w,x,0,0)` is not equal to `complex(w,x)`, i.e.
 
 ```math
