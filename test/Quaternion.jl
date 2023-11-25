@@ -97,6 +97,8 @@ end
 
         @test quat(Int) === Quaternion{Int}
         @test quat(Float32) === Quaternion{Float32}
+        @test quat(Quaternion{Int}) === Quaternion{Int}
+        @test quat(Quaternion{Float32}) === Quaternion{Float32}
 
         # Note that `quat(1,missing,0,0)` throws an error.
         # This is the same behavior as `complex(1,missing)`.
