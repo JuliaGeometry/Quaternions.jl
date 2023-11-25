@@ -18,8 +18,9 @@ pkg> add Quaternions
 
 ```@repl
 using Quaternions
-q = quat(0.0, 0.0, 0.0, 1.0)
-r = quat(0, 0, 1, 0)
-q*r
-q+r
+k = quat(0, 0, 0, 1)
+j = quat(0, 0, 1, 0)
+i = j*k
+i^2 == j^2 == k^2 == i*j*k == -1 # Similar to `im^2`.
+1 + i + k + j  # Compatible with arithmetic operations as a `Number`.
 ```

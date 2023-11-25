@@ -11,4 +11,27 @@ A Julia implementation of quaternions.
 as representations of 3D rotational orientation.
 They can also be viewed as an extension of complex numbers.
 
+## First example
+
+```julia
+julia> using Quaternions
+
+julia> k = quat(0, 0, 0, 1)
+Quaternion{Int64}(0, 0, 0, 1)
+
+julia> j = quat(0, 0, 1, 0)
+Quaternion{Int64}(0, 0, 1, 0)
+
+julia> i = j*k
+Quaternion{Int64}(0, 1, 0, 0)
+
+julia> i^2 == j^2 == k^2 == i*j*k == -1 # Similar to `im^2`.
+true
+
+julia> 1 + i + k + j  # Compatible with arithmetic operations as a `Number`.
+Quaternion{Int64}(1, 1, 1, 1)
+```
+
+Check out [the docs](https://juliageometry.github.io/Quaternions.jl) for further instructions.
+
 In JuliaGeometry organization, there is also [Octonions.jl](https://github.com/JuliaGeometry/Octonions.jl) package.
