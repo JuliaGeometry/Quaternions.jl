@@ -84,7 +84,7 @@ q1 * q2 == q2 * q1  # non-commucative
 ```
 
 ### Hurwitz quaternions
-If all coefficients of a quaternion are integers or half-integers, the quaternion is called [**Hurwitz quaternion**](https://en.wikipedia.org/wiki/Hurwitz_quaternion).
+If all coefficients of a quaternion are integers or half-integers, the quaternion is called a [**Hurwitz quaternion**](https://en.wikipedia.org/wiki/Hurwitz_quaternion).
 The set of Hurwitz quaternions is defined by
 
 ```math
