@@ -47,7 +47,7 @@ julia> quat([1, 2, 3])
  Quaternion{Int64}(3, 0, 0, 0)
 ```
 """
-function quat end
+quat
 
 quat(q::Quaternion) = q
 quat(s::Real) = Quaternion(s)
