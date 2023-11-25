@@ -41,6 +41,15 @@ imag(q1)  # Not supported.
 imag_part(q1)  # Use this instead.
 ```
 
+Unit quaternions can be obtained with [`sign`](@ref).
+
+```@repl intro
+sign(q1)
+sign(q2)
+sign(q3)
+sign(quat(0))  # Zero-quaternion will not be normalized.
+```
+
 ## `Quaternion` vs `quat`
 The general rule is that [`quat`](@ref) is to [`Quaternion`](@ref) as [`complex`](https://docs.julialang.org/en/v1/base/numbers/#Base.complex-Tuple{Complex}) is to [`Complex`](https://docs.julialang.org/en/v1/base/numbers/#Base.Complex).
 `Complex` and `Quaternion` are both constructors so should return an object of the corresponding type, whereas `quat` and `complex` both can operate on types and arrays.
