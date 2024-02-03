@@ -68,11 +68,11 @@ end
 
     @testset "hash" begin
         # https://github.com/JuliaGeometry/Quaternions.jl/issues/135
-        @test hash(0) == hash(quat(0)) == hash(0.0) == hash(quat(0.0))
-        @test hash(1) == hash(quat(1)) == hash(1.0) == hash(quat(1.0))
+        @test hash(0) === hash(quat(0)) === hash(0.0) === hash(quat(0.0))
+        @test hash(1) === hash(quat(1)) === hash(1.0) === hash(quat(1.0))
         @test hash(quat(-0.0)) ≠ hash(quat(+0.0))
         @test allunique([hash(quat(1,0,0,0)), hash(quat(0,1,0,0)), hash(quat(0,0,1,0)), hash(quat(0,0,0,1))])
-        @test hash(57, UInt(42)) == hash(quat(57), UInt(42))
+        @test hash(57, UInt(42)) === hash(quat(57), UInt(42))
         @test length(unique(Quaternion[quat(2), quat(big"2")])) == 1
     end
 
