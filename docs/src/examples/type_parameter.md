@@ -40,6 +40,7 @@ using HalfIntegers
 q1 = Quaternion{HalfInt}(1, 2, 3, 4)
 q2 = Quaternion{HalfInt}(5.5, 6.5, 7.5, 8.5)
 q3 = Quaternion{HalfInt}(1, 2, 3, 4.5)  # not Hurwitz quaternion
+ishalfodd(x::Number) = isodd(twice(x))  # Should be defined in HalfIntegers.jl (HalfIntegers.jl#59)
 ishurwitz(q::Quaternion) = (isinteger(q.s) & isinteger(q.v1) & isinteger(q.v2) & isinteger(q.v3)) | (ishalfodd(q.s) & ishalfodd(q.v1) & ishalfodd(q.v2) & ishalfodd(q.v3))
 ishurwitz(q1)
 ishurwitz(q2)
