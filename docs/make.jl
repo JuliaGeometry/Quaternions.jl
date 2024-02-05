@@ -1,5 +1,6 @@
 using Quaternions
 using Documenter
+using HalfIntegers
 
 DocMeta.setdocmeta!(Quaternions, :DocTestSetup, :(using Quaternions); recursive=true)
 
@@ -17,6 +18,8 @@ makedocs(;
         "Home" => "index.md",
         "APIs" => "api.md",
         "Examples" => [
+            "examples/basics.md",
+            "examples/type_parameter.md",
             "examples/rotations.md",
             "examples/dual_quaternions.md"
         ],
