@@ -288,6 +288,17 @@ function Base.isequal(q::Quaternion, w::Quaternion)
     isequal(q.s, w.s) & isequal(q.v1, w.v1) & isequal(q.v2, w.v2) & isequal(q.v3, w.v3)
 end
 
+if UInt === UInt64
+    const h_imags = 0xfa29df508725c1bf, 0x5e6c4b26a400626d, 0x8dfd375bac9f9403
+else
+    const h_imags = 0x62802719, 0x5a9b072e, 0x209019b1
+end
+const hash_0_imags = hash.(0, h_imags)
+
+function Base.hash(z::Quaternion, h::UInt)
+    hash(real(z), h ⊻ xor(xor.(hash.(imag_part(z), h_imags), hash_0_imags)...))
+end
+
 """
     extend_analytic(f, q::Quaternion)
 
