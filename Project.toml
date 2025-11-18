@@ -1,6 +1,6 @@
 name = "Quaternions"
 uuid = "94ee1d12-ae83-5a48-8b1c-48b8ff168ae0"
-version = "0.7.6"
+version = "0.7.7"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -8,8 +8,11 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RealDot = "c1ae055f-0cd5-4b69-90a6-9a35b1a98df9"
 
 [compat]
-Aqua = "0.7"
+Aqua = "0.8.13"
+LinearAlgebra = "<0.0.1, 1"
+Random = "<0.0.1, 1"
 RealDot = "0.1"
+Test = "<0.0.1, 1"
 julia = "1"
 
 [extras]
